@@ -1,14 +1,16 @@
 package com.smh.InteractiveArticlePlatformWebService.user;
 
+import com.smh.InteractiveArticlePlatformWebService.user.information.Information;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@SpringBootTest
 class UserServiceImplTest {
 
     @Autowired
@@ -24,27 +26,27 @@ class UserServiceImplTest {
         user.setUsername("username");
         user.setEmail("email");
         user.setPassword("password");
-
-        assertEquals(user,userService.save(user));
+        user.setInformation(new Information());
+        assertNotNull(userService.save(user));
 
     }
 
     @Test
     @Order(1)
     void findById(){
-        assertEquals(user,userService.findById(user.getId()));
+        assertNotNull(userService.findById(user.getId()));
     }
 
     @Test
     @Order(1)
     void findByUsername(){
-        assertEquals(user,userService.findByUsername(user.getUsername()));
+        assertNotNull(userService.findByUsername(user.getUsername()));
     }
 
     @Test
     @Order(1)
     void findByEmail(){
-        assertEquals(user,userService.findByEmail(user.getEmail()));
+        assertNotNull(userService.findByEmail(user.getEmail()));
     }
 
     @Test
