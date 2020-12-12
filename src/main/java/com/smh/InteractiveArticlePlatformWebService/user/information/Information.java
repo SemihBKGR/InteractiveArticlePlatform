@@ -1,9 +1,10 @@
 package com.smh.InteractiveArticlePlatformWebService.user.information;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -13,6 +14,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @Entity
 @Table(name="information")
+@EntityListeners(AuditingEntityListener.class)
 public class Information {
 
     @Id
@@ -45,7 +47,8 @@ public class Information {
     @Column(name="birthday")
     private Date birthday;
 
-    @Column(name="created_at")
-    private Date created_at;
+    @CreatedDate
+    @Column(name="created_at",nullable = false,updatable = false)
+    private long created_at;
 
 }

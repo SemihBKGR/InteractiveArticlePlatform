@@ -20,6 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+        System.out.println("-----------------");
         User user=userService.findByUsername(s);
         if(user==null){
             throw new UsernameNotFoundException("No user with username '"+s+"'");
