@@ -39,9 +39,6 @@ class ArticleServiceImplTest {
         article.setOwner(user);
         article.set_private(false);
         article.set_released(false);
-        article.setCreated_at(new Date(System.currentTimeMillis()));
-        article.setUpdate_at(null);
-
         userService.save(user);
 
         assertNotNull(articleService.save(article));
@@ -61,7 +58,7 @@ class ArticleServiceImplTest {
     @Order(2)
     void deleteById() {
 
-        articleService.deleteById(article.getId());
+        articleService.delete(article);
         assertTrue(true);
 
     }

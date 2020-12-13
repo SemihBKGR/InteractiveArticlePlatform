@@ -16,7 +16,7 @@ public class SuperficialArticle {
     private String title;
     private boolean is_released;
     private boolean is_private;
-    private Date created_at;
-    private Timestamp updated_at;
+    private long created_at;
+    private long updated_at;
 
 }

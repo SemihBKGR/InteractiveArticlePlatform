@@ -51,8 +51,8 @@ class UserServiceImplTest {
 
     @Test
     @Order(2)
-    void deleteById(){
-        userService.deleteById(user.getId());
+    void delete(){
+        userService.delete(user);
         assertTrue(true);
     }
 

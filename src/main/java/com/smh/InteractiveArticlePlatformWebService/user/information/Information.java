@@ -1,5 +1,6 @@
 package com.smh.InteractiveArticlePlatformWebService.user.information;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -7,15 +8,17 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Date;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 @Entity
 @Table(name="information")
 @EntityListeners(AuditingEntityListener.class)
-public class Information {
+public class Information implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

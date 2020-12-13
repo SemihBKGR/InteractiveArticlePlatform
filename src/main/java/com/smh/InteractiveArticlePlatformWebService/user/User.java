@@ -6,24 +6,23 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.smh.InteractiveArticlePlatformWebService.article.Article;
 import com.smh.InteractiveArticlePlatformWebService.serialization.ArticleSerializer;
 import com.smh.InteractiveArticlePlatformWebService.user.information.Information;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 @Table(name = "users")
 @Entity
-public class User {
+public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name= "id", nullable = false, unique = true)
+    @Column(name= "id")
     private int id;
 
     @Column(name="username", nullable = false, unique = true)

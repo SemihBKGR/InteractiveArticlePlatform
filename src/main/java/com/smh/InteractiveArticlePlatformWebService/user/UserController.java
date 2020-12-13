@@ -11,7 +11,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/id/{id}")
+    @PostMapping("/id/{id}")
     public ApiResponse<User> getUserById(@PathVariable("id") int id){
         return ApiResponse.createConditionalApiResponse(
                 userService.findById(id),
@@ -20,7 +20,7 @@ public class UserController {
 
     }
 
-    @GetMapping("/username/{username}")
+    @PostMapping("/username/{username}")
     public ApiResponse<User> getUserByUsername(@PathVariable("username")String username){
 
         return ApiResponse.createConditionalApiResponse(
@@ -30,7 +30,7 @@ public class UserController {
 
     }
 
-    @GetMapping("/email/{email}")
+    @PostMapping("/email/{email}")
     public ApiResponse<User> getUserByByEmail(@PathVariable("email") String email){
 
         return ApiResponse.createConditionalApiResponse(

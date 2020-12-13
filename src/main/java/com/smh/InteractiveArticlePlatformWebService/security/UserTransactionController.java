@@ -30,10 +30,10 @@ public class UserTransactionController {
         User user=userService.findByUsername(userLoginDto.getUsername());
 
         if(user!=null){
-            if(passwordEncoder.matches(user.getPassword(),userLoginDto.getPassword())){
+            if(passwordEncoder.matches(userLoginDto.getPassword(),user.getPassword())){
                 KeyValue keyValue=new KeyValue();
                 keyValue.setKey("Authorization");
-                keyValue.setValue("Basic "+ generateBase64Encode(userLoginDto.getUsername(),userLoginDto.getPassword()));
+                keyValue.setValue("Basic "+ generateBase64Encode(userLoginDto.getUsername(),".",userLoginDto.getPassword()));
                 return ApiResponse.createApiResponse(keyValue,"Login control is successful");
             }
             return ApiResponse.createApiResponse(null,"No user found with given password");
