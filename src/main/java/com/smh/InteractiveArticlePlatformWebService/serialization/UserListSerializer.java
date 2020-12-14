@@ -7,26 +7,30 @@ import com.smh.InteractiveArticlePlatformWebService.serialization.object.Superfi
 import com.smh.InteractiveArticlePlatformWebService.user.User;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-public class UserSerializer extends StdSerializer<User> {
+public class UserListSerializer extends StdSerializer<List<User>> {
 
-    public UserSerializer(){
+    public UserListSerializer(){
         this(null);
     }
 
-    public UserSerializer(Class<User> t) {
+    protected UserListSerializer(Class<List<User>> t) {
         super(t);
     }
 
     @Override
-    public void serialize(User user,
+    public void serialize(List<User> users,
                           JsonGenerator jsonGenerator,
                           SerializerProvider serializerProvider) throws IOException {
 
-        jsonGenerator.writeObject(new SuperficialUser(user));
+        List<SuperficialUser> userObjectList=new ArrayList<>();
+        for(User user:users){
+            userObjectList.add(new SuperficialUser(user));
+        }
+        jsonGenerator.writeObject(userObjectList);
 
     }
-
 
 }

@@ -1,4 +1,4 @@
-package com.smh.InteractiveArticlePlatformWebService.article.dto;
+package com.smh.InteractiveArticlePlatformWebService.article;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

@@ -47,6 +47,13 @@ public class ApiResponse <T> {
         return response;
     }
 
+    public static <T> ApiResponse<T> createApiResponse(T data,String message,boolean confirmed){
+        ApiResponse<T> response=createApiResponse(data);
+        response.message=message;
+        response.confirmed=confirmed;
+        return response;
+    }
+
     public static <T> ApiResponse<T> createConditionalApiResponse
             (T data, String affirmativeMessage,String negativeMessage){
         return data!=null?createApiResponse(data,affirmativeMessage):createApiResponse(data,negativeMessage);

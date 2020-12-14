@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.smh.InteractiveArticlePlatformWebService.article.Article;
-import com.smh.InteractiveArticlePlatformWebService.serialization.ArticleSerializer;
+import com.smh.InteractiveArticlePlatformWebService.serialization.ArticleListSerializer;
 import com.smh.InteractiveArticlePlatformWebService.user.information.Information;
 import lombok.*;
 
@@ -41,13 +41,13 @@ public class User implements Serializable {
 
     //TODO Set cascade type
     //TODO Change information fetch type to lazy.
-    @JsonSerialize(using = ArticleSerializer.class)
+    @JsonSerialize(using = ArticleListSerializer.class)
     @ManyToMany(mappedBy = "contributors",fetch = FetchType.EAGER)
     private List<Article> contributor_article;
 
     //TODO Set cascade type
     //TODO Change information fetch type to lazy.
-    @JsonSerialize(using = ArticleSerializer.class)
+    @JsonSerialize(using = ArticleListSerializer.class)
     @OneToMany( mappedBy = "owner",fetch = FetchType.EAGER)
     private List<Article> ownArticles;
 

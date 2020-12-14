@@ -18,9 +18,9 @@ public class ChatSessionRepositoryImpl implements ChatSessionRepository {
 
     private HashOperations<String,String,ChatSession> hashOperations;
 
-    @Lazy
     @Autowired
-    public ChatSessionRepositoryImpl(){
+    public ChatSessionRepositoryImpl( RedisTemplate<String,Object> redisTemplate){
+        this.redisTemplate=redisTemplate;
         this.hashOperations=redisTemplate.opsForHash();
     }
 
