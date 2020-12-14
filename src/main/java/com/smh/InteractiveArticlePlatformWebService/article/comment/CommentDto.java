@@ -2,6 +2,7 @@ package com.smh.InteractiveArticlePlatformWebService.article.comment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -45,7 +45,7 @@ public class CommentController {
 
     }
 
-    @PostMapping("/article/{id}")
+    @PostMapping("/get/article/{id}")
     public ApiResponse<List<Comment>> getCommentByArticle(@PathVariable("id") int id){
 
         Article article=articleService.findById(id);
@@ -54,7 +54,7 @@ public class CommentController {
 
     }
 
-    @PostMapping("/me")
+    @PostMapping("/get/me")
     public ApiResponse<List<Comment>> getCommentByUser(){
 
         User user=userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());

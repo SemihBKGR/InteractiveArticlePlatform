@@ -1,5 +1,7 @@
 package com.smh.InteractiveArticlePlatformWebService.article.rate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smh.InteractiveArticlePlatformWebService.article.Article;
 import com.smh.InteractiveArticlePlatformWebService.user.User;
 import lombok.Getter;
@@ -15,20 +17,21 @@ import javax.persistence.*;
 @Entity
 public class Rate {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
-    private int id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id",nullable = false)
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "article_id",nullable = false)
-    private Article article;
+    @EmbeddedId
+    private RateCompositeId id;
 
     @Column(name="point")
     private int point;
+
+    @JsonIgnore
+    public RateCompositeId getId() {
+        return id;
+    }
+
+    @JsonProperty
+    public void setId(RateCompositeId id) {
+        this.id = id;
+    }
+
 
 }

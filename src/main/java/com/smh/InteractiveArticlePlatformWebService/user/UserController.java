@@ -2,7 +2,10 @@ package com.smh.InteractiveArticlePlatformWebService.user;
 
 import com.smh.InteractiveArticlePlatformWebService.util.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/user")
@@ -11,7 +14,16 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/id/{id}")
+    @PostMapping("/get/me")
+    public ApiResponse<User> getUserMe(){
+
+        User user=userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        Objects.requireNonNull(user);
+        return ApiResponse.createApiResponse(user,"Me found");
+
+    }
+
+    @PostMapping("/get/id/{id}")
     public ApiResponse<User> getUserById(@PathVariable("id") int id){
         return ApiResponse.createConditionalApiResponse(
                 userService.findById(id),
@@ -20,7 +32,7 @@ public class UserController {
 
     }
 
-    @PostMapping("/username/{username}")
+    @PostMapping("/get/username/{username}")
     public ApiResponse<User> getUserByUsername(@PathVariable("username")String username){
 
         return ApiResponse.createConditionalApiResponse(
@@ -30,7 +42,7 @@ public class UserController {
 
     }
 
-    @PostMapping("/email/{email}")
+    @PostMapping("/get/email/{email}")
     public ApiResponse<User> getUserByByEmail(@PathVariable("email") String email){
 
         return ApiResponse.createConditionalApiResponse(
