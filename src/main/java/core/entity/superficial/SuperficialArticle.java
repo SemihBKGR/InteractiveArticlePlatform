@@ -1,16 +1,12 @@
-package core.entity;
+package core.entity.superficial;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import core.entity.superficial.SuperficialUser;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 @JsonFormat
-public class Article {
+public class SuperficialArticle {
 
     @JsonProperty(required = true)
     private int id;
@@ -28,12 +24,6 @@ public class Article {
     private long created_at;
 
     @JsonProperty
-    private long update_at;
-
-    @JsonProperty
-    private SuperficialUser owner;
-
-    @JsonProperty
-    private List<SuperficialUser> contributors;
+    private long updated_at;
 
 }

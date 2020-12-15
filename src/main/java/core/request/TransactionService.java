@@ -28,13 +28,12 @@ public class TransactionService implements Closeable {
 
     private static final String BASE_URL="http://localhost:8080";
     private static final String LOGIN_URL=BASE_URL+"/loginControl";
-    private static final String REGISTER_URL="/register";
+    private static final String REGISTER_URL=BASE_URL+"/register";
 
     private KeyValue authorizationHeader;
 
     private final CloseableHttpClient httpClient;
     private final ObjectMapper objectMapper;
-
 
     public TransactionService(DataPolicy dataPolicy) {
         authorizationHeader = null;
@@ -76,22 +75,40 @@ public class TransactionService implements Closeable {
                 EntityUtils.toString(response.getEntity()),
                 new TypeReference<ApiResponse<KeyValue>>(){});
 
-        log.info("Logged in");
-
         response.close();
 
         authorizationHeader=result.getData();
+
+        log.info("Logged in");
 
         return result;
 
     }
 
-    public ApiResponse<User> register(RegisterDto registerDto){
+    public ApiResponse<User> register(RegisterDto registerDto) throws IOException {
+
         if(authorizationHeader!=null){
             throw new IllegalStateException("There is account already logged in.");
         }
+
+        StringEntity entity=new StringEntity(
+                objectMapper.writeValueAsString(registerDto),
+                ContentType.APPLICATION_JSON);
+
+        HttpPost httpPost=new HttpPost(REGISTER_URL);
+        httpPost.setEntity(entity);
+
+        CloseableHttpResponse response=httpClient.execute(httpPost);
+
+        ApiResponse<User> result=objectMapper.readValue(
+                EntityUtils.toString(response.getEntity()),
+                new TypeReference<ApiResponse<User>>(){});
+
+        response.close();
+
         log.info("Registered.");
-        return null;
+
+        return result;
     }
 
     public void logout(){

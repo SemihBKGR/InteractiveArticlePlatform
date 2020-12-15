@@ -1,7 +1,9 @@
 package core;
 
 
+import core.entity.User;
 import core.entity.dto.LoginDto;
+import core.entity.dto.RegisterDto;
 import core.request.TransactionService;
 import core.util.ApiResponse;
 import core.util.DataListener;
@@ -68,12 +70,14 @@ public class DataHandler {
     }
 
     public ApiResponse<KeyValue> login(String username,String password) throws IOException {
+
         Objects.requireNonNull(username);
         Objects.requireNonNull(password);
-        LoginDto loginDto=new LoginDto();
-        loginDto.setUsername(username);
-        loginDto.setPassword(password);
+
+        LoginDto loginDto=new LoginDto(username,password);
+
         return login(loginDto);
+
     }
 
     public void loginAsync(LoginDto loginDto, DataListener<KeyValue> listener){
@@ -85,15 +89,15 @@ public class DataHandler {
             try {
                 return login(loginDto);
             } catch (IOException e) {
-                listener.onException(e);
                 throw new RuntimeException(e.getMessage());
             }
-        },executorService).exceptionally(throwable -> {
+        },executorService).thenAcceptAsync(listener::onResult,executorService)
+        .handleAsync((userApiResponse,throwable) -> {
             listener.onException(throwable);
             ApiResponse<KeyValue> response=new ApiResponse<>();
             response.setMessage("Exception occurred");
             return response;
-        }).thenAcceptAsync(listener::onResult);
+        },executorService).thenAcceptAsync(listener::onResult,executorService);
 
     }
 
@@ -103,9 +107,7 @@ public class DataHandler {
         Objects.requireNonNull(password);
         Objects.requireNonNull(listener);
 
-        LoginDto loginDto=new LoginDto();
-        loginDto.setUsername(username);
-        loginDto.setPassword(password);
+        LoginDto loginDto=new LoginDto(username,password);
 
         loginAsync(loginDto,listener);
 
@@ -115,7 +117,50 @@ public class DataHandler {
         transactionService.logout();
     }
 
-    public void register(){
+    public ApiResponse<User> register(RegisterDto registerDto) throws IOException {
+        Objects.requireNonNull(registerDto);
+        return transactionService.register(registerDto);
+    }
+
+    public ApiResponse<User> register(String username,String email,String password) throws IOException {
+
+        Objects.requireNonNull(username);
+        Objects.requireNonNull(email);
+        Objects.requireNonNull(password);
+
+        RegisterDto registerDto=new RegisterDto(username,email,password);
+
+        return register(registerDto);
+
+    }
+
+    public void registerAsync (RegisterDto registerDto,DataListener<User> listener){
+
+        CompletableFuture.supplyAsync(()->{
+            try {
+                return transactionService.register(registerDto);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        },executorService).thenAcceptAsync(listener::onResult,executorService)
+        .handleAsync((userApiResponse, throwable) -> {
+            listener.onException(throwable);
+            ApiResponse<User> response=new ApiResponse<>();
+            response.setMessage("Exception occurred");
+            return response;
+        },executorService).thenAcceptAsync(listener::onResult,executorService);
+
+    }
+
+    public void registerAsync (String username,String email,String password,DataListener<User> listener) throws IOException {
+
+        Objects.requireNonNull(username);
+        Objects.requireNonNull(email);
+        Objects.requireNonNull(password);
+
+        RegisterDto registerDto=new RegisterDto(username,email,password);
+
+        registerAsync(registerDto,listener);
 
     }
 
