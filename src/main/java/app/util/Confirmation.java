@@ -4,13 +4,15 @@ import java.util.regex.Pattern;
 
 public class Confirmation {
 
-    private final static String USERNAME_REGEX_PATTERN="[a-zA-Z0-9_.-]";
+    private final static String USERNAME_REGEX_PATTERN="[a-zA-Z0-9_.-]{0,}";
     private final static int USERNAME_MIN_LENGTH=5;
     private final static int USERNAME_MAX_LENGTH=25;
 
-    private final static String PASSWORD_REGEX_PATTERN="[a-zA-Z0-9_.-]";
+    private final static String PASSWORD_REGEX_PATTERN="[a-zA-Z0-9_.-]{0,}";
     private final static int PASSWORD_MIN_LENGTH=7;
     private final static int PASSWORD_MAX_LENGTH=27;
+
+    private final static String EMAIL_REGEX_PATTERN="^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
 
     public static class ConfirmationMessage{
 
@@ -63,7 +65,7 @@ public class Confirmation {
         }
 
         if(username.length()< USERNAME_MIN_LENGTH || username.length()>USERNAME_MAX_LENGTH){
-            confirmationMessage.addMessage("* Must be between"+USERNAME_MIN_LENGTH+"-"+USERNAME_MAX_LENGTH);
+            confirmationMessage.addMessage("* Must be between "+USERNAME_MIN_LENGTH+"-"+USERNAME_MAX_LENGTH);
             confirmationMessage.setConfirmed(false);
         }
 
@@ -84,6 +86,21 @@ public class Confirmation {
 
         if(password.length()< USERNAME_MIN_LENGTH || password.length()>USERNAME_MAX_LENGTH){
             confirmationMessage.addMessage("* Must be between"+PASSWORD_MIN_LENGTH+"-"+PASSWORD_MAX_LENGTH);
+            confirmationMessage.setConfirmed(false);
+        }
+
+        return confirmationMessage;
+
+    }
+
+    public static ConfirmationMessage emailConfirmation(String email){
+
+        ConfirmationMessage confirmationMessage=new ConfirmationMessage(true);
+
+        Pattern pattern=Pattern.compile(EMAIL_REGEX_PATTERN);
+
+        if(!pattern.matcher(email).matches()){
+            confirmationMessage.addMessage("* Not email");
             confirmationMessage.setConfirmed(false);
         }
 

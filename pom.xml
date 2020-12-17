@@ -15,4 +15,13 @@
     </properties>
 
 
+    <dependencies>
+        <dependency>
+            <groupId>org.smh</groupId>
+            <artifactId>InteractiveArticlePlatformApi</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+
 </project>

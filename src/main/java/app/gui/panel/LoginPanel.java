@@ -3,6 +3,7 @@ package app.gui.panel;
 import com.bulenkov.darcula.DarculaLaf;
 
 import javax.swing.*;
+import javax.swing.text.DefaultHighlighter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -20,10 +21,37 @@ public class LoginPanel {
     private JLabel usernameWarnLabel;
     private JButton registerButton;
     private JLabel loginInfoLabel;
+    private JCheckBox rememberMeCheckBox;
 
     public JPanel getPanel() {
         return panel;
     }
+
+    public void addMouseListeners(){
+
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                panel.requestFocusInWindow();
+            }
+        });
+
+        usernameLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                usernameField.requestFocusInWindow();
+            }
+        });
+
+        passwordLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                passwordField.requestFocusInWindow();
+            }
+        });
+
+    }
+
 
     public JLabel getUsernameLabel() {
         return usernameLabel;
@@ -63,6 +91,10 @@ public class LoginPanel {
 
     public JLabel getLoginInfoLabel() {
         return loginInfoLabel;
+    }
+
+    public JCheckBox getRememberMeCheckBox() {
+        return rememberMeCheckBox;
     }
 
 }

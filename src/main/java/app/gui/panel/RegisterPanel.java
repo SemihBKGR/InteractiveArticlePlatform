@@ -1,6 +1,8 @@
 package app.gui.panel;
 
 import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class RegisterPanel{
 
@@ -18,9 +20,42 @@ public class RegisterPanel{
     private JButton registerButton;
     private JLabel registerInfoLabel;
     private JButton loginButton;
+    private JCheckBox policyCheckBox;
 
     public JPanel getPanel() {
         return panel;
+    }
+
+    public void addMouseListeners(){
+
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                panel.requestFocusInWindow();
+            }
+        });
+
+        usernameLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                usernameField.requestFocusInWindow();
+            }
+        });
+
+        emailLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                emailField.requestFocusInWindow();
+            }
+        });
+
+        passwordLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                passwordField.requestFocusInWindow();
+            }
+        });
+
     }
 
     public JTextField getUsernameField() {
@@ -74,4 +109,9 @@ public class RegisterPanel{
     public JButton getLoginButton() {
         return loginButton;
     }
+
+    public JCheckBox getPolicyCheckBox() {
+        return policyCheckBox;
+    }
+
 }
