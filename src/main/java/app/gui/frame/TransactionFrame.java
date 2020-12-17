@@ -2,9 +2,7 @@ package app.gui.frame;
 
 import app.gui.panel.LoginPanel;
 import app.gui.panel.RegisterPanel;
-import app.util.Confirmation;
-import app.util.HtmlParse;
-import app.util.Resources;
+import app.util.*;
 import core.DataHandler;
 import core.entity.User;
 import core.util.ApiResponse;
@@ -13,9 +11,12 @@ import core.util.KeyValue;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -57,11 +58,11 @@ public class TransactionFrame extends JFrame{
         centerPanel.add(registerPanel.getPanel(),"register");
 
         addComponentListener();
+        setComponentStateRegardingSetting();
 
     }
 
     private void addComponentListener() {
-
 
         loginPanel.getLoginButton().addMouseListener(new MouseAdapter() {
             @Override
@@ -78,6 +79,14 @@ public class TransactionFrame extends JFrame{
             @Override
             public void mouseClicked(MouseEvent e) {
                 ((CardLayout)centerPanel.getLayout()).show(centerPanel,"register");
+            }
+        });
+
+        loginPanel.getRememberMeCheckBox().addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Settings.setSetting(Settings.REMEMBER_ME,
+                        loginPanel.getRememberMeCheckBox().isSelected());
             }
         });
 
@@ -98,6 +107,21 @@ public class TransactionFrame extends JFrame{
                 ((CardLayout)centerPanel.getLayout()).show(centerPanel,"login");
             }
         });
+
+    }
+
+    private void setComponentStateRegardingSetting(){
+
+        boolean rememberme= TypeConverts.toBoolean
+                (Settings.getSetting(Settings.REMEMBER_ME));
+
+        loginPanel.getRememberMeCheckBox().setSelected(rememberme);
+
+        if(rememberme){
+            loginPanel.getUsernameField().setText(TypeConverts.toString(Settings.getSetting(Settings.USERNAME)));
+            loginPanel.getPasswordField().setText(TypeConverts.toString(Settings.getSetting(Settings.PASSWORD)));
+        }
+
 
     }
 
@@ -152,6 +176,11 @@ public class TransactionFrame extends JFrame{
         }else{
             log.info("Login transaction could not bo started.");
             loginButtonClickable.set(true);
+        }
+
+        if(TypeConverts.toBoolean(Settings.getSetting(Settings.REMEMBER_ME))) {
+            Settings.setSetting(Settings.USERNAME, username);
+            Settings.setSetting(Settings.PASSWORD, new String(password));
         }
 
     }
