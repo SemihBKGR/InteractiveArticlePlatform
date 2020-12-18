@@ -152,7 +152,7 @@ public class DataHandler {
 
     }
 
-    public void registerAsync (String username,String email,String password,DataListener<User> listener) throws IOException {
+    public void registerAsync (String username,String email,String password,DataListener<User> listener) {
 
         Objects.requireNonNull(username);
         Objects.requireNonNull(email);
@@ -163,5 +163,19 @@ public class DataHandler {
         registerAsync(registerDto,listener);
 
     }
+
+    public ApiResponse<User> getMe(){
+
+        ApiResponse<User> response=new ApiResponse<>();
+
+    }
+
+    public void getMeAsync(){
+
+
+    }
+
+
+
 
 }

@@ -23,10 +23,11 @@ import org.apache.http.util.EntityUtils;
 import java.io.Closeable;
 import java.io.IOException;
 
+import static core.request.Contracts.BASE_URL;
+
 @Slf4j
 public class TransactionService implements Closeable {
 
-    private static final String BASE_URL="http://localhost:8080";
     private static final String LOGIN_URL=BASE_URL+"/loginControl";
     private static final String REGISTER_URL=BASE_URL+"/register";
 
@@ -109,6 +110,7 @@ public class TransactionService implements Closeable {
         log.info("Registered.");
 
         return result;
+
     }
 
     public void logout(){
