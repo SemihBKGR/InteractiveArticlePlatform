@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import core.entity.superficial.SuperficialUser;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 

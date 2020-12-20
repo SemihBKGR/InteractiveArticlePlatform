@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import core.entity.superficial.SuperficialArticle;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 

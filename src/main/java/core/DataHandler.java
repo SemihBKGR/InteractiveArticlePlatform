@@ -3,6 +3,7 @@ package core;
 
 import core.cache.CacheService;
 import core.entity.Article;
+import core.entity.Information;
 import core.entity.User;
 import core.entity.dto.LoginDto;
 import core.entity.dto.RegisterDto;
@@ -294,6 +295,31 @@ public class DataHandler implements Closeable {
             listener.onException(throwable);
             return null;
         });
+
+    }
+
+    public ApiResponse<Information> informationSave(Information information) throws IOException {
+        return requestService.saveInformation(information);
+    }
+
+    public void informationSaveAsync(Information information,DataListener<Information> listener){
+
+        Objects.requireNonNull(listener);
+
+        CompletableFuture.supplyAsync(()->{
+            listener.onStart();
+
+            try {
+                return requestService.saveInformation(information);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(),e.getCause());
+            }
+
+        },executorService).thenAccept(listener::onResult).exceptionally((throwable -> {
+            listener.onException(throwable);
+            return null;
+        }));
+
 
     }
 

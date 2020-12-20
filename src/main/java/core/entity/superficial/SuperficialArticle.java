@@ -14,10 +14,10 @@ public class SuperficialArticle {
     @JsonProperty(required = true)
     private String title;
 
-    @JsonProperty(required = true)
+    @JsonProperty(value="is_released",required = true)
     private boolean is_released;
 
-    @JsonProperty(required = true)
+    @JsonProperty(value="is_private",required = true)
     private boolean is_private;
 
     @JsonProperty(required = true)

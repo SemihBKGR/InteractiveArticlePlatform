@@ -17,7 +17,7 @@ public class Information {
     private String name;
 
     @JsonProperty
-    private String username;
+    private String surname;
 
     @JsonProperty
     private byte[] image;

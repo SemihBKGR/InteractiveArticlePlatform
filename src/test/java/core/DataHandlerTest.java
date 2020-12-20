@@ -1,16 +1,21 @@
 package core;
 
 import core.entity.Article;
+import core.entity.Information;
 import core.entity.User;
 import core.entity.dto.RegisterDto;
+import core.entity.superficial.SuperficialArticle;
 import core.request.RequestService;
 import core.util.ApiResponse;
 import core.util.DataListener;
 import core.util.KeyValue;
 import org.junit.jupiter.api.*;
 
+import javax.xml.crypto.Data;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -268,6 +273,7 @@ class DataHandlerTest{
     void getArticle(){
 
         DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
         int id=1;
 
         ApiResponse<Article> response=null;
@@ -290,6 +296,7 @@ class DataHandlerTest{
 
 
         DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
         int id=1;
 
         CountDownLatch countDownLatch=new CountDownLatch(1);
@@ -335,6 +342,35 @@ class DataHandlerTest{
             interruptedException.printStackTrace();
         }
 
+
+    }
+
+
+    @Test
+    @Order(5)
+    void saveInformation() {
+
+        DataHandler dataHandler= DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+
+        Information information=new Information();
+        information.setName("name");
+        information.setSurname("surname");
+        information.setAddress("address");
+        information.setCompany("company");
+        information.setBiography("biography");
+
+        ApiResponse<Information> response=null;
+
+        try {
+            response=dataHandler.informationSave(information);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+
+        assertNotNull(response.getData());
+        System.out.println(response);
 
     }
 
