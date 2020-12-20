@@ -1,20 +1,24 @@
 package core;
 
+import core.entity.Article;
 import core.entity.User;
 import core.entity.dto.RegisterDto;
+import core.request.RequestService;
 import core.util.ApiResponse;
 import core.util.DataListener;
 import core.util.KeyValue;
 import org.junit.jupiter.api.*;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class DataHandlerTest {
+class DataHandlerTest{
 
     @BeforeAll
     static void initialize(){
@@ -37,8 +41,6 @@ class DataHandlerTest {
 
         System.out.println(response);
 
-        DataHandler.getDataHandler().logout();
-
     }
 
 
@@ -52,6 +54,7 @@ class DataHandlerTest {
             @Override
             public void onException(Throwable e) {
                 e.printStackTrace();
+                fail();
             }
 
             @Override
@@ -68,8 +71,6 @@ class DataHandlerTest {
             interruptedException.printStackTrace();
         }
 
-        DataHandler.getDataHandler().logout();
-
     }
 
     @Test
@@ -79,9 +80,10 @@ class DataHandlerTest {
         ApiResponse<User> response=null;
 
         try {
-            response=DataHandler.getDataHandler().register(createRandomRegisterDto());
+            response=DataHandler.getDataHandler().register("username","email","password");
         } catch (IOException e) {
             e.printStackTrace();
+            fail();
         }
 
         assertNotNull(response);
@@ -91,29 +93,30 @@ class DataHandlerTest {
     }
 
     @Test
-    @Order(3)
+    @Order(1)
     void registerAsync(){
 
         CountDownLatch countDownLatch=new CountDownLatch(1);
 
-        DataHandler.getDataHandler().registerAsync(createRandomRegisterDto(), new DataListener<>() {
+        DataHandler.getDataHandler().registerAsync("username","email","password", new DataListener<>() {
 
             @Override
             public void onException(Throwable e) {
                 e.printStackTrace();
+                fail();
             }
 
             @Override
             public void onResult(ApiResponse<User> response) {
-                assertNotNull(response.getData());
                 System.out.println(response);
+                assertNotNull(response,()->{
+                    countDownLatch.countDown();
+                    return "Response is null";
+                });
                 countDownLatch.countDown();
-                System.out.println("2222");
             }
 
         });
-
-        System.out.println("1111");
 
         try {
             countDownLatch.await();
@@ -123,14 +126,215 @@ class DataHandlerTest {
 
     }
 
-    RegisterDto createRandomRegisterDto(){
 
-        Random random=new Random();
+    @Test
+    @Order(2)
+    void getMe(){
 
-        return new RegisterDto(
-                "newusername"+random.nextInt(1000),
-                "newemail"+random.nextInt(1000),
-                "newpassword"+random.nextInt(1000));
+        DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+
+        ApiResponse<User> data=null;
+
+        try {
+            data=dataHandler.getMe();
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+
+        assertNotNull(data.getData());
+        System.out.println(data);
+
+    }
+
+    @Test
+    @Order(2)
+    void getMeAsync(){
+
+        DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+
+        CountDownLatch countDownLatch=new CountDownLatch(1);
+
+        dataHandler.getMeAsync(new DataListener<User>() {
+            @Override
+            public void onException(Throwable t) {
+                t.printStackTrace();
+                fail();
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onResult(ApiResponse<User> response) {
+                System.out.println(response);
+                assertNotNull(response.getData(),()->{
+                    countDownLatch.countDown();
+                    return "Response data is null";
+                });
+                countDownLatch.countDown();
+            }
+
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+
+    }
+
+    @Test
+    @Order(3)
+    void getUser(){
+
+        DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+
+        int id=1;
+
+        ApiResponse<User> data=null;
+
+        try {
+            data=dataHandler.getUser(id);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+
+        assertNotNull(data.getData());
+        System.out.println(data);
+
+    }
+
+    @Test
+    @Order(3)
+    void getUserAsync(){
+
+        DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+
+        CountDownLatch countDownLatch=new CountDownLatch(1);
+
+        int id=1;
+
+        dataHandler.getUserAsync(id,new DataListener<User>() {
+
+            @Override
+            public void onStart() {
+                System.out.println("Started");
+            }
+
+            @Override
+            public void onCache() {
+                System.out.println("Data came from cache");
+            }
+
+            @Override
+            public void onRequest() {
+                System.out.println("Data came from request");
+            }
+
+            @Override
+            public void onException(Throwable t) {
+                t.printStackTrace();
+                fail();
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onResult(ApiResponse<User> response) {
+                System.out.println(response);
+                assertNotNull(response.getData(),()->{
+                    countDownLatch.countDown();
+                    return "Response data is null";
+                });
+                countDownLatch.countDown();
+            }
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+
+    }
+
+
+    @Test
+    @Order(4)
+    void getArticle(){
+
+        DataHandler dataHandler=DataHandler.getDataHandler();
+        int id=1;
+
+        ApiResponse<Article> response=null;
+
+        try {
+            response=dataHandler.getArticle(id);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+
+        assertNotNull(response.getData());
+        System.out.println(response);
+
+    }
+
+    @Test
+    @Order(4)
+    void getArticleAsync(){
+
+
+        DataHandler dataHandler=DataHandler.getDataHandler();
+        int id=1;
+
+        CountDownLatch countDownLatch=new CountDownLatch(1);
+
+        dataHandler.getArticleAsync(id, new DataListener<Article>() {
+
+            @Override
+            public void onException(Throwable t) {
+                t.printStackTrace();
+                fail();
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onCache() {
+                System.out.println("Data came from cache");
+            }
+
+            @Override
+            public void onRequest() {
+                System.out.println("Data came from request");
+            }
+
+            @Override
+            public void onResult(ApiResponse<Article> response) {
+
+                System.out.println(response);
+
+                assertNotNull(response.getData(),()->{
+                    countDownLatch.countDown();
+                    return "Response data is null";
+                });
+
+                countDownLatch.countDown();
+
+            }
+        });
+
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+
 
     }
 

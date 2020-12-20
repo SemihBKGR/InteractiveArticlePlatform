@@ -1,42 +1,51 @@
 package core;
 
 
+import core.cache.CacheService;
+import core.entity.Article;
 import core.entity.User;
 import core.entity.dto.LoginDto;
 import core.entity.dto.RegisterDto;
+import core.request.RequestService;
 import core.request.TransactionService;
 import core.util.ApiResponse;
 import core.util.DataListener;
 import core.util.KeyValue;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 @Slf4j
-public class DataHandler {
+public class DataHandler implements Closeable {
 
     private ExecutorService executorService;
-    private ConcurrentHashMap<String,String> headers;
 
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
+    private final RequestService requestService;
+    private final CacheService cacheService;
 
-    private DataPolicy dataPolicy;
+    private final DataPolicy dataPolicy;
 
     private DataHandler(DataPolicy dataPolicy) {
 
         this.dataPolicy=dataPolicy;
 
         executorService= Executors.newFixedThreadPool(dataPolicy.getDataHandlerWorkerThreadCount());
-        headers= new ConcurrentHashMap<>();
 
         transactionService=new TransactionService(dataPolicy);
+        requestService=new RequestService(dataPolicy);
+        cacheService=new CacheService(dataPolicy);
 
         log.info("DataHandler initialized.");
+
     }
 
     private static volatile DataHandler dataHandler;
@@ -64,57 +73,50 @@ public class DataHandler {
         return dataHandler;
     }
 
+    public void addHeader(KeyValue keyValue){
+        Objects.requireNonNull(keyValue);
+        requestService.getHeaders().put(keyValue.getKey(),keyValue.getValue());
+    }
+
+    public void addHeader(String key,String value){
+        requestService.getHeaders().put(Objects.requireNonNull(key),Objects.requireNonNull(value));
+    }
+
+    public String removeHeader(String key){
+        return requestService.getHeaders().remove(key);
+    }
+
     public ApiResponse<KeyValue> login(LoginDto loginDto) throws IOException {
-        Objects.requireNonNull(loginDto);
-        return transactionService.login(loginDto);
+        return transactionService.loginControl(Objects.requireNonNull(loginDto));
     }
 
     public ApiResponse<KeyValue> login(String username,String password) throws IOException {
-
-        Objects.requireNonNull(username);
-        Objects.requireNonNull(password);
-
-        LoginDto loginDto=new LoginDto(username,password);
-
-        return login(loginDto);
-
+        return login(new LoginDto(Objects.requireNonNull(username),Objects.requireNonNull(password)));
     }
 
     public void loginAsync(LoginDto loginDto, DataListener<KeyValue> listener){
 
-        Objects.requireNonNull(loginDto);
         Objects.requireNonNull(listener);
 
-        CompletableFuture.supplyAsync(()->{
+        CompletableFuture
+        .supplyAsync(()->{
+            listener.onStart();
             try {
                 return login(loginDto);
             } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new RuntimeException(e.getMessage(),e);
             }
-        },executorService).thenAcceptAsync(listener::onResult,executorService)
-        .handleAsync((userApiResponse,throwable) -> {
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally(throwable -> {
             listener.onException(throwable);
-            ApiResponse<KeyValue> response=new ApiResponse<>();
-            response.setMessage("Exception occurred");
-            return response;
-        },executorService).thenAcceptAsync(listener::onResult,executorService);
+            return null;
+        });
 
     }
 
     public void loginAsync(String username,String password,DataListener<KeyValue> listener){
-
-        Objects.requireNonNull(username);
-        Objects.requireNonNull(password);
-        Objects.requireNonNull(listener);
-
-        LoginDto loginDto=new LoginDto(username,password);
-
-        loginAsync(loginDto,listener);
-
-    }
-
-    public void logout(){
-        transactionService.logout();
+        loginAsync(new LoginDto(username,password),listener);
     }
 
     public ApiResponse<User> register(RegisterDto registerDto) throws IOException {
@@ -124,58 +126,182 @@ public class DataHandler {
 
     public ApiResponse<User> register(String username,String email,String password) throws IOException {
 
-        Objects.requireNonNull(username);
-        Objects.requireNonNull(email);
-        Objects.requireNonNull(password);
-
-        RegisterDto registerDto=new RegisterDto(username,email,password);
-
-        return register(registerDto);
+        return register(new RegisterDto(Objects.requireNonNull(username),
+                Objects.requireNonNull(email),Objects.requireNonNull(password)));
 
     }
 
     public void registerAsync (RegisterDto registerDto,DataListener<User> listener){
 
-        CompletableFuture.supplyAsync(()->{
+        Objects.requireNonNull(listener);
+
+        CompletableFuture
+        .supplyAsync(()->{
+            listener.onStart();
             try {
-                return transactionService.register(registerDto);
+                return register(registerDto);
             } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new RuntimeException(e.getMessage(),e);
             }
-        },executorService).thenAcceptAsync(listener::onResult,executorService)
-        .handleAsync((userApiResponse, throwable) -> {
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally((throwable) -> {
             listener.onException(throwable);
-            ApiResponse<User> response=new ApiResponse<>();
-            response.setMessage("Exception occurred");
-            return response;
-        },executorService).thenAcceptAsync(listener::onResult,executorService);
+            return null;
+        });
 
     }
 
     public void registerAsync (String username,String email,String password,DataListener<User> listener) {
 
-        Objects.requireNonNull(username);
-        Objects.requireNonNull(email);
-        Objects.requireNonNull(password);
-
-        RegisterDto registerDto=new RegisterDto(username,email,password);
-
-        registerAsync(registerDto,listener);
+        registerAsync(new RegisterDto(username,email,password),listener);
 
     }
 
-    public ApiResponse<User> getMe(){
+    public ApiResponse<User> getMe() throws IOException {
+        return requestService.getMe();
+    }
 
-        ApiResponse<User> response=new ApiResponse<>();
+    public void getMeAsync(DataListener<User> listener){
+
+        Objects.requireNonNull(listener);
+
+        CompletableFuture
+        .supplyAsync(()->{
+            listener.onStart();
+            try {
+                return requestService.getMe();
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally((throwable -> {
+            listener.onException(throwable);
+            return null;
+        }));
 
     }
 
-    public void getMeAsync(){
+    public ApiResponse<User> getUser(int id) throws IOException {
+        ApiResponse<User> response=null;
+        if(dataPolicy.isCacheEnable()){
+            response=cacheService.getUserIfNotExpired(id);
+            if(response==null){
+                response=requestService.getUser(id);
+                cacheService.addUserCache(id,response);
+            }
+        }else{
+            response=requestService.getUser(id);
+        }
+        return response;
+    }
 
+    public void getUserAsync(int id,DataListener<User> listener){
+        Objects.requireNonNull(listener);
+
+        CompletableFuture.supplyAsync(()->{
+
+            listener.onStart();
+            ApiResponse<User> response=null;
+
+            if(dataPolicy.isCacheEnable()){
+                response=cacheService.getUserIfNotExpired(id);
+                if(response!=null){
+                    listener.onCache();
+                }else{
+                    try {
+                        response=requestService.getUser(id);
+                        listener.onRequest();
+                        cacheService.addUserCache(id,response);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e.getMessage(),e);
+                    }
+                }
+            }else{
+                try {
+                    response= requestService.getUser(id);
+                    listener.onRequest();
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage(),e);
+                }
+            }
+
+            return response;
+
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally((throwable)->{
+            listener.onException(throwable);
+            return null;
+        });
 
     }
 
 
+    public ApiResponse<Article> getArticle(int id) throws IOException {
+        ApiResponse<Article> response=null;
 
+        if(dataPolicy.isCacheEnable()){
+            response=cacheService.getArticleIfNotExpired(id);
+            if(response==null){
+                response=requestService.getArticle(id);
+                cacheService.addArticleCache(id,response);
+            }
+        }else{
+            response=requestService.getArticle(id);
+        }
+
+        return response;
+
+    }
+
+    public void getArticleAsync(int id,DataListener<Article> listener){
+
+        Objects.requireNonNull(listener);
+
+        CompletableFuture.supplyAsync(()->{
+
+            listener.onStart();
+            ApiResponse<Article> response=null;
+
+            if(dataPolicy.isCacheEnable()){
+                response=cacheService.getArticleIfNotExpired(id);
+                if(response!=null){
+                    listener.onCache();
+                }else{
+                    try {
+                        response=requestService.getArticle(id);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e.getMessage(),e);
+                    }
+                    listener.onRequest();
+                    cacheService.addArticleCache(id,response);
+                }
+            }else{
+                try {
+                    response=requestService.getArticle(id);
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage(),e);
+                }
+            }
+
+            return response;
+
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally(throwable -> {
+            listener.onException(throwable);
+            return null;
+        });
+
+    }
+
+    @Override
+    public void close() throws IOException {
+        executorService.shutdown();
+        requestService.close();
+        transactionService.close();
+    }
 
 }

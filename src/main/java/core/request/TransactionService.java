@@ -1,9 +1,7 @@
 package core.request;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import core.DataHandler;
 import core.DataPolicy;
 import core.entity.User;
 import core.entity.dto.LoginDto;
@@ -11,7 +9,6 @@ import core.entity.dto.RegisterDto;
 import core.util.ApiResponse;
 import core.util.KeyValue;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -23,21 +20,15 @@ import org.apache.http.util.EntityUtils;
 import java.io.Closeable;
 import java.io.IOException;
 
-import static core.request.Contracts.BASE_URL;
+import static core.request.Contracts.*;
 
 @Slf4j
 public class TransactionService implements Closeable {
-
-    private static final String LOGIN_URL=BASE_URL+"/loginControl";
-    private static final String REGISTER_URL=BASE_URL+"/register";
-
-    private KeyValue authorizationHeader;
 
     private final CloseableHttpClient httpClient;
     private final ObjectMapper objectMapper;
 
     public TransactionService(DataPolicy dataPolicy) {
-        authorizationHeader = null;
 
         switch (dataPolicy.getPolicyState()){
             case fixed:
@@ -57,11 +48,10 @@ public class TransactionService implements Closeable {
 
     }
 
-    public ApiResponse<KeyValue> login(LoginDto loginDto) throws IOException {
+    //Return authorization header if login credentials is correct
+    public ApiResponse<KeyValue> loginControl(LoginDto loginDto) throws IOException {
 
-        if(authorizationHeader!=null){
-            throw new IllegalStateException("There is account already logged in.");
-        }
+        log.info("LoginControl request is sending");
 
         StringEntity entity=new StringEntity(
                 objectMapper.writeValueAsString(loginDto),
@@ -78,19 +68,14 @@ public class TransactionService implements Closeable {
 
         response.close();
 
-        authorizationHeader=result.getData();
-
-        log.info("Logged in");
-
         return result;
 
     }
 
+    //Return registered user register transaction is success
     public ApiResponse<User> register(RegisterDto registerDto) throws IOException {
 
-        if(authorizationHeader!=null){
-            throw new IllegalStateException("There is account already logged in.");
-        }
+        log.info("Registered request is sending");
 
         StringEntity entity=new StringEntity(
                 objectMapper.writeValueAsString(registerDto),
@@ -107,19 +92,7 @@ public class TransactionService implements Closeable {
 
         response.close();
 
-        log.info("Registered.");
-
         return result;
-
-    }
-
-    public void logout(){
-
-        if(authorizationHeader==null){
-            throw new IllegalStateException("No account already logged in.");
-        }
-        log.info("Logged out");
-        authorizationHeader=null;
 
     }
 
