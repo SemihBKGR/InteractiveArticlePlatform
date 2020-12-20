@@ -28,15 +28,15 @@ public class TransactionFrame extends JFrame{
     private JPanel panel;
     private JPanel centerPanel;
 
-    private LoginPanel loginPanel;
-    private RegisterPanel registerPanel;
+    private final LoginPanel loginPanel;
+    private final RegisterPanel registerPanel;
 
     private AtomicBoolean loginButtonClickable;
     private AtomicBoolean registerButtonClickable;
 
     public TransactionFrame() {
 
-        super("Interactive Article Platform");
+        super(Contracts.FRAME_TITLE);
         setIconImage(Resources.getImageIcon("article.png").getImage());
         setMinimumSize(new Dimension(400,600));
         setSize(new Dimension(500,750));
@@ -164,7 +164,11 @@ public class TransactionFrame extends JFrame{
 
                         if(response.isConfirmed()){
                             log.info("Login is success.");
-                            //TODO get in page
+                            dataHandler.addHeader(response.getData());
+                            SwingUtilities.invokeLater(()->{
+                                new AppFrame().setVisible(true);
+                            });
+                            dispose();
                         }else{
                             log.info("Login is fail.");
                             loginButtonClickable.set(true);
@@ -242,13 +246,10 @@ public class TransactionFrame extends JFrame{
                 }
             });
 
-
         }else{
             log.info("Register transaction could not bo started.");
             registerButtonClickable.set(true);
         }
-
-
 
     }
 
