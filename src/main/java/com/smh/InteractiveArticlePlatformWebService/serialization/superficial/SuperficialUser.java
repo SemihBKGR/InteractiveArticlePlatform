@@ -1,8 +1,7 @@
-package com.smh.InteractiveArticlePlatformWebService.serialization.object;
+package com.smh.InteractiveArticlePlatformWebService.serialization.superficial;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.smh.InteractiveArticlePlatformWebService.user.User;
-import com.smh.InteractiveArticlePlatformWebService.user.information.Information;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

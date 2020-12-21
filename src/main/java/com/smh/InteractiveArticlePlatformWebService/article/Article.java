@@ -1,5 +1,6 @@
 package com.smh.InteractiveArticlePlatformWebService.article;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.smh.InteractiveArticlePlatformWebService.serialization.UserListSerializer;
 import com.smh.InteractiveArticlePlatformWebService.serialization.UserSerializer;
@@ -34,13 +35,15 @@ public class Article implements Serializable {
     private String title;
 
     @Column(name="is_released")
+    @JsonProperty("is_released")
     private boolean is_released;
 
     @Column(name="is_private")
+    @JsonProperty("is_private")
     private boolean is_private;
 
     @CreatedDate
-    @Column(name="created_at", nullable = false, updatable = false)
+    @Column(name="created_at", updatable = false)
     private long created_at;
 
     @LastModifiedDate
@@ -50,7 +53,7 @@ public class Article implements Serializable {
     //TODO Set cascade type
     @JsonSerialize(using = UserSerializer.class)
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "owner_id", nullable = false,updatable = false)
+    @JoinColumn(name = "owner_id",updatable = false)
     private User owner;
 
     //TODO Set cascade type

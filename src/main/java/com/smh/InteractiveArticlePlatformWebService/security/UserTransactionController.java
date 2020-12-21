@@ -33,14 +33,14 @@ public class UserTransactionController {
             if(passwordEncoder.matches(userLoginDto.getPassword(),user.getPassword())){
                 KeyValue keyValue=new KeyValue();
                 keyValue.setKey("Authorization");
-                keyValue.setValue("Basic "+ generateBase64Encode(userLoginDto.getUsername(),".",userLoginDto.getPassword()));
+                keyValue.setValue("Basic "+ generateBase64Encode(userLoginDto.getUsername(),":",userLoginDto.getPassword()));
                 return ApiResponse.createApiResponse(keyValue,"Login control is successful");
             }
-            return ApiResponse.createApiResponse(null,"No user found with given password");
+            return ApiResponse.createApiResponse(null,"Wrong password");
         }
 
         return ApiResponse.createApiResponse
-                (null,"No user with given username '"+userLoginDto.getUsername()+"'");
+                (null,"wrong username");
 
     }
 
@@ -63,11 +63,11 @@ public class UserTransactionController {
         StringBuilder stringBuilder=new StringBuilder();
 
         if(!usernameUnique){
-            stringBuilder.append("Username is already taken '"+userRegisterDto.getUsername()+"', ");
+            stringBuilder.append("Username is already taken\n");
         }
 
         if(!emailUnique){
-            stringBuilder.append("Email is already taken '"+userRegisterDto.getEmail()+"'");
+            stringBuilder.append("Email is already taken");
         }
 
         return ApiResponse.createApiResponse(null,stringBuilder.toString());

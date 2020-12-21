@@ -36,7 +36,7 @@ public class ArticleController {
 
     }
 
-    @PostMapping("/id/{id}")
+    @PostMapping("/get/id/{id}")
     public ApiResponse<Article> getArticleById(@PathVariable("id") int id){
         return ApiResponse.createConditionalApiResponse(articleService.findById(id),
                 ()->"Article found, '"+id+"'",

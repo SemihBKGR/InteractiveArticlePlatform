@@ -1,5 +1,7 @@
 package com.smh.InteractiveArticlePlatformWebService.user;
 
+import com.smh.InteractiveArticlePlatformWebService.security.dto.UserRegisterDto;
+import com.smh.InteractiveArticlePlatformWebService.user.information.InformationRepository;
 import io.netty.util.internal.UnstableApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -16,6 +18,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private InformationRepository informationRepository;
 
     @Cacheable("user")
     @Nullable
@@ -39,7 +44,6 @@ public class UserServiceImpl implements UserService {
         Objects.requireNonNull(email);
         return userRepository.findByEmail(email);
     }
-
 
     @Caching(evict =
                 {@CacheEvict(value = "user", key = "#user.id"),

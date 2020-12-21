@@ -43,7 +43,7 @@ public class User implements Serializable {
     //TODO Change information fetch type to lazy.
     @JsonSerialize(using = ArticleListSerializer.class)
     @ManyToMany(mappedBy = "contributors",fetch = FetchType.EAGER)
-    private List<Article> contributor_article;
+    private List<Article> contributorArticle;
 
     //TODO Set cascade type
     //TODO Change information fetch type to lazy.

@@ -29,7 +29,7 @@ public class Information implements Serializable {
     private String name;
 
     @Column(name="surname")
-    private String username;
+    private String surname;
 
     @Lob
     @Column(name="image",columnDefinition = "BLOB")
@@ -51,7 +51,7 @@ public class Information implements Serializable {
     private Date birthday;
 
     @CreatedDate
-    @Column(name="created_at",nullable = false,updatable = false)
+    @Column(name="created_at",updatable = false)
     private long created_at;
 
 }

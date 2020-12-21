@@ -1,12 +1,10 @@
-package com.smh.InteractiveArticlePlatformWebService.serialization.object;
+package com.smh.InteractiveArticlePlatformWebService.serialization.superficial;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smh.InteractiveArticlePlatformWebService.article.Article;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.sql.Date;
-import java.sql.Timestamp;
 
 @Data
 @NoArgsConstructor
@@ -15,7 +13,11 @@ public class SuperficialArticle {
 
     private int id;
     private String title;
+
+    @JsonProperty(value = "is_released")
     private boolean is_released;
+
+    @JsonProperty(value = "is_private")
     private boolean is_private;
     private long created_at;
     private long updated_at;

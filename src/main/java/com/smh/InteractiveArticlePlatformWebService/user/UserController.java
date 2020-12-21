@@ -52,5 +52,15 @@ public class UserController {
 
     }
 
+    @PostMapping("/save")
+    public ApiResponse<User> saveUser(@RequestBody User user){
+
+        if(userService.findById(user.getId())!=null){
+            return ApiResponse.createApiResponse(userService.save(user),"Information saved");
+        };
+
+        return ApiResponse.createConditionalApiResponse(null,"","No such used with given id, "+user.getId());
+
+    }
 
 }
