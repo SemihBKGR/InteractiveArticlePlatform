@@ -1,10 +1,8 @@
 package app.gui.frame;
 
 import app.gui.page.ProfilePage;
-import app.gui.panel.InformationPanel;
 import app.util.Resources;
 import core.DataHandler;
-import core.entity.Information;
 import core.entity.User;
 import core.util.ApiResponse;
 import core.util.DataListener;
@@ -12,9 +10,6 @@ import core.util.DataListener;
 import javax.swing.*;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
 
 import static app.gui.frame.Contracts.FRAME_TITLE;
 
@@ -51,8 +46,7 @@ public class AppFrame extends JFrame{
             @Override
             public void onResult(ApiResponse<User> response) {
                 me=response.getData();
-                profilePage.getInformationPanel().setInformationAndStart(response.getData());
-                profilePage.getUserPanel().setUser(response.getData());
+                profilePage.getInformationPanel().loadAndStartPanel(response.getData());
             }
         });
 

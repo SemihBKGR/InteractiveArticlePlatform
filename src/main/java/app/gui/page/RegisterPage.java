@@ -1,10 +1,10 @@
-package app.gui.panel;
+package app.gui.page;
 
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class RegisterPanel{
+public class RegisterPage {
 
     private JPanel panel;
     private JTextField usernameField;

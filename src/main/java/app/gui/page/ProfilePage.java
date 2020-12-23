@@ -1,36 +1,29 @@
 package app.gui.page;
 
-import app.gui.panel.InformationPanel;
-import app.gui.panel.UserPanel;
+import app.gui.panel.ProfileInformationPanel;
 
 import javax.swing.*;
 
 public class ProfilePage {
+
     private JPanel panel;
     private JPanel leftPanel;
-    private JPanel rightPanel;
 
-    private InformationPanel informationPanel;
-    private UserPanel userPanel;
+    private ProfileInformationPanel informationPanel;
 
     public JPanel getPanel() {
         return panel;
     }
 
-    public InformationPanel getInformationPanel() {
+    public ProfileInformationPanel getInformationPanel() {
         return informationPanel;
     }
 
-    public UserPanel getUserPanel() {
-        return userPanel;
-    }
 
     private void createUIComponents() {
 
-        informationPanel=new InformationPanel();
-        userPanel=new UserPanel();
-
+        informationPanel=new ProfileInformationPanel();
         leftPanel=informationPanel.getPanel();
-        rightPanel=userPanel.getPanel();
+
     }
 }

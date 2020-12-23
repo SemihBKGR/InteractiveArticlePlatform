@@ -1,4 +1,4 @@
-package app.gui.panel;
+package app.gui.page;
 
 import com.bulenkov.darcula.DarculaLaf;
 
@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class LoginPanel {
+public class LoginPage {
     
     private JPanel panel;
     private JLabel usernameLabel;

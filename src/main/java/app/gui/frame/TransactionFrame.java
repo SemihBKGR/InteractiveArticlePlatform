@@ -1,7 +1,7 @@
 package app.gui.frame;
 
-import app.gui.panel.LoginPanel;
-import app.gui.panel.RegisterPanel;
+import app.gui.page.LoginPage;
+import app.gui.page.RegisterPage;
 import app.util.*;
 import core.DataHandler;
 import core.entity.User;
@@ -16,7 +16,6 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -28,8 +27,8 @@ public class TransactionFrame extends JFrame{
     private JPanel panel;
     private JPanel centerPanel;
 
-    private final LoginPanel loginPanel;
-    private final RegisterPanel registerPanel;
+    private final LoginPage loginPanel;
+    private final RegisterPage registerPanel;
 
     private AtomicBoolean loginButtonClickable;
     private AtomicBoolean registerButtonClickable;
@@ -49,8 +48,8 @@ public class TransactionFrame extends JFrame{
 
         add(panel);
 
-        loginPanel=new LoginPanel();
-        registerPanel=new RegisterPanel();
+        loginPanel=new LoginPage();
+        registerPanel=new RegisterPage();
         loginPanel.addMouseListeners();
         registerPanel.addMouseListeners();
 
