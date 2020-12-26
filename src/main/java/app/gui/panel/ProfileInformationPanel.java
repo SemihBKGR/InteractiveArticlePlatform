@@ -1,7 +1,7 @@
 package app.gui.panel;
 
+
 import app.util.Resources;
-import com.bulenkov.iconloader.util.Scalr;
 import core.DataHandler;
 import core.entity.Information;
 import core.entity.User;
@@ -9,24 +9,23 @@ import core.util.ApiResponse;
 import core.util.DataListener;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.text.html.ImageView;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ProfileInformationPanel {
-
 
     private JPanel panel;
 
@@ -53,24 +52,26 @@ public class ProfileInformationPanel {
     private final AtomicBoolean saveButtonClickable;
 
     private User user;
-    private volatile Information information;
 
     private final Thread buttonControlThread;
 
     private final Color saveButtonInactiveColor =new Color(187,187,187);
     private final Color saveButtonActiveColor=Color.WHITE;
 
-    byte newImage[];
+    private byte[] newImage;
 
     public ProfileInformationPanel() {
 
+        panel.requestFocus();
+
         saveButtonClickable = new AtomicBoolean(false);
+
+        newImage=null;
 
         saveButton.setForeground(saveButtonInactiveColor);
 
         imageLabel.setBorder(new LineBorder(Color.BLACK,5));
-
-        newImage=null;
+        imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         saveButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -88,21 +89,22 @@ public class ProfileInformationPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-                jfc.setDialogTitle("Choose image");
+                jfc.setDialogTitle("Choose Image");
                 jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                int returnValue = jfc.showOpenDialog(null);
+                jfc.setAcceptAllFileFilterUsed(false);
+                jfc.setFileFilter(new FileNameExtensionFilter("Image Files", "jpg", "png", "jpeg"));
+                int returnValue = jfc.showOpenDialog(ProfileInformationPanel.this.panel);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = jfc.getSelectedFile();
+                    String imageName=selectedFile.getName();
+                    String extension=imageName.substring(imageName.lastIndexOf(".")+1,imageName.length());
                     try {
-                        BufferedImage image =
-                                Scalr.resize(ImageIO.read(selectedFile), Scalr.Method.BALANCED, 300,300);
+                        BufferedImage image = Resources.resizeImage(ImageIO.read(selectedFile));
                         imageLabel.setIcon(new ImageIcon(image));
                         ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
                         ImageOutputStream imageOutputStream=ImageIO.createImageOutputStream(byteArrayOutputStream);
-                        ImageIO.write(image,"jpg",imageOutputStream);
+                        ImageIO.write(image,extension,imageOutputStream);
                         newImage=byteArrayOutputStream.toByteArray();
-                        information.setImage(newImage);
-                        setSaveButtonActiveness(true);
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
@@ -113,7 +115,9 @@ public class ProfileInformationPanel {
         buttonControlThread=new Thread(()->{
             while(!Thread.interrupted()) {
 
-                if (
+                Information information=user.getInformation();
+
+                if (newImage!=null ||
                     (!nameField.getText().equals(information.getName()!=null?information.getName():"")) ||
                     (!surnameField.getText().equals(information.getSurname()!=null?information.getSurname():"")) ||
                     (!addressField.getText().equals(information.getAddress()!=null?information.getAddress():"")) ||
@@ -136,8 +140,7 @@ public class ProfileInformationPanel {
 
     public void loadAndStartPanel(User user){
         this.user=user;
-        information=user.getInformation();
-        setInformation();
+        setInformationText();
         buttonControlThread.start();
     }
 
@@ -146,10 +149,12 @@ public class ProfileInformationPanel {
         saveButton.setForeground(active?saveButtonActiveColor:saveButtonInactiveColor);
     }
 
-    private void setInformation(){
+    private void setInformationText(){
 
         usernameLabel.setText(user.getUsername());
         emailLabel.setText(user.getEmail());
+
+        Information information=user.getInformation();
 
         if(information.getImage()!=null){
 
@@ -180,9 +185,8 @@ public class ProfileInformationPanel {
 
     private void saveInformation(){
         Information newInformation=generateNewInformation();
-        if(!information.equals(newInformation)){
+        if(!user.getInformation().equals(newInformation)){
             user.setInformation(newInformation);
-            this.information=newInformation;
             DataHandler.getDataHandler().informationSaveAsync(user, new DataListener<Information>() {
                 @Override
                 public void onResult(ApiResponse<Information> response) {
@@ -197,7 +201,7 @@ public class ProfileInformationPanel {
 
         Information newInformation=new Information();
 
-        newInformation.setId(information.getId());
+        newInformation.setId(user.getInformation().getId());
         newInformation.setName(nameField.getText());
         newInformation.setSurname(surnameField.getText());
         newInformation.setAddress(addressField.getText());
@@ -206,9 +210,10 @@ public class ProfileInformationPanel {
 
         if(newImage!=null){
             newInformation.setImage(newImage);
+            newImage=null;
         }
 
-        return information.equals(newInformation)?null:newInformation;
+        return newInformation;
 
     }
 

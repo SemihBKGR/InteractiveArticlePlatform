@@ -18,6 +18,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static app.Contracts.FRAME_TITLE;
+
 
 @Slf4j
 public class TransactionFrame extends JFrame{
@@ -35,7 +37,7 @@ public class TransactionFrame extends JFrame{
 
     public TransactionFrame() {
 
-        super(Contracts.FRAME_TITLE);
+        super(FRAME_TITLE);
         setIconImage(Resources.getImageIcon("article.png").getImage());
         setMinimumSize(new Dimension(400,600));
         setSize(new Dimension(500,750));

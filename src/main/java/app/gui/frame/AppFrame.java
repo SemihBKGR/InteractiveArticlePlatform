@@ -4,14 +4,13 @@ import app.gui.page.ProfilePage;
 import app.util.Resources;
 import core.DataHandler;
 import core.entity.User;
-import core.util.ApiResponse;
-import core.util.DataListener;
 
 import javax.swing.*;
 
 import java.awt.*;
 
-import static app.gui.frame.Contracts.FRAME_TITLE;
+import static app.Contracts.FRAME_TITLE;
+
 
 public class AppFrame extends JFrame{
 
@@ -41,24 +40,13 @@ public class AppFrame extends JFrame{
         centerPanel.add(profilePage.getPanel(),"profile");
 
 
-        //Load profile information
-        dataHandler.getMeAsync(new DataListener<User>() {
-            @Override
-            public void onResult(ApiResponse<User> response) {
-                me=response.getData();
-                profilePage.getInformationPanel().loadAndStartPanel(response.getData());
-            }
-        });
-
-        setComponentsListener();
-
-    }
-
-
-    private void setComponentsListener(){
-
+        profilePage.start();
 
 
     }
+
+
+
+
 
 }

@@ -30,6 +30,7 @@ public class Main {
         SwingUtilities.invokeLater(()->{
 
             new TransactionFrame().setVisible(true);
+
         });
 
         Runtime.getRuntime().addShutdownHook(new Thread(()->{
