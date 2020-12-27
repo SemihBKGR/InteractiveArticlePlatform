@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -67,6 +68,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(User user) {
         userRepository.delete(user);
+    }
+
+
+    public List<User> searchUser(String searchText) {
+        Objects.requireNonNull(searchText);
+        return userRepository.searchUser(searchText);
+    }
+
+
+    public List<User> searchByUsername(String username) {
+        Objects.requireNonNull(username);
+        return userRepository.searchUserByUsername(username);
+    }
+
+
+    public List<User> searchByEmail(String email) {
+        Objects.requireNonNull(email);
+        return userRepository.searchUserByEmail(email);
     }
 
 }

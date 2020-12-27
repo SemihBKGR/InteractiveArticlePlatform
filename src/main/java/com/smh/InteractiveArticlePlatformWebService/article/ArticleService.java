@@ -8,5 +8,6 @@ public interface ArticleService {
     List<Article> findByTitle(String title);
     Article save(Article article);
     void delete(Article article);
+    List<Article> searchArticleByTitle(String title);
 
 }

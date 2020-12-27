@@ -1,0 +1,9 @@
+2020-12-27 17:39:19 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM USERS WHERE USERNAME LIKE %[*]TEXT%"; SQL statement:
+SELECT * FROM users WHERE username LIKE %text% [42000-200]
+2020-12-27 17:43:08 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USER" not found; SQL statement:
+SELECT * FROM User u WHERE u.username LIKE %text% [42102-200]
+2020-12-27 17:44:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USER" not found; SQL statement:
+SELECT * FROM User u WHERE u.username LIKE ? [42102-200]

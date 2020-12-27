@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -57,10 +58,15 @@ public class UserController {
 
         if(userService.findById(user.getId())!=null){
             return ApiResponse.createApiResponse(userService.save(user),"Information saved");
-        };
+        }
 
         return ApiResponse.createConditionalApiResponse(null,"","No such used with given id, "+user.getId());
 
+    }
+
+    @PostMapping("/search/{text}")
+    public ApiResponse<List<User>> searchUser(@PathVariable("text") String text){
+        return ApiResponse.createApiResponse(userService.searchUser(text),"Search result");
     }
 
 }

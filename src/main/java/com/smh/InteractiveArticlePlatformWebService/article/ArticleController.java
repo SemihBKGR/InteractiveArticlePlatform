@@ -21,7 +21,7 @@ public class ArticleController {
     private UserService userService;
 
     @PostMapping("/create")
-    public Article create(@RequestBody ArticleCreateDto articleCreateDto){
+    public ApiResponse<Article> create(@RequestBody ArticleCreateDto articleCreateDto){
 
         User user=userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
 
@@ -32,7 +32,7 @@ public class ArticleController {
         article.setContributors(new ArrayList<>());
         articleService.save(article);
 
-        return article;
+        return ApiResponse.createApiResponse(article,"Article created");
 
     }
 
@@ -53,6 +53,11 @@ public class ArticleController {
 
     }
 
+
+    @PostMapping("/search/{title}")
+    public ApiResponse<List<Article>> searchArticle(@PathVariable("text") String text){
+        return ApiResponse.createApiResponse(articleService.searchArticleByTitle(text),"Search result");
+    }
 
 
 }

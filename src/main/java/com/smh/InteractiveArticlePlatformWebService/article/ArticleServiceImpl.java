@@ -31,10 +31,13 @@ public class ArticleServiceImpl implements ArticleService {
         return articleRepository.findByTitle(title);
     }
 
-
+    //How to cache better?
     @Caching(evict =
                 {@CacheEvict(value = "article",key="#article.id"),
-                 @CacheEvict(value = "article",key="#article.title")},
+                 @CacheEvict(value = "article",key="#article.title"),
+                 @CacheEvict(value = "user",key= "#article.owner.id"),
+                 @CacheEvict(value = "user",key= "#article.owner.username"),
+                 @CacheEvict(value = "user",key= "#article.owner.email")},
              put =
                 {@CachePut(value = "article",key = "#article.id"),
                  @CachePut(value = "article",key = "#article.title")}
@@ -51,6 +54,12 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void delete(Article article) {
         articleRepository.delete(article);
+    }
+
+    @Override
+    public List<Article> searchArticleByTitle(String title) {
+        Objects.requireNonNull(title);
+        return articleRepository.searchArticleByTitle(title);
     }
 
 }
