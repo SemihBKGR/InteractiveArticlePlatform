@@ -1,5 +1,7 @@
 package app.gui.page;
 
+import app.gui.frame.AppFrame;
+import app.gui.frame.TransactionFrame;
 import app.gui.panel.ProfileArticlePanel;
 import app.gui.panel.ProfileInformationPanel;
 import core.DataHandler;
@@ -8,6 +10,8 @@ import core.util.ApiResponse;
 import core.util.DataListener;
 
 import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ProfilePage {
 
@@ -16,14 +20,34 @@ public class ProfilePage {
 
     private JPanel articlePanel;
     private JPanel informationPanel;
+    private JButton logoutButton;
+    private JButton searchButton;
 
     private DataHandler dataHandler;
 
     ProfileInformationPanel profileInformationPanel;
     ProfileArticlePanel profileArticlePanel;
 
-    public ProfilePage(){
+    public ProfilePage(AppFrame appFrame){
         dataHandler=DataHandler.getDataHandler();
+
+        searchButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                appFrame.changePage("search");
+            }
+        });
+
+        logoutButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                profileInformationPanel.interrupt();
+                appFrame.dispose();
+                new TransactionFrame().setVisible(true);
+            }
+        });
+
+
     }
 
     public void start(){

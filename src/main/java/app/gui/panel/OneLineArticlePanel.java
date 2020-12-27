@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -22,10 +23,13 @@ public class OneLineArticlePanel {
         panel.setBorder(new LineBorder(Color.BLACK,1));
         panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+        String pattern="dd-M-yyyy hh:mm";
+        SimpleDateFormat dateFormat=new SimpleDateFormat(pattern);
+
         titleLabel.setText("Title : "+article.getTitle());
-        updateLabel.setText("Last Update : "+ DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault()).format(new Date(article.getUpdated_at())).toString());
-        createDateLabel.setText("Created at : "+DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault()).format(new Date(article.getCreated_at())).toString());
-        isReleasedLabel.setText("Status : "+(article.is_released()?"Released":"Writing"));
+        updateLabel.setText("Last Update : "+ dateFormat.format(new Date(article.getUpdated_at())));
+        createDateLabel.setText("Created at : "+dateFormat.format(new Date(article.getCreated_at())));
+        isReleasedLabel.setText("Status : "+(article.is_private()?"Private":"Public")+"/"+(article.is_released()?"Released":"Writing"));
 
     }
 

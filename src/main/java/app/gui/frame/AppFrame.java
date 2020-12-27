@@ -1,6 +1,7 @@
 package app.gui.frame;
 
 import app.gui.page.ProfilePage;
+import app.gui.page.SearchPage;
 import app.util.Resources;
 import core.DataHandler;
 import core.entity.User;
@@ -22,6 +23,7 @@ public class AppFrame extends JFrame{
     private final DataHandler dataHandler;
 
     private final ProfilePage profilePage;
+    private final SearchPage searchPage;
 
     public AppFrame(){
 
@@ -35,16 +37,20 @@ public class AppFrame extends JFrame{
 
         add(panel);
 
-        profilePage=new ProfilePage();
+        profilePage=new ProfilePage(this);
+        searchPage=new SearchPage(this);
 
         centerPanel.add(profilePage.getPanel(),"profile");
-
+        centerPanel.add(searchPage.getPanel(),"search");
 
         profilePage.start();
 
-
     }
 
+    public void changePage(String page){
+        CardLayout cardLayout = (CardLayout) centerPanel.getLayout();
+        cardLayout.show(centerPanel,page);
+    }
 
 
 

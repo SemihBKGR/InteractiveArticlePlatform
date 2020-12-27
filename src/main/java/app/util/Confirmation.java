@@ -14,6 +14,10 @@ public class Confirmation {
 
     private final static String EMAIL_REGEX_PATTERN="^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
 
+    private final static String TITLE_REGEX_PATTERN="[a-zA-Z0-9_.-]+";
+    private final static int TITLE_MIN_LENGTH=5;
+    private final static int TITLE_MAX_LENGTH=50;
+
     public static class ConfirmationMessage{
 
         private StringBuilder messages;
@@ -101,6 +105,25 @@ public class Confirmation {
 
         if(!pattern.matcher(email).matches()){
             confirmationMessage.addMessage("* Not email");
+            confirmationMessage.setConfirmed(false);
+        }
+
+        return confirmationMessage;
+
+    }
+
+    public static ConfirmationMessage articleTitleConfirmation(String title){
+
+        ConfirmationMessage confirmationMessage=new ConfirmationMessage(true);
+        Pattern pattern=Pattern.compile(TITLE_REGEX_PATTERN);
+
+        if(!pattern.matcher(title).matches()){
+            confirmationMessage.addMessage("Contains invalid character");
+            confirmationMessage.setConfirmed(false);
+        }
+
+        if(title.length()>TITLE_MAX_LENGTH ||title.length()<TITLE_MIN_LENGTH){
+            confirmationMessage.addMessage("Title must be between "+TITLE_MIN_LENGTH+" - "+TITLE_MAX_LENGTH);
             confirmationMessage.setConfirmed(false);
         }
 

@@ -144,6 +144,10 @@ public class ProfileInformationPanel {
         buttonControlThread.start();
     }
 
+    public void interrupt(){
+        buttonControlThread.interrupt();
+    }
+
     private void setSaveButtonActiveness(boolean active){
         saveButtonClickable.set(active);
         saveButton.setForeground(active?saveButtonActiveColor:saveButtonInactiveColor);
@@ -288,4 +292,5 @@ public class ProfileInformationPanel {
     public JButton getSaveButton() {
         return saveButton;
     }
+
 }
