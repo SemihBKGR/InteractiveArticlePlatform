@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @JsonFormat
 public class Article {
 

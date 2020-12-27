@@ -6,6 +6,7 @@ import core.DataPolicy;
 import core.entity.Article;
 import core.entity.Information;
 import core.entity.User;
+import core.entity.dto.ArticleCreateDto;
 import core.util.ApiResponse;
 import lombok.extern.log4j.Log4j;
 import org.apache.http.HttpRequest;
@@ -19,6 +20,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,11 +72,35 @@ public class RequestService implements Closeable {
         return sendPostRequest(concatUrlVariable(ARTICLE_GET_URL,id),true,null,Article.class);
     }
 
-    public ApiResponse<Information> saveInformation(Information information) throws IOException {
+    public ApiResponse<Information> saveInformation(User user) throws IOException {
 
         log.info("SaveInformation request is sending");
-        Objects.requireNonNull(information);
-        return sendPostRequest(INFORMATION_SAVE,true,information,Information.class);
+        Objects.requireNonNull(user);
+        return sendPostRequest(INFORMATION_SAVE_URL,true,user,Information.class);
+
+    }
+
+    public ApiResponse<Article> createArticle(ArticleCreateDto articleCreateDto) throws IOException {
+
+        log.info("ArticleCreate request is sending");
+        Objects.requireNonNull(articleCreateDto);
+        return sendPostRequest(ARTICLE_CREATE_URL,true,articleCreateDto,Article.class);
+
+    }
+
+    public ApiResponse<List<User>> searchUser(String text) throws IOException {
+
+        log.info("UserSearch request is sending");
+        Objects.requireNonNull(text);
+        return sendPostRequestList(concatUrlVariable(USER_SEARCH_URL,text),true,null,User.class);
+
+    }
+
+    public ApiResponse<List<Article>> searchArticle(String text) throws IOException {
+
+        log.info("ArticleSearch request is sending");
+        Objects.requireNonNull(text);
+        return sendPostRequestList(concatUrlVariable(ARTICLE_SEARCH_URL,text),true,null,Article.class);
 
     }
 
@@ -92,12 +118,36 @@ public class RequestService implements Closeable {
         }
         CloseableHttpResponse response=httpClient.execute(httpPost);
         ApiResponse<T> result=objectMapper.readValue(EntityUtils.toString(response.getEntity()),new TypeReference<ApiResponse<T>>(){});
-        result=objectMapper.convertValue(result,new TypeReference<ApiResponse<T>>(){});
         result.setData(objectMapper.convertValue(result.getData(),type));
         response.close();
         return result;
 
     }
+
+
+    private <T> ApiResponse<List<T>> sendPostRequestList(String url,boolean loadHeaders,Object body, Class<T> type) throws IOException {
+
+        HttpPost httpPost=new HttpPost(url);
+        if(loadHeaders){
+            loadHeaders(httpPost);
+        }
+        if(body!=null){
+            StringEntity entity=new StringEntity(
+                    objectMapper.writeValueAsString(body),
+                    ContentType.APPLICATION_JSON);
+            httpPost.setEntity(entity);
+        }
+        CloseableHttpResponse response=httpClient.execute(httpPost);
+        ApiResponse<List<T>> result=objectMapper.readValue(EntityUtils.toString(response.getEntity()),new TypeReference<ApiResponse<List<T>>>(){});
+        System.out.println(result);
+        for(int i=0;i<result.getData().size();i++){
+            result.getData().add(i,objectMapper.convertValue(result.getData().get(i),type));
+        }
+        response.close();
+        return result;
+
+    }
+
 
     private static String concatUrlVariable(String url,Object variable){
         return url+"/"+variable;

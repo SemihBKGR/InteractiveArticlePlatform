@@ -14,18 +14,19 @@ class Contracts {
 
     static final String ME_URL=USER_URL+"/get/me";
     static final String USER_GET_URL=USER_URL+"/get/id";
-
+    static final String USER_SEARCH_URL=USER_URL+"/search";
 
     //Information
     static final String INFORMATION_URL=BASE_URL+"/information";
 
-    static final String INFORMATION_SAVE=INFORMATION_URL+"/save";
+    static final String INFORMATION_SAVE_URL =INFORMATION_URL+"/save";
 
 
     //Article
     static final String ARTICLE_URL=BASE_URL+"/article";
 
     static final String ARTICLE_GET_URL=ARTICLE_URL+"/get/id";
-
+    static final String ARTICLE_CREATE_URL=ARTICLE_URL+"/create";
+    static final String ARTICLE_SEARCH_URL=ARTICLE_URL+"/search";
 
 }

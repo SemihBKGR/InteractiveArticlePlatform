@@ -3,21 +3,13 @@ package core;
 import core.entity.Article;
 import core.entity.Information;
 import core.entity.User;
-import core.entity.dto.RegisterDto;
-import core.entity.superficial.SuperficialArticle;
-import core.request.RequestService;
 import core.util.ApiResponse;
 import core.util.DataListener;
 import core.util.KeyValue;
 import org.junit.jupiter.api.*;
 
-import javax.xml.crypto.Data;
-import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -348,30 +340,41 @@ class DataHandlerTest{
 
     @Test
     @Order(5)
-    void saveInformation() {
+    void searchUser(){
 
-        DataHandler dataHandler= DataHandler.getDataHandler();
-        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+        DataHandler dataHandler=DataHandler.getDataHandler();
 
-        Information information=new Information();
-        information.setName("name");
-        information.setSurname("surname");
-        information.setAddress("address");
-        information.setCompany("company");
-        information.setBiography("biography");
+        CountDownLatch latch=new CountDownLatch(1);
 
-        ApiResponse<Information> response=null;
+        dataHandler.searchUserAsync("acc", new DataListener<List<User>>() {
+            @Override
+            public void onStart() {
+                System.out.println("started");
+            }
+
+            @Override
+            public void onException(Throwable t) {
+                t.printStackTrace();
+                System.out.println(t.getMessage());
+                latch.countDown();
+            }
+
+            @Override
+            public void onResult(ApiResponse<List<User>> response) {
+                System.out.println(response.getData().size());
+                latch.countDown();
+            }
+        });
 
         try {
-            response=dataHandler.informationSave(information);
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail();
+            latch.await();
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
         }
 
-        assertNotNull(response.getData());
-        System.out.println(response);
 
     }
+
+
 
 }

@@ -5,6 +5,7 @@ import core.cache.CacheService;
 import core.entity.Article;
 import core.entity.Information;
 import core.entity.User;
+import core.entity.dto.ArticleCreateDto;
 import core.entity.dto.LoginDto;
 import core.entity.dto.RegisterDto;
 import core.request.RequestService;
@@ -16,13 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 @Slf4j
 public class DataHandler implements Closeable {
@@ -298,30 +297,105 @@ public class DataHandler implements Closeable {
 
     }
 
-    public ApiResponse<Information> informationSave(Information information) throws IOException {
-        return requestService.saveInformation(information);
+    public ApiResponse<Information> informationSave(User user) throws IOException {
+        return requestService.saveInformation(user);
     }
 
-    public void informationSaveAsync(Information information,DataListener<Information> listener){
+    public void informationSaveAsync(User user, DataListener<Information> listener){
 
         Objects.requireNonNull(listener);
 
         CompletableFuture.supplyAsync(()->{
             listener.onStart();
-
             try {
-                return requestService.saveInformation(information);
+                return requestService.saveInformation(user);
             } catch (IOException e) {
-                throw new RuntimeException(e.getMessage(),e.getCause());
+                throw new RuntimeException(e.getMessage(),e);
             }
 
-        },executorService).thenAccept(listener::onResult).exceptionally((throwable -> {
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally((throwable -> {
             listener.onException(throwable);
             return null;
         }));
 
+    }
+
+    public ApiResponse<Article> createArticle(ArticleCreateDto articleCreateDto) throws IOException {
+        return requestService.createArticle(articleCreateDto);
+    }
+
+    public void createArticleAsync(ArticleCreateDto articleCreateDto,DataListener<Article> listener){
+
+        Objects.requireNonNull(listener);
+
+        CompletableFuture.supplyAsync(()->{
+            listener.onStart();
+            try {
+                return requestService.createArticle(articleCreateDto);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(),e);
+            }
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally(throwable -> {
+            listener.onException(throwable);
+            return null;
+        });
 
     }
+
+    public ApiResponse<List<User>> searchUser(String text) throws IOException {
+        return requestService.searchUser(text);
+    }
+
+
+    public void searchUserAsync(String text,DataListener<List<User>> listener){
+
+        Objects.requireNonNull(listener);
+
+        CompletableFuture.supplyAsync(()->{
+            listener.onStart();
+            try {
+                return requestService.searchUser(text);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                throw new RuntimeException(e.getMessage(),e);
+            }
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally((throwable -> {
+            listener.onException(throwable);
+            return null;
+        }));
+
+    }
+
+    public ApiResponse<List<Article>> searchArticle(String text) throws IOException {
+        return requestService.searchArticle(text);
+    }
+
+    public void searchArticleAsync(String text,DataListener<List<Article>> listener){
+
+        Objects.requireNonNull(listener);
+
+        CompletableFuture.supplyAsync(()->{
+            listener.onStart();
+            try {
+                return requestService.searchArticle(text);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(),e);
+            }
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally((throwable -> {
+            listener.onException(throwable);
+            return null;
+        }));
+
+    }
+
 
     @Override
     public void close() throws IOException {
