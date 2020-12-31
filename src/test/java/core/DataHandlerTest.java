@@ -8,9 +8,11 @@ import core.util.DataListener;
 import core.util.KeyValue;
 import org.junit.jupiter.api.*;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -338,15 +340,20 @@ class DataHandlerTest{
     }
 
 
+    //Test user search both async and normal method
     @Test
     @Order(5)
     void searchUser(){
 
         DataHandler dataHandler=DataHandler.getDataHandler();
-
         CountDownLatch latch=new CountDownLatch(1);
 
-        dataHandler.searchUserAsync("acc", new DataListener<List<User>>() {
+        AtomicReference<List<User>>asyncUserListReference=new AtomicReference<>();
+        List<User> userList=null;
+
+        String text="acc";
+
+        dataHandler.searchUserAsync(text, new DataListener<List<User>>() {
             @Override
             public void onStart() {
                 System.out.println("started");
@@ -355,16 +362,22 @@ class DataHandlerTest{
             @Override
             public void onException(Throwable t) {
                 t.printStackTrace();
-                System.out.println(t.getMessage());
                 latch.countDown();
+                fail(t::getMessage);
             }
 
             @Override
             public void onResult(ApiResponse<List<User>> response) {
-                System.out.println(response.getData().size());
+                asyncUserListReference.set(response.getData());
                 latch.countDown();
             }
         });
+
+        try {
+            userList=dataHandler.searchUser(text).getData();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         try {
             latch.await();
@@ -372,9 +385,59 @@ class DataHandlerTest{
             interruptedException.printStackTrace();
         }
 
+        assertEquals(asyncUserListReference.get(),userList);
 
     }
 
+
+    @Test
+    @Order(5)
+    void searchArticle(){
+
+        DataHandler dataHandler=DataHandler.getDataHandler();
+        CountDownLatch latch=new CountDownLatch(1);
+
+        String text="ar";
+
+        AtomicReference<List<Article>> asyncArticleList=new AtomicReference<>();
+        List<Article> articles=null;
+
+        dataHandler.searchArticleAsync(text, new DataListener<List<Article>>() {
+            @Override
+            public void onStart() {
+                System.out.println("started");
+            }
+
+            @Override
+            public void onException(Throwable t) {
+                t.printStackTrace();
+                latch.countDown();
+                fail(t::getMessage);
+            }
+
+            @Override
+            public void onResult(ApiResponse<List<Article>> response) {
+                asyncArticleList.set(response.getData());
+                latch.countDown();
+            }
+        });
+
+        try {
+            articles=dataHandler.searchArticle(text).getData();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            latch.await();
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+
+        assertEquals(asyncArticleList.get(),articles);
+
+
+    }
 
 
 }

@@ -20,6 +20,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -140,9 +141,11 @@ public class RequestService implements Closeable {
         CloseableHttpResponse response=httpClient.execute(httpPost);
         ApiResponse<List<T>> result=objectMapper.readValue(EntityUtils.toString(response.getEntity()),new TypeReference<ApiResponse<List<T>>>(){});
         System.out.println(result);
+        ArrayList<T> arrayList=new ArrayList<>();
         for(int i=0;i<result.getData().size();i++){
-            result.getData().add(i,objectMapper.convertValue(result.getData().get(i),type));
+            arrayList.add(i,objectMapper.convertValue(result.getData().get(i),type));
         }
+        result.setData(arrayList);
         response.close();
         return result;
 
