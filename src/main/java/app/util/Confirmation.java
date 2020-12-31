@@ -18,6 +18,10 @@ public class Confirmation {
     private final static int TITLE_MIN_LENGTH=5;
     private final static int TITLE_MAX_LENGTH=50;
 
+    private final static String SEARCH_REGEX_PATTERN="[a-zA-Z0-9_.-]{0,}";
+    private final static int SEARCH_MIN_LENGTH=1;
+    private final static int SEARCH_MAX_LENGTH=25;
+
     public static class ConfirmationMessage{
 
         private StringBuilder messages;
@@ -124,6 +128,26 @@ public class Confirmation {
 
         if(title.length()>TITLE_MAX_LENGTH ||title.length()<TITLE_MIN_LENGTH){
             confirmationMessage.addMessage("Title must be between "+TITLE_MIN_LENGTH+" - "+TITLE_MAX_LENGTH);
+            confirmationMessage.setConfirmed(false);
+        }
+
+        return confirmationMessage;
+
+    }
+
+
+    public static ConfirmationMessage searchTextConfirmation(String text){
+
+        ConfirmationMessage confirmationMessage=new ConfirmationMessage(true);
+        Pattern pattern=Pattern.compile(SEARCH_REGEX_PATTERN);
+
+        if(!pattern.matcher(text).matches()){
+            confirmationMessage.addMessage("Search text contains invalid character");
+            confirmationMessage.setConfirmed(false);
+        }
+
+        if(text.length()>SEARCH_MAX_LENGTH || text.length()<SEARCH_MIN_LENGTH){
+            confirmationMessage.addMessage("Search text must be between "+SEARCH_MIN_LENGTH+" - "+SEARCH_MAX_LENGTH);
             confirmationMessage.setConfirmed(false);
         }
 

@@ -22,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ProfileInformationPanel {
@@ -225,72 +224,6 @@ public class ProfileInformationPanel {
         return panel;
     }
 
-    public JLabel getNameLabel() {
-        return nameLabel;
-    }
 
-    public JLabel getSurnameLabel() {
-        return surnameLabel;
-    }
-
-    public JLabel getBiographyLabel() {
-        return biographyLabel;
-    }
-
-    public JLabel getCompanyLabel() {
-        return companyLabel;
-    }
-
-    public JLabel getAddressLabel() {
-        return addressLabel;
-    }
-
-    public JLabel getSaveInformationLabel() {
-        return saveInformationLabel;
-    }
-
-    public JLabel getEmailLabel() {
-        return emailLabel;
-    }
-
-    public JLabel getUsernameLabel() {
-        return usernameLabel;
-    }
-
-    public JLabel getImageLabel() {
-        return imageLabel;
-    }
-
-    public JLabel getPhoneLabel() {
-        return phoneLabel;
-    }
-
-    public JTextField getNameField() {
-        return nameField;
-    }
-
-    public JTextField getSurnameField() {
-        return surnameField;
-    }
-
-    public JTextField getCompanyField() {
-        return companyField;
-    }
-
-    public JTextField getAddressField() {
-        return addressField;
-    }
-
-    public JTextArea getBiographyArea() {
-        return biographyArea;
-    }
-
-    public JFormattedTextField getPhoneField() {
-        return phoneField;
-    }
-
-    public JButton getSaveButton() {
-        return saveButton;
-    }
 
 }

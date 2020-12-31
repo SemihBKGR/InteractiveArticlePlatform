@@ -16,9 +16,7 @@ public class OneLineUserPanel {
 
     public OneLineUserPanel(User user){
 
-        System.out.println(user.getUsername());
-        System.out.println(user.getEmail());
-        if(user.getInformation().getImage()!=null){
+        if(user.getInformation().getImage()!=null && user.getInformation().getImage().length>0){
             ByteArrayInputStream imageStream=new ByteArrayInputStream(user.getInformation().getImage());
             try {
                 ImageIcon imageIcon=new ImageIcon(ImageIO.read(imageStream));
