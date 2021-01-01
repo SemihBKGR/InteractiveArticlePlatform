@@ -28,13 +28,17 @@ public class ProfilePage {
     ProfileInformationPanel profileInformationPanel;
     ProfileArticlePanel profileArticlePanel;
 
+    private AppFrame appFrame;
+
     public ProfilePage(AppFrame appFrame){
+        this.appFrame=appFrame;
+
         dataHandler=DataHandler.getDataHandler();
 
         searchButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                appFrame.changePage("search");
+                appFrame.changePage(AppFrame.Page.search);
             }
         });
 
@@ -67,7 +71,7 @@ public class ProfilePage {
     private void createUIComponents() {
 
         profileInformationPanel=new ProfileInformationPanel();
-        profileArticlePanel=new ProfileArticlePanel();
+        profileArticlePanel=new ProfileArticlePanel(appFrame);
 
         informationPanel = profileInformationPanel.getPanel();
         articlePanel = profileArticlePanel.getPanel();

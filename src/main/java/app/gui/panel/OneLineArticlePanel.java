@@ -1,11 +1,17 @@
 package app.gui.panel;
 
+import app.gui.frame.AppFrame;
+import core.DataHandler;
 import core.entity.Article;
 import core.entity.superficial.SuperficialArticle;
+import core.util.ApiResponse;
+import core.util.DataListener;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,8 +24,33 @@ public class OneLineArticlePanel {
     private JLabel createDateLabel;
     private JLabel isReleasedLabel;
 
+    private Article article;
+    private SuperficialArticle superficialArticle;
 
-    public OneLineArticlePanel(SuperficialArticle article){
+    private OneLineArticlePanel(AppFrame appFrame){
+
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(article!=null){
+                    appFrame.changePage(AppFrame.Page.home,article);
+                }else{
+                    DataHandler.getDataHandler().getArticleAsync(superficialArticle.getId(), new DataListener<Article>() {
+                        @Override
+                        public void onResult(ApiResponse<Article> response) {
+                            appFrame.changePage(AppFrame.Page.home,response.getData());
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
+    public OneLineArticlePanel(AppFrame appFrame,SuperficialArticle article){
+
+        this(appFrame);
+        this.superficialArticle=article;
 
         panel.setBorder(new LineBorder(Color.BLACK,1));
         panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -34,7 +65,10 @@ public class OneLineArticlePanel {
 
     }
 
-    public OneLineArticlePanel(Article article){
+    public OneLineArticlePanel(AppFrame appFrame,Article article){
+
+        this(appFrame);
+        this.article=article;
 
         panel.setBorder(new LineBorder(Color.BLACK,1));
         panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

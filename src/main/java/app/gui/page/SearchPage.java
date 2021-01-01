@@ -33,10 +33,13 @@ public class SearchPage {
     private JPanel searchInnerPanel;
     private JComboBox searchItemComboBox;
     private JLabel infoLabel;
+    private JButton homeButton;
 
     private AtomicBoolean searchButtonClickable;
 
     private SearchItem currentSearchItem;
+
+    private AppFrame appFrame;
 
     private enum SearchItem{
 
@@ -69,6 +72,8 @@ public class SearchPage {
 
     public SearchPage(AppFrame appFrame){
 
+        this.appFrame=appFrame;
+
         searchButtonClickable=new AtomicBoolean(true);
 
         currentSearchItem=SearchItem.getDefault();
@@ -88,7 +93,7 @@ public class SearchPage {
         profileButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                appFrame.changePage("profile");
+                appFrame.changePage(AppFrame.Page.profile);
             }
         });
 
@@ -107,6 +112,13 @@ public class SearchPage {
                         searchButtonClickable.set(true);
                     }
                 }
+            }
+        });
+
+        homeButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                appFrame.changePage(AppFrame.Page.home);
             }
         });
 
@@ -165,7 +177,7 @@ public class SearchPage {
                     public void onResult(ApiResponse<List<Article>> response) {
                         setGridRowCount(response.getData().size());
                         for(Article article:response.getData()){
-                            searchInnerPanel.add(new OneLineArticlePanel(article).getPanel());
+                            searchInnerPanel.add(new OneLineArticlePanel(appFrame,article).getPanel());
                         }
                         setInfoLabelResultText(response.getData().size());
                         searchButtonClickable.set(true);

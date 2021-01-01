@@ -1,6 +1,7 @@
 package app.gui.panel;
 
 import app.gui.dialog.CreateArticleDialog;
+import app.gui.frame.AppFrame;
 import com.bulenkov.darcula.ui.DarculaButtonUI;
 import com.bulenkov.darcula.ui.DarculaInternalFrameUI;
 import core.entity.Article;
@@ -28,8 +29,11 @@ public class ProfileArticlePanel {
     private User user;
     private int articleCount;
 
+    AppFrame appFrame;
 
-    public ProfileArticlePanel() {
+    public ProfileArticlePanel(AppFrame appFrame) {
+
+        this.appFrame=appFrame;
 
         createButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -41,7 +45,7 @@ public class ProfileArticlePanel {
                     articleCount++;
                     user.getContributorArticle().add(createdArticle);
                     ((GridLayout)articleInnerPanel.getLayout()).setRows(articleCount);
-                    articleInnerPanel.add(new OneLineArticlePanel(createdArticle).getPanel());
+                    articleInnerPanel.add(new OneLineArticlePanel(appFrame,createdArticle).getPanel());
                 }
             }
         });
@@ -56,11 +60,11 @@ public class ProfileArticlePanel {
         ((GridLayout)articleInnerPanel.getLayout()).setRows(articleCount);
 
         for(SuperficialArticle article:user.getOwnArticles()){
-            articleInnerPanel.add(new OneLineArticlePanel(article).getPanel());
+            articleInnerPanel.add(new OneLineArticlePanel(appFrame,article).getPanel());
         }
 
         for(SuperficialArticle article:user.getContributorArticle()){
-            articleInnerPanel.add(new OneLineArticlePanel(article).getPanel());
+            articleInnerPanel.add(new OneLineArticlePanel(appFrame,article).getPanel());
         }
 
     }
