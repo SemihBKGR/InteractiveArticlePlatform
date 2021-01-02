@@ -7,6 +7,7 @@ import app.gui.panel.ButtonPanel;
 import app.util.Paged;
 import app.util.Resources;
 import core.entity.Article;
+import core.entity.User;
 
 import javax.swing.*;
 
@@ -41,12 +42,11 @@ public class AppFrame extends JFrame implements Paged {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-
         add(panel);
 
         profilePage=new ProfilePage(this);
         searchPage=new SearchPage(this);
-        homePage=new HomePage(this);
+        homePage=new HomePage();
 
         centerPanel.add(profilePage.getPanel(),ButtonPanel.ActiveButton.profile.toString());
         centerPanel.add(searchPage.getPanel(),ButtonPanel.ActiveButton.search.toString());
@@ -67,6 +67,8 @@ public class AppFrame extends JFrame implements Paged {
         if(pageName .equals(ButtonPanel.ActiveButton.menu.toString())){
             if(items[0] instanceof Article) {
                 homePage.loadArticlePanel((Article)items[0]);
+            }else if(items[0] instanceof User){
+                homePage.loadUserPanel((User) items[0],this);
             }
         }
         changePage(pageName);

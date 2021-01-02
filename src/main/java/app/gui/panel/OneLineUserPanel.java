@@ -1,10 +1,14 @@
 package app.gui.panel;
 
+import app.util.Paged;
 import app.util.Resources;
 import core.entity.User;
+import core.entity.superficial.SuperficialUser;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
@@ -14,7 +18,10 @@ public class OneLineUserPanel {
     private JLabel emailLabel;
     private JPanel panel;
 
-    public OneLineUserPanel(User user){
+    private User user;
+    private SuperficialUser superficialUser;
+
+    public OneLineUserPanel(User user, Paged paged){
 
         if(user.getInformation().getImage()!=null && user.getInformation().getImage().length>0){
             ByteArrayInputStream imageStream=new ByteArrayInputStream(user.getInformation().getImage());
@@ -31,6 +38,14 @@ public class OneLineUserPanel {
 
         usernameLabel.setText(user.getUsername());
         emailLabel.setText(user.getEmail());
+
+
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                paged.changePage(ButtonPanel.ActiveButton.menu.name(),user);
+            }
+        });
 
     }
 

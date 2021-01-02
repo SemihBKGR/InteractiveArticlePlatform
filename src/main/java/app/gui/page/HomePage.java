@@ -2,7 +2,10 @@ package app.gui.page;
 
 import app.gui.frame.AppFrame;
 import app.gui.panel.TabArticlePanel;
+import app.gui.panel.TabUserPanel;
+import app.util.Paged;
 import core.entity.Article;
+import core.entity.User;
 
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
@@ -14,19 +17,10 @@ public class HomePage {
 
     private JPanel panel;
     private JTabbedPane tabbedPanel;
-    private JButton searchButton;
 
 
-    public HomePage(AppFrame appFrame){
+    public HomePage(){
 
-       /*searchButton.addMouseListener(new MouseAdapter() {
-           @Override
-           public void mouseClicked(MouseEvent e) {
-
-               appFrame.changePage(AppFrame.Page.search);
-
-           }
-       });*/
 
 
 
@@ -34,6 +28,10 @@ public class HomePage {
 
     public void loadArticlePanel(Article article){
         tabbedPanel.addTab(article.getTitle(),new TabArticlePanel(article).getPanel());
+    }
+
+    public void loadUserPanel(User user, Paged paged){
+        tabbedPanel.addTab(user.getUsername(),new TabUserPanel(user,paged).getPanel());
     }
 
     public JPanel getPanel() {

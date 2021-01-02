@@ -51,6 +51,7 @@ public class ProfileArticlePanel {
                     user.getContributorArticle().add(createdArticle);
                     ((GridLayout)articleInnerPanel.getLayout()).setRows(articleCount);
                     articleInnerPanel.add(new OneLineArticlePanel(paged,createdArticle).getPanel());
+
                 }
             }
         });

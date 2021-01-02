@@ -224,6 +224,4 @@ public class ProfileInformationPanel {
         return panel;
     }
 
-
-
 }

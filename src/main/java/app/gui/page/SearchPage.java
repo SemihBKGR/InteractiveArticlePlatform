@@ -141,7 +141,7 @@ public class SearchPage {
                     public void onResult(ApiResponse<List<User>> response) {
                         setGridRowCount(response.getData().size());
                         for(User user:response.getData()){
-                            searchInnerPanel.add(new OneLineUserPanel(user).getPanel());
+                            searchInnerPanel.add(new OneLineUserPanel(user,paged).getPanel());
                         }
                         setInfoLabelResultText(response.getData().size());
                         searchButtonClickable.set(true);
