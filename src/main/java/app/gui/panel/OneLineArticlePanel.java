@@ -1,6 +1,6 @@
 package app.gui.panel;
 
-import app.gui.frame.AppFrame;
+import app.util.Paged;
 import core.DataHandler;
 import core.entity.Article;
 import core.entity.superficial.SuperficialArticle;
@@ -12,10 +12,8 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class OneLineArticlePanel {
     private JPanel panel;
@@ -27,18 +25,18 @@ public class OneLineArticlePanel {
     private Article article;
     private SuperficialArticle superficialArticle;
 
-    private OneLineArticlePanel(AppFrame appFrame){
+    private OneLineArticlePanel(Paged paged){
 
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(article!=null){
-                    appFrame.changePage(AppFrame.Page.home,article);
+                    paged.changePage(ButtonPanel.ActiveButton.menu.name(),article);
                 }else{
                     DataHandler.getDataHandler().getArticleAsync(superficialArticle.getId(), new DataListener<Article>() {
                         @Override
                         public void onResult(ApiResponse<Article> response) {
-                            appFrame.changePage(AppFrame.Page.home,response.getData());
+                            paged.changePage(ButtonPanel.ActiveButton.menu.name(),response.getData());
                         }
                     });
                 }
@@ -47,9 +45,9 @@ public class OneLineArticlePanel {
 
     }
 
-    public OneLineArticlePanel(AppFrame appFrame,SuperficialArticle article){
+    public OneLineArticlePanel(Paged paged,SuperficialArticle article){
 
-        this(appFrame);
+        this(paged);
         this.superficialArticle=article;
 
         panel.setBorder(new LineBorder(Color.BLACK,1));
@@ -65,9 +63,9 @@ public class OneLineArticlePanel {
 
     }
 
-    public OneLineArticlePanel(AppFrame appFrame,Article article){
+    public OneLineArticlePanel(Paged paged,Article article){
 
-        this(appFrame);
+        this(paged);
         this.article=article;
 
         panel.setBorder(new LineBorder(Color.BLACK,1));

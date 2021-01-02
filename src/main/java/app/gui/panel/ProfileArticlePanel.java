@@ -2,6 +2,7 @@ package app.gui.panel;
 
 import app.gui.dialog.CreateArticleDialog;
 import app.gui.frame.AppFrame;
+import app.util.Paged;
 import com.bulenkov.darcula.ui.DarculaButtonUI;
 import com.bulenkov.darcula.ui.DarculaInternalFrameUI;
 import core.entity.Article;
@@ -29,23 +30,27 @@ public class ProfileArticlePanel {
     private User user;
     private int articleCount;
 
-    AppFrame appFrame;
+    Paged paged;
 
-    public ProfileArticlePanel(AppFrame appFrame) {
+    public ProfileArticlePanel(Paged paged) {
 
-        this.appFrame=appFrame;
+        this.paged=paged;
+
+        articlePanel.getVerticalScrollBar().setUnitIncrement(17);
 
         createButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 CreateArticleDialog dialog=new CreateArticleDialog();
+                dialog.setLocation(new Point((int)MouseInfo.getPointerInfo().getLocation().getX()-dialog.getWidth()/2,
+                        (int)MouseInfo.getPointerInfo().getLocation().getY()-dialog.getHeight()/2));
                 dialog.setVisible(true);
                 if(dialog.getArticle()!=null){
                     SuperficialArticle createdArticle=Entities.articleToSuperficialArticle(dialog.getArticle());
                     articleCount++;
                     user.getContributorArticle().add(createdArticle);
                     ((GridLayout)articleInnerPanel.getLayout()).setRows(articleCount);
-                    articleInnerPanel.add(new OneLineArticlePanel(appFrame,createdArticle).getPanel());
+                    articleInnerPanel.add(new OneLineArticlePanel(paged,createdArticle).getPanel());
                 }
             }
         });
@@ -60,11 +65,11 @@ public class ProfileArticlePanel {
         ((GridLayout)articleInnerPanel.getLayout()).setRows(articleCount);
 
         for(SuperficialArticle article:user.getOwnArticles()){
-            articleInnerPanel.add(new OneLineArticlePanel(appFrame,article).getPanel());
+            articleInnerPanel.add(new OneLineArticlePanel(paged,article).getPanel());
         }
 
         for(SuperficialArticle article:user.getContributorArticle()){
-            articleInnerPanel.add(new OneLineArticlePanel(appFrame,article).getPanel());
+            articleInnerPanel.add(new OneLineArticlePanel(paged,article).getPanel());
         }
 
     }

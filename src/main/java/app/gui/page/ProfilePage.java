@@ -4,6 +4,7 @@ import app.gui.frame.AppFrame;
 import app.gui.frame.TransactionFrame;
 import app.gui.panel.ProfileArticlePanel;
 import app.gui.panel.ProfileInformationPanel;
+import app.util.Paged;
 import core.DataHandler;
 import core.entity.User;
 import core.util.ApiResponse;
@@ -14,6 +15,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class ProfilePage {
+
+    //TODO image save bug
 
     private JPanel panel;
     private JPanel InformationPanel;
@@ -28,30 +31,11 @@ public class ProfilePage {
     ProfileInformationPanel profileInformationPanel;
     ProfileArticlePanel profileArticlePanel;
 
-    private AppFrame appFrame;
+    private Paged paged;
 
-    public ProfilePage(AppFrame appFrame){
-        this.appFrame=appFrame;
-
+    public ProfilePage(Paged paged){
+        this.paged=paged;
         dataHandler=DataHandler.getDataHandler();
-
-        searchButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                appFrame.changePage(AppFrame.Page.search);
-            }
-        });
-
-        logoutButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                profileInformationPanel.interrupt();
-                appFrame.dispose();
-                new TransactionFrame().setVisible(true);
-            }
-        });
-
-
     }
 
     public void start(){
@@ -64,6 +48,10 @@ public class ProfilePage {
         });
     }
 
+    public void stop(){
+        profileInformationPanel.interrupt();
+    }
+
     public JPanel getPanel() {
         return panel;
     }
@@ -71,7 +59,7 @@ public class ProfilePage {
     private void createUIComponents() {
 
         profileInformationPanel=new ProfileInformationPanel();
-        profileArticlePanel=new ProfileArticlePanel(appFrame);
+        profileArticlePanel=new ProfileArticlePanel(paged);
 
         informationPanel = profileInformationPanel.getPanel();
         articlePanel = profileArticlePanel.getPanel();

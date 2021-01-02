@@ -19,14 +19,14 @@ public class HomePage {
 
     public HomePage(AppFrame appFrame){
 
-       searchButton.addMouseListener(new MouseAdapter() {
+       /*searchButton.addMouseListener(new MouseAdapter() {
            @Override
            public void mouseClicked(MouseEvent e) {
 
                appFrame.changePage(AppFrame.Page.search);
 
            }
-       });
+       });*/
 
 
 

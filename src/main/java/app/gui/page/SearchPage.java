@@ -4,6 +4,7 @@ import app.gui.frame.AppFrame;
 import app.gui.panel.OneLineArticlePanel;
 import app.gui.panel.OneLineUserPanel;
 import app.util.Confirmation;
+import app.util.Paged;
 import app.util.TypeConverts;
 import core.DataHandler;
 import core.entity.Article;
@@ -28,18 +29,16 @@ public class SearchPage {
 
     private JPanel panel;
     private JTextField searchField;
-    private JButton profileButton;
     private JButton searchButton;
     private JPanel searchInnerPanel;
     private JComboBox searchItemComboBox;
     private JLabel infoLabel;
-    private JButton homeButton;
 
     private AtomicBoolean searchButtonClickable;
 
     private SearchItem currentSearchItem;
 
-    private AppFrame appFrame;
+    private Paged paged;
 
     private enum SearchItem{
 
@@ -69,10 +68,9 @@ public class SearchPage {
 
     }
 
+    public SearchPage(Paged paged){
 
-    public SearchPage(AppFrame appFrame){
-
-        this.appFrame=appFrame;
+        this.paged=paged;
 
         searchButtonClickable=new AtomicBoolean(true);
 
@@ -90,12 +88,6 @@ public class SearchPage {
             }
         });
 
-        profileButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                appFrame.changePage(AppFrame.Page.profile);
-            }
-        });
 
         searchButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -115,12 +107,7 @@ public class SearchPage {
             }
         });
 
-        homeButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                appFrame.changePage(AppFrame.Page.home);
-            }
-        });
+
 
     }
 
@@ -177,7 +164,7 @@ public class SearchPage {
                     public void onResult(ApiResponse<List<Article>> response) {
                         setGridRowCount(response.getData().size());
                         for(Article article:response.getData()){
-                            searchInnerPanel.add(new OneLineArticlePanel(appFrame,article).getPanel());
+                            searchInnerPanel.add(new OneLineArticlePanel(paged,article).getPanel());
                         }
                         setInfoLabelResultText(response.getData().size());
                         searchButtonClickable.set(true);

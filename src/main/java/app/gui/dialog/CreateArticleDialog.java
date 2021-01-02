@@ -38,7 +38,7 @@ public class CreateArticleDialog extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-        setMinimumSize(new Dimension(500,250));
+        setMinimumSize(new Dimension(500,200));
         okButtonClickable=new AtomicBoolean(true);
         setIconImage(Resources.getImageIcon("article.png").getImage());
         buttonOK.addMouseListener(new MouseAdapter() {
