@@ -17,6 +17,8 @@ public class OneLineUserPanel {
     private JLabel usernameLabel;
     private JLabel emailLabel;
     private JPanel panel;
+    private JLabel articleCountLabel;
+    private JLabel contributorCountLabel;
 
     private User user;
     private SuperficialUser superficialUser;
@@ -38,7 +40,8 @@ public class OneLineUserPanel {
 
         usernameLabel.setText(user.getUsername());
         emailLabel.setText(user.getEmail());
-
+        articleCountLabel.setText("Article : "+user.getOwnArticles().size());
+        contributorCountLabel.setText("Contributor : "+user.getContributorArticle().size());
 
         panel.addMouseListener(new MouseAdapter() {
             @Override

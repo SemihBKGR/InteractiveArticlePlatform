@@ -25,12 +25,17 @@ public class AppFrame extends JFrame implements Paged {
     private final SearchPage searchPage;
     private final HomePage homePage;
 
+    private ButtonPanel buttonPanel;
+
     private void createUIComponents() {
-        buttonToolBar=new ButtonPanel(this,()->{
+        buttonPanel=new ButtonPanel(this,()->{
             profilePage.stop();
             dispose();
             new TransactionFrame().setVisible(true);
-        }).getButtonToolBar();
+        });
+
+        buttonToolBar=buttonPanel.getButtonToolBar();
+
     }
 
 
@@ -66,12 +71,13 @@ public class AppFrame extends JFrame implements Paged {
     public void changePage(String pageName, Object... items) {
         if(pageName .equals(ButtonPanel.ActiveButton.menu.toString())){
             if(items[0] instanceof Article) {
-                homePage.loadArticlePanel((Article)items[0]);
+                homePage.loadArticlePanel((Article)items[0],this);
             }else if(items[0] instanceof User){
                 homePage.loadUserPanel((User) items[0],this);
             }
         }
         changePage(pageName);
+        buttonPanel.setExplicitlyActive(ButtonPanel.ActiveButton.valueOf(pageName));
     }
 
 

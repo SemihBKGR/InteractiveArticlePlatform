@@ -26,8 +26,8 @@ public class HomePage {
 
     }
 
-    public void loadArticlePanel(Article article){
-        tabbedPanel.addTab(article.getTitle(),new TabArticlePanel(article).getPanel());
+    public void loadArticlePanel(Article article,Paged paged){
+        tabbedPanel.addTab(article.getTitle(),new TabArticlePanel(article,paged).getPanel());
     }
 
     public void loadUserPanel(User user, Paged paged){

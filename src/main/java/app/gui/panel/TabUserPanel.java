@@ -34,8 +34,6 @@ public class TabUserPanel {
 
     public TabUserPanel(User user, Paged paged){
 
-        informationPanel.setBorder(new LineBorder(Color.BLACK,3));
-
         usernameLabel.setText(user.getUsername());
         emailLabel.setText(user.getEmail());
 
@@ -48,12 +46,12 @@ public class TabUserPanel {
 
     private void setInformation(Information information){
 
-        nameLabel.setText(information.getName());
-        surnameLabel.setText(information.getSurname());
-        phoneLabel.setText(information.getPhone());
-        companyLabel.setText(information.getCompany());
-        addressLabel.setText(information.getAddress());
-        biographyLabel.setText(information.getAddress());
+        nameLabel.setText("Name : "+(information.getName()==null?"":information.getName()));
+        surnameLabel.setText("Surname : "+information.getSurname());
+        phoneLabel.setText("Phone : "+information.getPhone());
+        companyLabel.setText("Company : "+information.getCompany());
+        addressLabel.setText("Address : "+information.getAddress());
+        biographyLabel.setText("Biography : "+information.getAddress());
 
         if(information.getImage()!=null){
 
