@@ -54,7 +54,21 @@ public class ArticleController {
     }
 
 
-    @PostMapping("/search/{title}")
+    @PostMapping("/contributor/add/{article_id}/{user_id}")
+    public ApiResponse<Article> addContributor(@PathVariable("article_id") int articleId,
+                                               @PathVariable("user_id") int userId){
+
+        User user=userService.findById(userId);
+        Article article=articleService.findById(articleId);
+        if(user!=null && article!=null){
+            article.getContributors().add(user);
+            articleService.save(article);
+            return ApiResponse.createApiResponse(article,"added");
+        }
+        return ApiResponse.createApiResponse(article,"cannot be added",false);
+    }
+
+    @PostMapping("/search/{text}")
     public ApiResponse<List<Article>> searchArticle(@PathVariable("text") String text){
         return ApiResponse.createApiResponse(articleService.searchArticleByTitle(text),"Search result");
     }

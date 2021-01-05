@@ -5,12 +5,14 @@ import com.smh.InteractiveArticlePlatformWebService.article.ArticleService;
 import com.smh.InteractiveArticlePlatformWebService.chat.message.Message;
 import com.smh.InteractiveArticlePlatformWebService.chat.message.MessageService;
 import com.smh.InteractiveArticlePlatformWebService.user.User;
+import com.smh.InteractiveArticlePlatformWebService.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -27,6 +29,7 @@ public class ChatMessageController {
     @Autowired
     private ArticleService articleService;
 
+
     @Autowired
     private MessageService messageService;
 
@@ -38,12 +41,17 @@ public class ChatMessageController {
             if(chatSession!=null){
                 simpMessagingTemplate.convertAndSend("queue/search-user"+chatSession.getSession_id(), chatMessage);
             }else{
+
+                //TODO save
+                /*
                 Message message=new Message();
                 message.setArticle(chatMessage.getTo_article());
                 message.setSender(chatMessage.getFrom_user());
                 message.setReceiver(user);
                 message.setMessage(chatMessage.getMessage());
                 messageService.save(message);
+                */
+
             }
         }
 
@@ -51,10 +59,21 @@ public class ChatMessageController {
 
     private List<User> prepareUsers(ChatMessage chatMessage){
 
-        List<User> list=chatMessage.getTo_article().getContributors();
-        list.add(chatMessage.getTo_article().getOwner());
-        list.remove(chatMessage.getFrom_user());
-        return list;
+        Article article=articleService.findById(chatMessage.getTo_article_id());
+
+        List<User> users=new ArrayList<>();
+
+        for(User user:article.getContributors()){
+            if(user.getId()!=chatMessage.getFrom_user().getId()){
+                users.add(user);
+            }
+        }
+
+        if(article.getOwner().getId()!=chatMessage.getFrom_user().getId()){
+            users.add(article.getOwner());
+        }
+
+        return users;
 
     }
 

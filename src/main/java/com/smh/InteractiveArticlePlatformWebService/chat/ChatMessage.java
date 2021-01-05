@@ -10,7 +10,7 @@ import lombok.Data;
 public class ChatMessage {
 
     private User from_user;
-    private Article to_article;
+    private int to_article_id;
     private String message;
     private long sent_at;
 

@@ -39,12 +39,14 @@ public class User implements Serializable {
 
     //TODO Set cascade type
     //TODO Change information fetch type to lazy.
+    @ToString.Exclude
     @JsonSerialize(using = ArticleListSerializer.class)
     @ManyToMany(mappedBy = "contributors",fetch = FetchType.EAGER)
     private List<Article> contributorArticle;
 
     //TODO Set cascade type
     //TODO Change information fetch type to lazy.
+    @ToString.Exclude
     @JsonSerialize(using = ArticleListSerializer.class)
     @OneToMany( mappedBy = "owner",fetch = FetchType.EAGER)
     private List<Article> ownArticles;

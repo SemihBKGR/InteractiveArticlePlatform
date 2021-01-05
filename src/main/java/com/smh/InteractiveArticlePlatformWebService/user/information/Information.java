@@ -1,9 +1,6 @@
 package com.smh.InteractiveArticlePlatformWebService.user.information;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -11,9 +8,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
 
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @Entity
 @Table(name="information")

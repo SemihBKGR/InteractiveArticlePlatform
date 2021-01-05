@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.smh.InteractiveArticlePlatformWebService.serialization.UserListSerializer;
 import com.smh.InteractiveArticlePlatformWebService.serialization.UserSerializer;
 import com.smh.InteractiveArticlePlatformWebService.user.User;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -17,9 +14,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @Table(name="articles")
 @Entity
@@ -51,6 +46,7 @@ public class Article implements Serializable {
     private long update_at;
 
     //TODO Set cascade type
+    @ToString.Exclude
     @JsonSerialize(using = UserSerializer.class)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id",updatable = false)
@@ -58,6 +54,7 @@ public class Article implements Serializable {
 
     //TODO Set cascade type
     //TODO Change information fetch type to lazy.
+    @ToString.Exclude
     @JsonSerialize(using = UserListSerializer.class)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name="contributor_joins",
