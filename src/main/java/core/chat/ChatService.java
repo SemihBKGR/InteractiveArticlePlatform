@@ -35,6 +35,8 @@ public class ChatService {
 
     private final DataPolicy dataPolicy;
 
+    private int userId;
+
     public ChatService(DataPolicy dataPolicy){
         this.dataPolicy=dataPolicy;
         socketConnectLatch =new CountDownLatch(1);
@@ -126,14 +128,14 @@ public class ChatService {
         }
     }
 
-    public List<ChatMessage> getMessages(int articleId) {
+    public List<ChatMessage> getMessages(int articleId,int userId) {
 
         List<ChatMessage> chatMessages=articleChatMessagesMap.get(articleId);
         if(chatMessages!=null){
             return chatMessages;
         }else{
             try {
-                chatMessages=ChatLogFiles.getMessages(articleId);
+                chatMessages=ChatLogFiles.getMessages(articleId,userId);
                 articleChatMessagesMap.put(articleId,chatMessages);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
