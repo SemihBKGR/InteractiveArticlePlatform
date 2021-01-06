@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface MessageService {
 
-    Message save(Message message);
-    List<Message> findByReceiver(User user);
-    void deleteById(int id);
+    void save(Message message);
+    List<Message> findByReceiverId(int id);
+    void deleteByReceiverId(int id);
 
 }

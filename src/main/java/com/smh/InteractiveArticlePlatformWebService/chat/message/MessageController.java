@@ -6,6 +6,7 @@ import com.smh.InteractiveArticlePlatformWebService.util.ApiResponse;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,21 +22,17 @@ public class MessageController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/get/user/id/{id}")
-    public ApiResponse<List<Message>> getMessagesByUserId(@PathVariable("id") int id){
+    @PostMapping("/get")
+    public ApiResponse<List<Message>> getMessages(){
 
-        User user=userService.findById(id);
-        Objects.requireNonNull(user);
+        User user=userService.findByUsername
+                (SecurityContextHolder.getContext().getAuthentication().getName());
 
-        List<Message> messages=messageService.findByReceiver(user);
-
-        return ApiResponse.createApiResponse(messages,"Messaged found");
+        List<Message> messages=messageService.findByReceiverId(user.getId());
+        messageService.deleteByReceiverId(user.getId());
+        return ApiResponse.createApiResponse(messages,"Messages found, size : "+messages.size());
 
     }
 
-    @PostMapping("/delete/message/id/{id}")
-    public void deleteMessageByMessageId(@PathVariable("id") int id){
-        messageService.deleteById(id);
-    }
 
 }

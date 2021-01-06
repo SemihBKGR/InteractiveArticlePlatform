@@ -16,13 +16,10 @@ public class ChatSessionEventListener {
     @EventListener
     private void handleSessionConnected(SessionConnectEvent event){
 
-        System.out.println("-------------------------------------------------------------Session Connected");
-
         SimpMessageHeaderAccessor headerAccessor=SimpMessageHeaderAccessor.wrap(event.getMessage());
         ChatSession chatSession=new ChatSession();
         chatSession.setUsername(headerAccessor.getUser().getName());
         chatSession.setSession_id(headerAccessor.getSessionId());
-        System.out.println("------------------------------------------------------"+chatSession);
         chatSessionRepository.save(chatSession);
 
     }

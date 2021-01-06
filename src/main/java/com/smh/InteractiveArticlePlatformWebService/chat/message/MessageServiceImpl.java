@@ -4,6 +4,8 @@ import com.smh.InteractiveArticlePlatformWebService.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,20 +16,18 @@ public class MessageServiceImpl implements MessageService {
     private MessageRepository messageRepository;
 
     @Override
-    public Message save(Message message) {
-        Objects.requireNonNull(message);
-        return messageRepository.save(message);
+    public void save(Message message) {
+        messageRepository.save(message);
     }
 
     @Override
-    public List<Message> findByReceiver(User user) {
-        Objects.requireNonNull(user);
-        return messageRepository.findByReceiver(user);
+    public List<Message> findByReceiverId(int id) {
+        return messageRepository.findByReceiverId(id);
     }
 
     @Override
-    public void deleteById(int id) {
-        messageRepository.deleteById(id);
+    public void deleteByReceiverId(int id) {
+        messageRepository.deleteByReceiverId(id);
     }
 
 

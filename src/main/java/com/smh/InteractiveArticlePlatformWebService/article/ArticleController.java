@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -57,11 +58,15 @@ public class ArticleController {
     @PostMapping("/contributor/add/{article_id}/{user_id}")
     public ApiResponse<Article> addContributor(@PathVariable("article_id") int articleId,
                                                @PathVariable("user_id") int userId){
-
         User user=userService.findById(userId);
         Article article=articleService.findById(articleId);
         if(user!=null && article!=null){
-            article.getContributors().add(user);
+
+            if(article.getContributors()!=null && article.getContributors().size()>0){
+                article.getContributors().add(user);
+            }else{
+                article.setContributors(new ArrayList<>(Arrays.asList(user)));
+            }
             articleService.save(article);
             return ApiResponse.createApiResponse(article,"added");
         }
