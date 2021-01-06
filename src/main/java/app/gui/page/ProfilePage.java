@@ -1,7 +1,5 @@
 package app.gui.page;
 
-import app.gui.frame.AppFrame;
-import app.gui.frame.TransactionFrame;
 import app.gui.panel.ProfileArticlePanel;
 import app.gui.panel.ProfileInformationPanel;
 import app.util.Paged;
@@ -11,8 +9,6 @@ import core.util.ApiResponse;
 import core.util.DataListener;
 
 import javax.swing.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class ProfilePage {
 

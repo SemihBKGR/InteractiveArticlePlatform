@@ -5,7 +5,6 @@ import com.bulenkov.iconloader.util.Scalr;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 

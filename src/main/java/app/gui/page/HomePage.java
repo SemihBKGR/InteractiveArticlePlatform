@@ -1,6 +1,5 @@
 package app.gui.page;
 
-import app.gui.frame.AppFrame;
 import app.gui.panel.TabArticlePanel;
 import app.gui.panel.TabUserPanel;
 import app.util.Paged;
@@ -8,10 +7,6 @@ import core.entity.Article;
 import core.entity.User;
 
 import javax.swing.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class HomePage {
 

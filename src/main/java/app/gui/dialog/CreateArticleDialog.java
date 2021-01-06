@@ -5,19 +5,14 @@ import app.util.Confirmation;
 import app.util.Resources;
 import core.DataHandler;
 import core.entity.Article;
-import core.entity.User;
 import core.entity.dto.ArticleCreateDto;
 import core.util.ApiResponse;
 import core.util.DataListener;
-import core.util.Entities;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 public class CreateArticleDialog extends JDialog {
 

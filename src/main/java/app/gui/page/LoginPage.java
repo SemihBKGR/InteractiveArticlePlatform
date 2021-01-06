@@ -1,10 +1,6 @@
 package app.gui.page;
 
-import com.bulenkov.darcula.DarculaLaf;
-
 import javax.swing.*;
-import javax.swing.text.DefaultHighlighter;
-import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 

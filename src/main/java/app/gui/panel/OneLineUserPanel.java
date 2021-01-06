@@ -7,6 +7,8 @@ import core.entity.superficial.SuperficialUser;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
@@ -25,6 +27,7 @@ public class OneLineUserPanel {
 
     public OneLineUserPanel(User user, Paged paged){
 
+        imageLabel.setBorder(new LineBorder(Color.BLACK,3));
         if(user.getInformation().getImage()!=null && user.getInformation().getImage().length>0){
             ByteArrayInputStream imageStream=new ByteArrayInputStream(user.getInformation().getImage());
             try {

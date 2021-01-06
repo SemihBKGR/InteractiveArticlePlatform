@@ -1,24 +1,15 @@
 package app.gui.panel;
 
 import app.gui.dialog.CreateArticleDialog;
-import app.gui.frame.AppFrame;
 import app.util.Paged;
-import com.bulenkov.darcula.ui.DarculaButtonUI;
-import com.bulenkov.darcula.ui.DarculaInternalFrameUI;
-import core.entity.Article;
 import core.entity.User;
 import core.entity.superficial.SuperficialArticle;
-import core.entity.superficial.SuperficialUser;
 import core.util.Entities;
 
 import javax.swing.*;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
 
 public class ProfileArticlePanel {
 

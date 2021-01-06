@@ -1,17 +1,14 @@
 package app.gui.page;
 
-import app.gui.frame.AppFrame;
 import app.gui.panel.OneLineArticlePanel;
 import app.gui.panel.OneLineUserPanel;
 import app.util.Confirmation;
 import app.util.Paged;
-import app.util.TypeConverts;
 import core.DataHandler;
 import core.entity.Article;
 import core.entity.User;
 import core.util.ApiResponse;
 import core.util.DataListener;
-import org.w3c.dom.CDATASection;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;

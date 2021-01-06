@@ -8,7 +8,6 @@ import core.entity.superficial.SuperficialArticle;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

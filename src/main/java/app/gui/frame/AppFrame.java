@@ -6,11 +6,13 @@ import app.gui.page.SearchPage;
 import app.gui.panel.ButtonPanel;
 import app.util.Paged;
 import app.util.Resources;
+import core.DataHandler;
+import core.chat.ChatListener;
+import core.chat.ChatMessage;
 import core.entity.Article;
 import core.entity.User;
 
 import javax.swing.*;
-
 import java.awt.*;
 
 import static app.Contracts.FRAME_TITLE;
@@ -58,6 +60,10 @@ public class AppFrame extends JFrame implements Paged {
         centerPanel.add(homePage.getPanel(),ButtonPanel.ActiveButton.menu.toString());
 
         profilePage.start();
+
+        DataHandler.getDataHandler().connectWebSocket();
+        DataHandler.getDataHandler().loadMessagesAsync();
+        DataHandler.getDataHandler().connectChatSocketAsync(chatMessage -> {});
 
     }
 

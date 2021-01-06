@@ -1,7 +1,5 @@
 package app.util;
 
-import java.util.Objects;
-
 public class TypeConverts {
 
     public static boolean toBoolean (Object object){
