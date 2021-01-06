@@ -3,6 +3,7 @@ package core.request;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.DataPolicy;
+import core.chat.Message;
 import core.entity.Article;
 import core.entity.Information;
 import core.entity.User;
@@ -104,6 +105,11 @@ public class RequestService implements Closeable {
         return sendPostRequestList(concatUrlVariable(ARTICLE_SEARCH_URL,text),true,null,Article.class);
 
     }
+
+    public ApiResponse<List<Message>> getMessages() throws IOException {
+        return sendPostRequestList(MESSAGE_GET_URL,true,null,Message.class);
+    }
+
 
     private <T> ApiResponse<T> sendPostRequest(String url,boolean loadHeaders,Object body, Class<T> type) throws IOException {
 

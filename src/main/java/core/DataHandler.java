@@ -2,6 +2,9 @@ package core;
 
 
 import core.cache.CacheService;
+import core.chat.ChatListener;
+import core.chat.ChatMessage;
+import core.chat.ChatService;
 import core.entity.Article;
 import core.entity.Information;
 import core.entity.User;
@@ -31,6 +34,7 @@ public class DataHandler implements Closeable {
     private final TransactionService transactionService;
     private final RequestService requestService;
     private final CacheService cacheService;
+    private final ChatService chatService;
 
     private final DataPolicy dataPolicy;
 
@@ -43,6 +47,7 @@ public class DataHandler implements Closeable {
         transactionService=new TransactionService(dataPolicy);
         requestService=new RequestService(dataPolicy);
         cacheService=new CacheService(dataPolicy);
+        chatService=new ChatService(dataPolicy);
 
         log.info("DataHandler initialized.");
 
@@ -350,7 +355,6 @@ public class DataHandler implements Closeable {
         return requestService.searchUser(text);
     }
 
-
     public void searchUserAsync(String text,DataListener<List<User>> listener){
 
         Objects.requireNonNull(listener);
@@ -396,6 +400,37 @@ public class DataHandler implements Closeable {
 
     }
 
+    public void connectWebSocket(){
+        String authorization=requestService.getHeaders().get("Authorization");
+        if(authorization!=null){
+            chatService.connectWebSocket(authorization);
+        }
+        log.warn("Has not been logged in yet, so cannot connect web socket");
+    }
+
+    public void connectChatSocketAsync(ChatListener chatListener){
+        executorService.execute(()->{
+            try {
+                chatService.connectChatChannel(chatListener);
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+        });
+    }
+
+    public void loadMessagesAsync(){
+        executorService.execute(()->{
+            try {
+                chatService.loadMessages(requestService.getMessages().getData());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public ChatService getChatService() {
+        return chatService;
+    }
 
     @Override
     public void close() throws IOException {

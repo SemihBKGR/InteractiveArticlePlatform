@@ -29,4 +29,10 @@ class Contracts {
     static final String ARTICLE_CREATE_URL=ARTICLE_URL+"/create";
     static final String ARTICLE_SEARCH_URL=ARTICLE_URL+"/search";
 
+
+    //Message
+    static final String MESSAGE_URL=BASE_URL+"/message";
+
+    static final String MESSAGE_GET_URL=MESSAGE_URL+"/get";
+
 }

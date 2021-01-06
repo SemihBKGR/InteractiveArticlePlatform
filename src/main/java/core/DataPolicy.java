@@ -7,6 +7,7 @@ public class DataPolicy {
     private int cacheExpirationTime;
     private boolean cacheEnable;
     private PolicyState policyState;
+    private boolean logChatMessages;
 
     public enum PolicyState{
         fixed,
@@ -23,6 +24,7 @@ public class DataPolicy {
         dataPolicy.cacheExpirationTime=10_000;
         dataPolicy.cacheEnable=true;
         dataPolicy.policyState=PolicyState.fixed;
+        dataPolicy.logChatMessages=true;
         return dataPolicy;
     }
 
@@ -32,6 +34,7 @@ public class DataPolicy {
         dataPolicy.cacheExpirationTime=10_000;
         dataPolicy.cacheEnable=true;
         dataPolicy.policyState=PolicyState.system;
+        dataPolicy.logChatMessages=true;
         return dataPolicy;
     }
 
@@ -46,7 +49,7 @@ public class DataPolicy {
         dataPolicy.dataHandlerWorkerThreadCount = dataHandlerWorkerThreadCount;
         dataPolicy.cacheExpirationTime = cacheExpirationTime;
         dataPolicy.cacheEnable=cacheEnable;
-
+        dataPolicy.logChatMessages=true;
         if(dataHandlerWorkerThreadCount>16){
             dataPolicy.policyState=PolicyState.system;
         }else{
