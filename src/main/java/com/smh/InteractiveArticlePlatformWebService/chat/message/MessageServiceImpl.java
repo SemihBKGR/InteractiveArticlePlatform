@@ -1,15 +1,13 @@
 package com.smh.InteractiveArticlePlatformWebService.chat.message;
 
-import com.smh.InteractiveArticlePlatformWebService.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.Objects;
 
 @Service
+@Transactional
 public class MessageServiceImpl implements MessageService {
 
     @Autowired
@@ -22,12 +20,12 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public List<Message> findByReceiverId(int id) {
-        return messageRepository.findByReceiverId(id);
+        return messageRepository.findByReceiver(id);
     }
 
     @Override
     public void deleteByReceiverId(int id) {
-        messageRepository.deleteByReceiverId(id);
+        messageRepository.deleteByReceiver(id);
     }
 
 

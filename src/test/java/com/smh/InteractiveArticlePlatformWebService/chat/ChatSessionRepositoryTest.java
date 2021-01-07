@@ -28,7 +28,7 @@ class ChatSessionRepositoryTest {
     @Test
     @Order(2)
     void find(){
-        System.out.println(chatSessionRepository.findByUsername("username"));
+        assertNotNull(chatSessionRepository.findByUsername("username"));
     }
 
 }

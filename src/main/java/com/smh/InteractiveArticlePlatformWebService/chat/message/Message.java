@@ -23,14 +23,14 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name="receiver_id",nullable = false, updatable = false)
-    private int receiver_id;
+    @Column(name="receiver",nullable = false, updatable = false)
+    private int receiver;
 
-    @Column(name="sender_id",nullable = false, updatable = false)
-    private int sender_id;
+    @Column(name="sender",nullable = false, updatable = false)
+    private int sender;
 
-    @Column(name="article_id", nullable = false, updatable = false)
-    private int article_id;
+    @Column(name="article", nullable = false, updatable = false)
+    private int article;
 
     @Column(name = "message",nullable = false, updatable = false)
     private String message;

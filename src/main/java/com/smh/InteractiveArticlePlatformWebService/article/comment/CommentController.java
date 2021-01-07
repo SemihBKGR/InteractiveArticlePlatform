@@ -47,11 +47,9 @@ public class CommentController {
 
     @PostMapping("/get/article/{id}")
     public ApiResponse<List<Comment>> getCommentByArticle(@PathVariable("id") int id){
-
         Article article=articleService.findById(id);
         Objects.requireNonNull(article);
         return ApiResponse.createApiResponse(commentService.findByArticle(article),"Comments found");
-
     }
 
     @PostMapping("/get/me")

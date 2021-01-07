@@ -1,10 +1,12 @@
 package com.smh.InteractiveArticlePlatformWebService.article;
 
+import com.smh.InteractiveArticlePlatformWebService.serialization.superficial.SuperficialUser;
 import com.smh.InteractiveArticlePlatformWebService.user.User;
 import com.smh.InteractiveArticlePlatformWebService.user.UserService;
 import com.smh.InteractiveArticlePlatformWebService.util.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -58,19 +60,64 @@ public class ArticleController {
     @PostMapping("/contributor/add/{article_id}/{user_id}")
     public ApiResponse<Article> addContributor(@PathVariable("article_id") int articleId,
                                                @PathVariable("user_id") int userId){
+
+        User owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         User user=userService.findById(userId);
         Article article=articleService.findById(articleId);
-        if(user!=null && article!=null){
 
-            if(article.getContributors()!=null && article.getContributors().size()>0){
-                article.getContributors().add(user);
+        if(user!=null && article!=null){
+            if(user.getId()==owner.getId()){
+                return ApiResponse.createApiResponse(article,"Cannot add yourself as contributor",false);
             }else{
-                article.setContributors(new ArrayList<>(Arrays.asList(user)));
+                if(owner.getOwnArticles().stream().map(Article::getId).anyMatch(i->i==articleId)){
+                    if(!article.getContributors().stream().map(User::getId).anyMatch(i->i==userId)){
+                        article.getContributors().add(user);
+                        articleService.save(article);
+                        return ApiResponse.createApiResponse(article,"Contributor added");
+                    }else{
+                        return ApiResponse.createApiResponse(article,"This user is already contributor",false);
+                    }
+                }else{
+                    return ApiResponse.createApiResponse(article,"No permission to add contributor",false);
+                }
             }
-            articleService.save(article);
-            return ApiResponse.createApiResponse(article,"added");
+        }else{
+            return ApiResponse.createApiResponse(null,"Wrong path parameter",false);
         }
-        return ApiResponse.createApiResponse(article,"cannot be added",false);
+
+
+    }
+
+
+    @PostMapping("/contributor/remove/{article_id}/{user_id}")
+    public ApiResponse<Article> removeContributor(@PathVariable("article_id") int articleId,
+                                     @PathVariable("user_id") int userId){
+
+        User owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        User user=userService.findById(userId);
+        Article article=articleService.findById(articleId);
+
+
+        if(user!=null && article!=null){
+            if(user.getId()==owner.getId()){
+                return ApiResponse.createApiResponse(article,"Cannot remove yourself as contributor",false);
+            }else{
+                if(owner.getOwnArticles().stream().map(Article::getId).anyMatch(i->i==articleId)){
+                    if(!article.getContributors().stream().map(User::getId).anyMatch(i->i==userId)){
+                        article.getContributors().remove(user);
+                        articleService.save(article);
+                        return ApiResponse.createApiResponse(article,"Contributor removed");
+                    }else{
+                        return ApiResponse.createApiResponse(article,"This user is not already contributor",false);
+                    }
+                }else{
+                    return ApiResponse.createApiResponse(article,"No permission to add contributor",false);
+                }
+            }
+        }else{
+            return ApiResponse.createApiResponse(null,"Wrong path parameter",false);
+        }
+
     }
 
     @PostMapping("/search/{text}")

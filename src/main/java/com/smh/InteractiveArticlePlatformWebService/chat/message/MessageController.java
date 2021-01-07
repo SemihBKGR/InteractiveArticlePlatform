@@ -9,6 +9,8 @@ import org.springframework.mail.MailException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,9 +32,9 @@ public class MessageController {
 
         List<Message> messages=messageService.findByReceiverId(user.getId());
         messageService.deleteByReceiverId(user.getId());
+
         return ApiResponse.createApiResponse(messages,"Messages found, size : "+messages.size());
 
     }
-
 
 }
