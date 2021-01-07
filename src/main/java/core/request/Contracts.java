@@ -42,5 +42,6 @@ class Contracts {
     static final String COMMENT_URL= BASE_URL+"/comment";
 
     static final String COMMENT_MAKE_URL=COMMENT_URL+"/make";
+    static final String COMMENT_GET_BY_ARTICLE_URL=COMMENT_URL+"/get/article";
 
 }

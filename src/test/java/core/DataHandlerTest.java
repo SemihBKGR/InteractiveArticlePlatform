@@ -1,8 +1,11 @@
 package core;
 
 import core.entity.Article;
+import core.entity.Comment;
 import core.entity.Information;
 import core.entity.User;
+import core.entity.dto.ArticleCreateDto;
+import core.entity.dto.CommentDto;
 import core.util.ApiResponse;
 import core.util.DataListener;
 import core.util.KeyValue;
@@ -26,60 +29,12 @@ class DataHandlerTest{
 
     @Test
     @Order(0)
-    void login(){
-
-        ApiResponse<KeyValue> response=null;
-
-        try {
-            response=DataHandler.getDataHandler().login("username","password");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        assertNotNull(response);
-
-        System.out.println(response);
-
-    }
-
-
-    @Test
-    @Order(0)
-    void loginAsync(){
-
-        CountDownLatch countDownLatch=new CountDownLatch(1);
-
-        DataHandler.getDataHandler().loginAsync("username", "password", new DataListener<KeyValue>() {
-            @Override
-            public void onException(Throwable e) {
-                e.printStackTrace();
-                fail();
-            }
-
-            @Override
-            public void onResult(ApiResponse<KeyValue> response) {
-                assertNotNull(response.getData());
-                System.out.println(response);
-                countDownLatch.countDown();
-            }
-        });
-
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException interruptedException) {
-            interruptedException.printStackTrace();
-        }
-
-    }
-
-    @Test
-    @Order(1)
     void register(){
 
         ApiResponse<User> response=null;
 
         try {
-            response=DataHandler.getDataHandler().register("username","email","password");
+            response=DataHandler.getDataHandler().register("username01","email01","password01");
         } catch (IOException e) {
             e.printStackTrace();
             fail();
@@ -92,12 +47,12 @@ class DataHandlerTest{
     }
 
     @Test
-    @Order(1)
+    @Order(0)
     void registerAsync(){
 
         CountDownLatch countDownLatch=new CountDownLatch(1);
 
-        DataHandler.getDataHandler().registerAsync("username","email","password", new DataListener<>() {
+        DataHandler.getDataHandler().registerAsync("username02","email02","password02", new DataListener<>() {
 
             @Override
             public void onException(Throwable e) {
@@ -127,11 +82,55 @@ class DataHandlerTest{
 
 
     @Test
+    @Order(1)
+    void login(){
+        ApiResponse<KeyValue> response=null;
+        try {
+            response=DataHandler.getDataHandler().login("username01","password01");
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+        assertNotNull(response);
+    }
+
+
+    @Test
+    @Order(1)
+    void loginAsync(){
+
+        CountDownLatch countDownLatch=new CountDownLatch(1);
+
+        DataHandler.getDataHandler().loginAsync("username02", "password02", new DataListener<KeyValue>() {
+            @Override
+            public void onException(Throwable e) {
+                e.printStackTrace();
+                fail(e.getMessage());
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onResult(ApiResponse<KeyValue> response) {
+                assertNotNull(response.getData());
+                countDownLatch.countDown();
+            }
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+
+    }
+
+
+    @Test
     @Order(2)
     void getMe(){
 
         DataHandler dataHandler=DataHandler.getDataHandler();
-        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
 
         ApiResponse<User> data=null;
 
@@ -152,7 +151,7 @@ class DataHandlerTest{
     void getMeAsync(){
 
         DataHandler dataHandler=DataHandler.getDataHandler();
-        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
 
         CountDownLatch countDownLatch=new CountDownLatch(1);
 
@@ -189,7 +188,7 @@ class DataHandlerTest{
     void getUser(){
 
         DataHandler dataHandler=DataHandler.getDataHandler();
-        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
 
         int id=1;
 
@@ -212,7 +211,7 @@ class DataHandlerTest{
     void getUserAsync(){
 
         DataHandler dataHandler=DataHandler.getDataHandler();
-        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
 
         CountDownLatch countDownLatch=new CountDownLatch(1);
 
@@ -264,10 +263,29 @@ class DataHandlerTest{
 
     @Test
     @Order(4)
+    void createArticle(){
+
+        DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
+
+        ArticleCreateDto articleCreateDto=new ArticleCreateDto();
+        articleCreateDto.setTitle("titel01");
+        articleCreateDto.set_private(false);
+        try {
+            dataHandler.createArticle(articleCreateDto);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    @Test
+    @Order(5)
     void getArticle(){
 
         DataHandler dataHandler=DataHandler.getDataHandler();
-        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
         int id=1;
 
         ApiResponse<Article> response=null;
@@ -285,12 +303,12 @@ class DataHandlerTest{
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void getArticleAsync(){
 
 
         DataHandler dataHandler=DataHandler.getDataHandler();
-        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
         int id=1;
 
         CountDownLatch countDownLatch=new CountDownLatch(1);
@@ -340,18 +358,18 @@ class DataHandlerTest{
     }
 
 
-    //Test user search both async and normal method
     @Test
-    @Order(5)
+    @Order(6)
     void searchUser(){
 
         DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
         CountDownLatch latch=new CountDownLatch(1);
 
         AtomicReference<List<User>>asyncUserListReference=new AtomicReference<>();
         List<User> userList=null;
 
-        String text="acc";
+        String text="us";
 
         dataHandler.searchUserAsync(text, new DataListener<List<User>>() {
             @Override
@@ -391,13 +409,14 @@ class DataHandlerTest{
 
 
     @Test
-    @Order(5)
+    @Order(6)
     void searchArticle(){
 
         DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
         CountDownLatch latch=new CountDownLatch(1);
 
-        String text="ar";
+        String text="ti";
 
         AtomicReference<List<Article>> asyncArticleList=new AtomicReference<>();
         List<Article> articles=null;
@@ -436,6 +455,47 @@ class DataHandlerTest{
 
         assertEquals(asyncArticleList.get(),articles);
 
+
+    }
+
+
+    @Test
+    @Order(7)
+    void makeComment(){
+
+        DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
+
+        CountDownLatch countDownLatch=new CountDownLatch(1);
+
+        CommentDto commentDto=new CommentDto();
+        commentDto.setArticle_id(1);
+        commentDto.setContent("Comment01");
+
+        dataHandler.makeCommentAsync(commentDto, new DataListener<Comment>() {
+            @Override
+            public void onException(Throwable t) {
+                countDownLatch.countDown();
+                fail(t.getMessage());
+            }
+
+            @Override
+            public void onResult(ApiResponse<Comment> response) {
+                if(response.isConfirmed()){
+                    countDownLatch.countDown();
+                    fail(response.getMessage());
+                }else{
+                    countDownLatch.countDown();
+                    System.out.println(response.getData());
+                }
+            }
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
 
     }
 

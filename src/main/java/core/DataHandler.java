@@ -3,12 +3,13 @@ package core;
 
 import core.cache.CacheService;
 import core.chat.ChatListener;
-import core.chat.ChatMessage;
 import core.chat.ChatService;
 import core.entity.Article;
+import core.entity.Comment;
 import core.entity.Information;
 import core.entity.User;
 import core.entity.dto.ArticleCreateDto;
+import core.entity.dto.CommentDto;
 import core.entity.dto.LoginDto;
 import core.entity.dto.RegisterDto;
 import core.request.RequestService;
@@ -464,6 +465,41 @@ public class DataHandler implements Closeable {
             listener.onException(throwable);
             return null;
         });
+    }
+
+    public void makeCommentAsync(CommentDto commentDto, DataListener<Comment> listener){
+        Objects.requireNonNull(listener);
+        CompletableFuture.supplyAsync(()->{
+            listener.onStart();
+            try {
+                return requestService.makeComment(commentDto);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(),e);
+            }
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally(throwable -> {
+            listener.onException(throwable);
+            return null;
+        });
+    }
+
+    public void getCommentsByArticleAsync(int articleId,DataListener<List<Comment>> listener){
+        Objects.requireNonNull(listener);
+        CompletableFuture.supplyAsync(()->{
+            listener.onStart();
+            try {
+                return requestService.getCommentsByArticle(articleId);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(),e);
+            }
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally(throwable ->{
+            listener.onException(throwable);
+            return null;
+        });
+
     }
 
 
