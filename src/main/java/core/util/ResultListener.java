@@ -5,4 +5,5 @@ public interface ResultListener<T> {
 
     void onResult(ApiResponse<T> apiResponse);
 
+
 }

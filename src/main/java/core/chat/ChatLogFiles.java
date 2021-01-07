@@ -28,13 +28,13 @@ class ChatLogFiles {
     @SuppressWarnings("unchecked")
     static List<ChatMessage> getMessages(int articleId,int userId) throws IOException, ClassNotFoundException {
 
-        File file=new File(CHAT_LOG_FILE.getAbsolutePath()+"\\"+articleId+LOG_FILE_EXTENSION);
+        File file=new File(CHAT_LOG_FILE.getAbsolutePath()+"\\"+userId);
         if(!file.exists()){
-            file.createNewFile();
+            file.mkdir();
             log.info("File created : "+file.getAbsolutePath());
         }
 
-        file=new File(file.getAbsolutePath()+"\\"+userId);
+        file=new File(file.getAbsolutePath()+"\\"+articleId+LOG_FILE_EXTENSION);
 
         if(!file.exists()){
             file.createNewFile();
@@ -42,21 +42,17 @@ class ChatLogFiles {
             return new ArrayList<>();
         }
 
-        try(ObjectInputStream objectInputStream=new ObjectInputStream(new FileInputStream(file.getAbsolutePath()+"\\"+articleId+LOG_FILE_EXTENSION))){
+        try(ObjectInputStream objectInputStream=new ObjectInputStream(new FileInputStream(file))){
             return (List<ChatMessage>) objectInputStream.readObject();
         }
 
     }
 
     static void saveMessages(int articleId,int userId,List<ChatMessage> chatMessages) throws IOException {
-
-        if(chatMessages.size()>0){
-            File file=new File(CHAT_LOG_FILE.getAbsolutePath()+"\\"+userId+"\\"+articleId+LOG_FILE_EXTENSION);
-            try (ObjectOutputStream objectOutputStream=new ObjectOutputStream(new FileOutputStream(file))){
-                objectOutputStream.writeObject(chatMessages);
-            }
+        File file=new File(CHAT_LOG_FILE.getAbsolutePath()+"\\"+userId+"\\"+articleId+LOG_FILE_EXTENSION);
+        try (ObjectOutputStream objectOutputStream=new ObjectOutputStream(new FileOutputStream(file))){
+            objectOutputStream.writeObject(chatMessages);
         }
-
     }
 
 }

@@ -400,33 +400,72 @@ public class DataHandler implements Closeable {
 
     }
 
-    public void connectWebSocket(){
-        String authorization=requestService.getHeaders().get("Authorization");
-        if(authorization!=null){
-            chatService.connectWebSocket(authorization);
-        }
-        log.warn("Has not been logged in yet, so cannot connect web socket");
+    public void connectWebSocketAsync(){
+        executorService.execute(()->{
+            try {
+                String authorization=requestService.getHeaders().get("Authorization");
+                int userId = getMe().getData().getId();
+                if(authorization!=null){
+                    chatService.connectWebSocket(authorization,userId);
+                }else{
+                    log.warn("Has not been logged in yet, so cannot connect web socket");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void connectChatSocketAsync(ChatListener chatListener){
         executorService.execute(()->{
             try {
                 chatService.connectChatChannel(chatListener);
-            } catch (InterruptedException interruptedException) {
+                chatService.loadMessages(requestService.getMessages().getData());
+            } catch (InterruptedException | IOException interruptedException) {
                 interruptedException.printStackTrace();
             }
         });
     }
 
-    public void loadMessagesAsync(){
-        executorService.execute(()->{
+    public void addContributorAsync(int articleId,int userId,DataListener<Article> listener){
+        Objects.requireNonNull(listener);
+        CompletableFuture.supplyAsync(()->{
+            listener.onStart();
             try {
-                chatService.loadMessages(requestService.getMessages().getData());
+                ApiResponse<Article> response=requestService.addContributor(articleId,userId);
+                cacheService.addArticleCache(response);
+                return response;
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e.getMessage(),e);
             }
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally((throwable)->{
+            listener.onException(throwable);
+            return null;
         });
     }
+
+    public void removeContributorAsync(int articleId,int userId,DataListener<Article> listener){
+        Objects.requireNonNull(listener);
+        CompletableFuture.supplyAsync(()->{
+            listener.onStart();
+            try {
+                ApiResponse<Article> response=requestService.removeContributor(articleId,userId);
+                cacheService.addArticleCache(response);
+                return response;
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(),e);
+            }
+
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally((throwable)->{
+            listener.onException(throwable);
+            return null;
+        });
+    }
+
 
     public ChatService getChatService() {
         return chatService;

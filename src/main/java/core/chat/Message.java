@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @JsonFormat
 public class Message {
 
-    private int receiver_id;
-    private int sender_id;
-    private int article_id;
+    private int id;
+    private int receiver;
+    private int sender;
+    private int article;
     private String message;
     private long sent_at;
 

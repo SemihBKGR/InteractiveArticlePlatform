@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import core.DataPolicy;
 import core.chat.Message;
 import core.entity.Article;
+import core.entity.Comment;
 import core.entity.Information;
 import core.entity.User;
 import core.entity.dto.ArticleCreateDto;
@@ -107,7 +108,18 @@ public class RequestService implements Closeable {
     }
 
     public ApiResponse<List<Message>> getMessages() throws IOException {
+        log.info("GetMessages request is sending");
         return sendPostRequestList(MESSAGE_GET_URL,true,null,Message.class);
+    }
+
+    public ApiResponse<Article> addContributor(int articleId,int userId) throws IOException {
+        log.info("AddContributor request is sending");
+        return sendPostRequest(concatUrlVariable(ARTICLE_ADD_CONTRIBUTOR_URL,articleId,userId),true,null,Article.class);
+    }
+
+    public ApiResponse<Article> removeContributor(int articleId,int userId) throws IOException {
+        log.info("RemoveContributor request is sending");
+        return sendPostRequest(concatUrlVariable(ARTICLE_REMOVE_CONTRIBUTOR_URL,articleId,userId),true,null,Article.class);
     }
 
 
@@ -160,6 +172,13 @@ public class RequestService implements Closeable {
 
     private static String concatUrlVariable(String url,Object variable){
         return url+"/"+variable;
+    }
+
+    private static String concatUrlVariable(String url,Object ... variables){
+        for(Object variable:variables){
+            url+="/"+variable;
+        }
+        return url;
     }
 
     private void loadHeaders(HttpRequest request){

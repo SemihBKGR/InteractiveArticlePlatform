@@ -1,5 +1,7 @@
 package core.request;
 
+import com.fasterxml.jackson.databind.introspect.VirtualAnnotatedMember;
+
 class Contracts {
 
     static final String BASE_URL="http://localhost:8080";
@@ -28,11 +30,17 @@ class Contracts {
     static final String ARTICLE_GET_URL=ARTICLE_URL+"/get/id";
     static final String ARTICLE_CREATE_URL=ARTICLE_URL+"/create";
     static final String ARTICLE_SEARCH_URL=ARTICLE_URL+"/search";
-
+    static final String ARTICLE_ADD_CONTRIBUTOR_URL=ARTICLE_URL+"/contributor/add";
+    static final String ARTICLE_REMOVE_CONTRIBUTOR_URL=ARTICLE_URL+"/contributor/remove";
 
     //Message
     static final String MESSAGE_URL=BASE_URL+"/message";
 
     static final String MESSAGE_GET_URL=MESSAGE_URL+"/get";
+
+    //Comment
+    static final String COMMENT_URL= BASE_URL+"/comment";
+
+    static final String COMMENT_MAKE_URL=COMMENT_URL+"/make";
 
 }

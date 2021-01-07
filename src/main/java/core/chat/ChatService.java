@@ -35,17 +35,20 @@ public class ChatService {
 
     private final DataPolicy dataPolicy;
 
+    private ChatListener chatListener;
+
     private int userId;
 
     public ChatService(DataPolicy dataPolicy){
         this.dataPolicy=dataPolicy;
+        this.userId=-1;
         socketConnectLatch =new CountDownLatch(1);
         articleChatMessagesMap=new ConcurrentHashMap<>();
         singleListenerMap =new WeakHashMap<>();
         Runtime.getRuntime().addShutdownHook(new Thread(()->{
             for(Map.Entry<Integer,List<ChatMessage>> chatMeIntegerListEntry:articleChatMessagesMap.entrySet()){
                 try {
-                    ChatLogFiles.saveMessages(chatMeIntegerListEntry.getKey(),chatMeIntegerListEntry.getValue());
+                    ChatLogFiles.saveMessages(chatMeIntegerListEntry.getKey(),userId,chatMeIntegerListEntry.getValue());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -55,7 +58,9 @@ public class ChatService {
 
     private volatile StompSession session;
 
-    public void connectWebSocket(String authorizationToken) {
+    public void connectWebSocket(String authorizationToken,int usedId) {
+
+        this.userId=usedId;
 
         List<Transport> transportList=new ArrayList<>();
         transportList.add(new WebSocketTransport(new StandardWebSocketClient()));
@@ -77,7 +82,6 @@ public class ChatService {
 
     }
 
-
     public void connectChatChannel(ChatListener chatListener) throws InterruptedException {
         socketConnectLatch.await();
         subscribeChatChannel(chatListener);
@@ -90,7 +94,7 @@ public class ChatService {
     }
 
     private void subscribeChatChannel(ChatListener chatListener){
-        Objects.requireNonNull(chatListener);
+        this.chatListener=chatListener;
         session.subscribe(LISTEN_END_PATH, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders stompHeaders) {
@@ -100,7 +104,9 @@ public class ChatService {
             @Override
             public void handleFrame(StompHeaders stompHeaders, Object o) {
                 ChatMessage chatMessage=(ChatMessage)o;
-                chatListener.messageReceiver(chatMessage);
+                if(chatListener!=null){
+                    chatListener.messageReceiver(chatMessage);
+                }
                 ChatListener singleListener=singleListenerMap.get(chatMessage.getTo_article_id());
                 if(singleListener!=null){
                     singleListener.messageReceiver(chatMessage);
@@ -112,23 +118,33 @@ public class ChatService {
         log.info("Subscribed chat channel");
     }
 
+    //Send chat message if connected socket
     public void sendChatMessage(ChatMessage chatMessage){
-        if(session!=null && socketConnectLatch.getCount()==0){
+        if(socketConnectLatch.getCount()==0){
             session.send(CHAT_END_PATH,chatMessage);
             log.info("Message send, "+chatMessage.getMessage());
+            getMessages(chatMessage.getTo_article_id()).add(chatMessage);
+            if(chatListener!=null){
+                chatListener.messageReceiver(chatMessage);
+            }
+            ChatListener singleChatListener=singleListenerMap.get(chatMessage.getTo_article_id());
+            if(singleChatListener!=null){
+                singleChatListener.messageReceiver(chatMessage);
+            }
         }else{
-            log.warn("Has not been connected chat channel yet");
+            log.warn("Has not been connected web socket channel yet");
         }
     }
 
-    public void loadMessages(List<Message> messages){
+    public void loadMessages(List<Message> messages) throws InterruptedException {
+        socketConnectLatch.await();
         for(Message message:messages){
-            getMessages(message.getArticle_id()).add(
+            getMessages(message.getArticle()).add(
                     Messages.convertMessageToChatMessage(message));
         }
     }
 
-    public List<ChatMessage> getMessages(int articleId,int userId) {
+    public List<ChatMessage> getMessages(int articleId) {
 
         List<ChatMessage> chatMessages=articleChatMessagesMap.get(articleId);
         if(chatMessages!=null){
@@ -145,12 +161,14 @@ public class ChatService {
 
     }
 
-
-
     public void addSingleListener(int articleId,ChatListener chatListener){
         if(chatListener!=null){
             singleListenerMap.put(articleId,chatListener);
         }
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
 }
