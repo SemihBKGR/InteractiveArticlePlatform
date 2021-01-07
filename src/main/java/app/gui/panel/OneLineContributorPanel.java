@@ -3,7 +3,6 @@ package app.gui.panel;
 import app.util.Paged;
 import app.util.Resources;
 import core.entity.User;
-import core.entity.superficial.SuperficialUser;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -14,27 +13,35 @@ import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-public class OneLineUserPanel {
-    private JLabel imageLabel;
+public class OneLineContributorPanel {
+
     private JLabel usernameLabel;
-    private JLabel emailLabel;
+    private JButton addButton;
     private JPanel panel;
-    private JLabel articleCountLabel;
-    private JLabel contributorCountLabel;
+    private JLabel imageLabel;
+    private JPanel innerPanel;
 
-    private User user;
-    private SuperficialUser superficialUser;
-
-    public OneLineUserPanel(User user, Paged paged){
-
-        imageLabel.setBorder(new LineBorder(Color.BLACK,3));
+    public OneLineContributorPanel(User user, Paged paged){
 
         usernameLabel.setText(user.getUsername());
-        emailLabel.setText(user.getEmail());
-        articleCountLabel.setText("Article : "+user.getOwnArticles().size());
-        contributorCountLabel.setText("Contributor : "+user.getContributorArticle().size());
+        imageLabel.setBorder(new LineBorder(Color.BLACK,1));
         loadImage(user.getInformation().getImage());
-        panel.addMouseListener(new MouseAdapter() {
+        panel.setBorder(new LineBorder(Color.BLACK,1));
+        innerPanel.setBorder(new LineBorder(Color.BLACK,1));
+
+        innerPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                innerPanel.setBorder(new LineBorder(Color.GREEN,1));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                innerPanel.setBorder(new LineBorder(Color.BLACK,1));
+            }
+        });
+
+        innerPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 paged.changePage(ButtonPanel.ActiveButton.menu.name(),user);
@@ -47,19 +54,20 @@ public class OneLineUserPanel {
         if(image!=null){
             ByteArrayInputStream imageStream=new ByteArrayInputStream(image);
             try {
-                ImageIcon imageIcon=new ImageIcon(ImageIO.read(imageStream));
+                ImageIcon imageIcon=new ImageIcon(Resources.resizeSmallSize(ImageIO.read(imageStream)));
                 imageLabel.setIcon(imageIcon);
             } catch (IOException e) {
                 e.printStackTrace();
-                imageLabel.setIcon(Resources.defaultImageIcon);
+                imageLabel.setIcon(Resources.smallDefaultImageIcon);
             }
         }else{
-            imageLabel.setIcon(Resources.defaultImageIcon);
+            imageLabel.setIcon(Resources.smallDefaultImageIcon);
         }
     }
-
 
     public JPanel getPanel() {
         return panel;
     }
+
+
 }

@@ -177,7 +177,6 @@ public class TransactionFrame extends JFrame{
                     }
                 });
 
-
         }else{
             log.info("Login transaction could not bo started.");
             loginButtonClickable.set(true);

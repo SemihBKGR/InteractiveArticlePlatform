@@ -98,7 +98,7 @@ public class ProfileInformationPanel {
                     String imageName=selectedFile.getName();
                     String extension=imageName.substring(imageName.lastIndexOf(".")+1,imageName.length());
                     try {
-                        BufferedImage image = Resources.resizeImage(ImageIO.read(selectedFile));
+                        BufferedImage image = Resources.cropAndResizeDefaultSize(ImageIO.read(selectedFile));
                         imageLabel.setIcon(new ImageIcon(image));
                         ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
                         ImageOutputStream imageOutputStream=ImageIO.createImageOutputStream(byteArrayOutputStream);

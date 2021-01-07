@@ -16,9 +16,6 @@ public class HomePage {
 
     public HomePage(){
 
-
-
-
     }
 
     public void loadArticlePanel(Article article,Paged paged){

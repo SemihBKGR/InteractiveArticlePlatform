@@ -9,18 +9,24 @@ import java.io.File;
 import java.io.IOException;
 
 import static app.Contracts.IMAGE_SIZE;
+import static app.Contracts.IMAGE_SMALL_SIZE;
 
 public class Resources {
 
     private final static String ICON_FOLDER_NAME="icons";
 
     public static ImageIcon defaultImageIcon;
+    public static ImageIcon smallDefaultImageIcon;
 
     static {
         try {
             defaultImageIcon=new ImageIcon(Scalr.resize
                     (ImageIO.read(new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\default-image.jpg")),
-                            Scalr.Method.AUTOMATIC,IMAGE_SIZE,IMAGE_SIZE));
+                            Scalr.Method.QUALITY,IMAGE_SIZE,IMAGE_SIZE));
+            smallDefaultImageIcon=new ImageIcon(Scalr.resize
+                    (ImageIO.read(new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\default-image.jpg")),
+                            Scalr.Method.QUALITY,IMAGE_SMALL_SIZE,IMAGE_SMALL_SIZE));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -33,8 +39,7 @@ public class Resources {
 
     }
 
-
-    public static BufferedImage resizeImage(BufferedImage image){
+    public static BufferedImage cropAndResizeDefaultSize(BufferedImage image){
         int width=image.getWidth();
         int height=image.getHeight();
         if(width>height){
@@ -42,7 +47,11 @@ public class Resources {
         }else if(height>width) {
             image=Scalr.crop(image,0,(height-width)/2,width,width);
         }
-        return Scalr.resize(image,IMAGE_SIZE,IMAGE_SIZE);
+        return Scalr.resize(image,Scalr.Method.QUALITY,IMAGE_SIZE,IMAGE_SIZE);
+    }
+
+    public static BufferedImage resizeSmallSize(BufferedImage image){
+        return Scalr.resize(image,Scalr.Method.QUALITY,IMAGE_SMALL_SIZE,IMAGE_SMALL_SIZE);
     }
 
 

@@ -1,9 +1,11 @@
 package app.gui.panel;
 
+import app.gui.dialog.ContributorDialog;
 import app.util.Paged;
 import core.DataHandler;
 import core.chat.ChatListener;
 import core.chat.ChatMessage;
+import core.chat.ChatService;
 import core.entity.Article;
 import core.entity.User;
 import core.entity.superficial.SuperficialUser;
@@ -13,6 +15,8 @@ import lombok.SneakyThrows;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -39,10 +43,10 @@ public class TabArticlePanel {
     private JTextField commentField;
     private JTextField chatField;
     private JPanel chatPanel;
+    private JButton addContributorButton;
 
     public TabArticlePanel(Article article, Paged paged){
 
-        editButton.setVisible(false);
 
         titleLabel.setText(article.getTitle());
 
@@ -55,39 +59,14 @@ public class TabArticlePanel {
         populateContributors(article,paged);
         populateChat(article);
 
+
+
         DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
             @Override
             public void onResult(ApiResponse<User> response) {
-                if(response.getData().getOwnArticles().stream().anyMatch(article1 -> article1.getId()==article.getId())
-                || response.getData().getContributorArticle().stream().anyMatch(article1 -> article1.getId()==article.getId())){
-                    editButton.setVisible(true);
-                }
+                setButtonsActiveness(article,response.getData());
             }
         });
-
-
-        sendMessageButton.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                String chatText=chatField.getText().trim();
-                if(!chatText.isEmpty()){
-                    ChatMessage chatMessage=new ChatMessage();
-                    chatMessage.setMessage(chatText);
-                    chatMessage.setSent_at(System.currentTimeMillis());
-                    chatMessage.setTo_article_id(article.getId());
-                    try {
-                        chatMessage.setFrom_user_id(DataHandler.getDataHandler().getMe().getData().getId());
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                    }
-                    DataHandler.getDataHandler().getChatService().sendChatMessage(chatMessage);
-                    addSingleChatMessage(chatMessage);
-                    chatField.setText("");
-                }
-            }
-        });
-
 
         DataHandler.getDataHandler().getChatService().addSingleListener(article.getId(), new ChatListener() {
             @Override
@@ -95,6 +74,34 @@ public class TabArticlePanel {
                 addSingleChatMessage(chatMessage);
             }
         });
+
+        sendMessageButton.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                String chatText=chatField.getText().trim();
+                if(!chatText.isEmpty()){
+                    ChatService chatService=DataHandler.getDataHandler().getChatService();
+                    ChatMessage chatMessage=new ChatMessage();
+                    chatMessage.setMessage(chatText);
+                    chatMessage.setSent_at(System.currentTimeMillis());
+                    chatMessage.setTo_article_id(article.getId());
+                    chatMessage.setFrom_user_id(chatService.getUserId());
+                    chatService.sendChatMessage(chatMessage);
+                    chatField.setText("");
+                }
+            }
+        });
+
+
+        addContributorButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                ContributorDialog dialog = new ContributorDialog(article,paged);
+                dialog.setVisible(true);
+            }
+        });
+
 
     }
 
@@ -151,6 +158,20 @@ public class TabArticlePanel {
         chatPanel=new JPanel(new GridLayout(0,1));
 
     }
+
+    private void setButtonsActiveness(Article article,User user){
+
+        if(user.getOwnArticles().stream().anyMatch(article1 -> article1.getId()==article.getId())
+                || user.getContributorArticle().stream().anyMatch(article1 -> article1.getId()==article.getId())){
+            editButton.setVisible(true);
+            readButton.setVisible(true);
+            addContributorButton.setVisible(true);
+        }
+
+
+    }
+
+
 
 
 }

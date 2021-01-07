@@ -5,6 +5,8 @@ import app.util.Settings;
 import com.bulenkov.darcula.DarculaLaf;
 import core.DataHandler;
 import core.DataPolicy;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -12,6 +14,8 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args){
+
+        Logger.getRootLogger().setLevel(Level.INFO);
 
         DataHandler.initialize(DataPolicy.getPolicyBySystemFeatures());
 

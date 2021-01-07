@@ -61,8 +61,7 @@ public class AppFrame extends JFrame implements Paged {
 
         profilePage.start();
 
-        DataHandler.getDataHandler().connectWebSocket();
-        DataHandler.getDataHandler().loadMessagesAsync();
+        DataHandler.getDataHandler().connectWebSocketAsync();
         DataHandler.getDataHandler().connectChatSocketAsync(chatMessage -> {});
 
     }
