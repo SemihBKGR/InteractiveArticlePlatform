@@ -42,7 +42,6 @@ public class ProfileArticlePanel {
                     user.getContributorArticle().add(createdArticle);
                     ((GridLayout)articleInnerPanel.getLayout()).setRows(articleCount);
                     articleInnerPanel.add(new OneLineArticlePanel(paged,createdArticle).getPanel());
-
                 }
             }
         });
@@ -54,7 +53,7 @@ public class ProfileArticlePanel {
         this.user=user;
         articleCount=user.getOwnArticles().size()+user.getContributorArticle().size();
 
-        ((GridLayout)articleInnerPanel.getLayout()).setRows(articleCount);
+        ((GridLayout)articleInnerPanel.getLayout()).setRows(Math.max(5,articleCount));
 
         for(SuperficialArticle article:user.getOwnArticles()){
             articleInnerPanel.add(new OneLineArticlePanel(paged,article).getPanel());

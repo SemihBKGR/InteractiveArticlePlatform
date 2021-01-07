@@ -45,8 +45,11 @@ public class TabArticlePanel {
     private JPanel chatPanel;
     private JButton addContributorButton;
 
+    private Article article;
+
     public TabArticlePanel(Article article, Paged paged){
 
+        this.article=article;
 
         titleLabel.setText(article.getTitle());
 
@@ -58,8 +61,6 @@ public class TabArticlePanel {
 
         populateContributors(article,paged);
         populateChat(article);
-
-
 
         DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
             @Override
@@ -97,8 +98,16 @@ public class TabArticlePanel {
         addContributorButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                ContributorDialog dialog = new ContributorDialog(article,paged);
+                ContributorDialog dialog = new ContributorDialog(TabArticlePanel.this.article,paged);
                 dialog.setVisible(true);
+                DataHandler.getDataHandler().getArticleAsync(article.getId(), new DataListener<Article>() {
+                    @Override
+                    public void onResult(ApiResponse<Article> response) {
+                        TabArticlePanel.this.article=response.getData();
+                        contributorPanel.removeAll();
+                        populateContributors(response.getData(),paged);
+                    }
+                });
             }
         });
 

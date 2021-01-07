@@ -63,6 +63,7 @@ public class ContributorDialog extends JDialog {
             @Override
             public void mouseClicked(MouseEvent e) {
                 warnLabel.setText("");
+                userPanel.removeAll();
                 String text= searchField.getText();
                 Confirmation.ConfirmationMessage confirmationMessage=Confirmation.searchTextConfirmation(text);
                 if(confirmationMessage.isConfirmed()){
@@ -70,9 +71,9 @@ public class ContributorDialog extends JDialog {
                         @Override
                         public void onResult(ApiResponse<List<User>> response) {
                             ((GridLayout)userPanel.getLayout()).setRows(Math.max(5,response.getData().size()));
-                            filterContributors(article,response.getData());
                             for(User user:response.getData()){
-                                userPanel.add(new OneLineContributorPanel(user,paged).getPanel());
+                                userPanel.add(new OneLineContributorPanel(user,article.getId()
+                                        ,isContributor(user,article),paged).getPanel());
                             }
                             warnLabel.setText("User result size:"+response.getData().size());
                         }
@@ -88,22 +89,23 @@ public class ContributorDialog extends JDialog {
         });
     }
 
-    private void filterContributors(Article article,List<User> users){
-        Iterator<User> userIterator=users.iterator();
-        while(userIterator.hasNext()){
-            User user=userIterator.next();
-            if(user.getId()!=article.getOwner().getId()){
-                for(SuperficialUser contributor :article.getContributors()){
-                    if(contributor.getId()==user.getId()){
-                        userIterator.remove();
-                        break;
-                    }
-                }
-            }else{
-                userIterator.remove();
-            }
+    private boolean isContributor(User user,Article article){
+
+        if(user.getOwnArticles().contains(article)){
+            return true;
         }
+        if(user.getId()!=article.getOwner().getId()){
+            for(SuperficialUser contributor :article.getContributors()){
+                if(contributor.getId()==user.getId()){
+                    return true;
+                }
+            }
+        }else{
+            return true;
+        }
+        return false;
     }
+
 
     private void createUIComponents() {
         userPanel=new JPanel(new GridLayout(0,1));
