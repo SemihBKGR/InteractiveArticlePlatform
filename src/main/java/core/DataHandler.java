@@ -8,10 +8,7 @@ import core.entity.Article;
 import core.entity.Comment;
 import core.entity.Information;
 import core.entity.User;
-import core.entity.dto.ArticleCreateDto;
-import core.entity.dto.CommentDto;
-import core.entity.dto.LoginDto;
-import core.entity.dto.RegisterDto;
+import core.entity.dto.*;
 import core.request.RequestService;
 import core.request.TransactionService;
 import core.util.ApiResponse;
@@ -29,6 +26,8 @@ import java.util.concurrent.Executors;
 
 @Slf4j
 public class DataHandler implements Closeable {
+
+    //TODO add logout and disconnect socket
 
     private ExecutorService executorService;
 
@@ -500,6 +499,42 @@ public class DataHandler implements Closeable {
             return null;
         });
 
+    }
+
+    public void getImageByUserIdAsync(int userId,DataListener<byte[]> listener){
+        Objects.requireNonNull(listener);
+        CompletableFuture.supplyAsync(()->{
+            listener.onStart();
+            try {
+                return requestService.getImageByUserId(userId);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(),e);
+            }
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally(throwable ->{
+            listener.onException(throwable);
+            return null;
+        });
+    }
+
+    public void saveArticleAsync(ArticleSaveDto articleSaveDto,DataListener<Article> listener){
+        Objects.requireNonNull(listener);
+        CompletableFuture.supplyAsync(()->{
+            listener.onStart();
+            try {
+                ApiResponse<Article> response=requestService.saveArticle(articleSaveDto);
+                cacheService.addArticleCache(response);
+                return response;
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(),e);
+            }
+        },executorService)
+        .thenAccept(listener::onResult)
+        .exceptionally(throwable -> {
+            listener.onException(throwable);
+            return null;
+        });
     }
 
 

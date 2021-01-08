@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DataHandlerTest{
 
+
     @BeforeAll
     static void initialize(){
         DataHandler.initialize(DataPolicy.getPolicyBySystemFeatures());
@@ -269,7 +270,7 @@ class DataHandlerTest{
         dataHandler.addHeader("Authorization","Basic dXNlcm5hbWUwMTpwYXNzd29yZDAx");
 
         ArticleCreateDto articleCreateDto=new ArticleCreateDto();
-        articleCreateDto.setTitle("titel01");
+        articleCreateDto.setTitle("title01");
         articleCreateDto.set_private(false);
         try {
             dataHandler.createArticle(articleCreateDto);

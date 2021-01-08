@@ -22,7 +22,7 @@ class Contracts {
     static final String INFORMATION_URL=BASE_URL+"/information";
 
     static final String INFORMATION_SAVE_URL =INFORMATION_URL+"/save";
-
+    static final String INFORMATION_GET_IMAGE_URL=INFORMATION_URL+"/image/get";
 
     //Article
     static final String ARTICLE_URL=BASE_URL+"/article";
@@ -30,6 +30,7 @@ class Contracts {
     static final String ARTICLE_GET_URL=ARTICLE_URL+"/get/id";
     static final String ARTICLE_CREATE_URL=ARTICLE_URL+"/create";
     static final String ARTICLE_SEARCH_URL=ARTICLE_URL+"/search";
+    static final String ARTICLE_SAVE_URL=ARTICLE_URL+"/save";
     static final String ARTICLE_ADD_CONTRIBUTOR_URL=ARTICLE_URL+"/contributor/add";
     static final String ARTICLE_REMOVE_CONTRIBUTOR_URL=ARTICLE_URL+"/contributor/remove";
 

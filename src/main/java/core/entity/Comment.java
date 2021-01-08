@@ -2,6 +2,8 @@ package core.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import core.entity.superficial.SuperficialArticle;
+import core.entity.superficial.SuperficialUser;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,8 +13,8 @@ import lombok.NoArgsConstructor;
 public class Comment {
 
     private int id;
-    private User user;
-    private Article article;
+    private SuperficialUser user;
+    private SuperficialArticle article;
     private String content;
     private long created_at;
     private long updated_at;

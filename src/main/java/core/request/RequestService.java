@@ -9,6 +9,7 @@ import core.entity.Comment;
 import core.entity.Information;
 import core.entity.User;
 import core.entity.dto.ArticleCreateDto;
+import core.entity.dto.ArticleSaveDto;
 import core.entity.dto.CommentDto;
 import core.util.ApiResponse;
 import lombok.extern.log4j.Log4j;
@@ -132,6 +133,15 @@ public class RequestService implements Closeable {
     public ApiResponse<List<Comment>> getCommentsByArticle(int articleId) throws IOException {
         log.info("GetComments request is sending");
         return sendPostRequestList(concatUrlVariable(COMMENT_GET_BY_ARTICLE_URL,articleId),true,null,Comment.class);
+    }
+
+    public ApiResponse<byte[]> getImageByUserId(int userId) throws IOException {
+        return sendPostRequest(concatUrlVariable(INFORMATION_GET_IMAGE_URL,userId),true,null,byte[].class);
+    }
+
+    public ApiResponse<Article> saveArticle(ArticleSaveDto articleSaveDto) throws IOException {
+        Objects.requireNonNull(articleSaveDto);
+        return sendPostRequest(ARTICLE_SAVE_URL,true,articleSaveDto,Article.class);
     }
 
     private <T> ApiResponse<T> sendPostRequest(String url,boolean loadHeaders,Object body, Class<T> type) throws IOException {
