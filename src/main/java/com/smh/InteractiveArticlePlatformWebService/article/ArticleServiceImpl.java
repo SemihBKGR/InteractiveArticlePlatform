@@ -24,13 +24,6 @@ public class ArticleServiceImpl implements ArticleService {
         return articleRepository.findById(id).orElse(null);
     }
 
-    @Cacheable("article")
-    @Override
-    public List<Article> findByTitle(String title) {
-        Objects.requireNonNull(title);
-        return articleRepository.findByTitle(title);
-    }
-
     //How to cache better?
     @Caching(evict =
                 {@CacheEvict(value = "article",key="#article.id"),

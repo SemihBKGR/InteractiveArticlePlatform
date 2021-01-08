@@ -7,11 +7,13 @@ import com.smh.InteractiveArticlePlatformWebService.article.Article;
 import com.smh.InteractiveArticlePlatformWebService.serialization.ArticleListSerializer;
 import com.smh.InteractiveArticlePlatformWebService.user.information.Information;
 import lombok.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
+@ConditionalOnBean(name="information")
 @Data
 @NoArgsConstructor
 @Table(name = "users")

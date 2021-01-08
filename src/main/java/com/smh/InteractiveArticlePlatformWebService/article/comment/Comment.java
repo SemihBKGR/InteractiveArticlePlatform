@@ -5,9 +5,11 @@ import com.smh.InteractiveArticlePlatformWebService.article.Article;
 import com.smh.InteractiveArticlePlatformWebService.serialization.ArticleSerializer;
 import com.smh.InteractiveArticlePlatformWebService.serialization.UserSerializer;
 import com.smh.InteractiveArticlePlatformWebService.user.User;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -15,9 +17,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.io.Serializable;
 
+
+@ConditionalOnBean(name = {"article","user"})
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 @Table(name="comments")
 @Entity
 @EntityListeners(AuditingEntityListener.class)

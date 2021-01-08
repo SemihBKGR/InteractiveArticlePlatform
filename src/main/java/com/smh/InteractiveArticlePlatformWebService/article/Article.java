@@ -29,6 +29,10 @@ public class Article implements Serializable {
     @Column(name="title",nullable = false)
     private String title;
 
+    @Lob
+    @Column(name="content")
+    private String content;
+
     @Column(name="is_released")
     @JsonProperty("is_released")
     private boolean is_released;
