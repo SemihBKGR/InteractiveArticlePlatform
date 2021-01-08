@@ -8,8 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import static app.Contracts.IMAGE_SIZE;
-import static app.Contracts.IMAGE_SMALL_SIZE;
+import static app.Contracts.*;
 
 public class Resources {
 
@@ -17,6 +16,8 @@ public class Resources {
 
     public static ImageIcon defaultImageIcon;
     public static ImageIcon smallDefaultImageIcon;
+    public static ImageIcon smallestDefaultImageIcon;
+    public static ImageIcon smallestPencilImageIcon;
 
     static {
         try {
@@ -26,7 +27,12 @@ public class Resources {
             smallDefaultImageIcon=new ImageIcon(Scalr.resize
                     (ImageIO.read(new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\default-image.jpg")),
                             Scalr.Method.QUALITY,IMAGE_SMALL_SIZE,IMAGE_SMALL_SIZE));
-
+            smallestDefaultImageIcon=new ImageIcon(Scalr.resize
+                    (ImageIO.read(new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\default-image.jpg")),
+                            Scalr.Method.QUALITY,IMAGE_SMALLEST_SIZE,IMAGE_SMALLEST_SIZE));
+            smallestPencilImageIcon=new ImageIcon(Scalr.resize
+                    (ImageIO.read(new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\pencil.png")),
+                            Scalr.Method.QUALITY,IMAGE_SMALLEST_SIZE,IMAGE_SMALLEST_SIZE));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,5 +60,8 @@ public class Resources {
         return Scalr.resize(image,Scalr.Method.QUALITY,IMAGE_SMALL_SIZE,IMAGE_SMALL_SIZE);
     }
 
+    public static BufferedImage resizeSmallestSize(BufferedImage image){
+        return Scalr.resize(image,Scalr.Method.QUALITY,IMAGE_SMALLEST_SIZE,IMAGE_SMALLEST_SIZE);
+    }
 
 }

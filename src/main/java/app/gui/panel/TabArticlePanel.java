@@ -7,7 +7,9 @@ import core.chat.ChatListener;
 import core.chat.ChatMessage;
 import core.chat.ChatService;
 import core.entity.Article;
+import core.entity.Comment;
 import core.entity.User;
+import core.entity.dto.CommentDto;
 import core.entity.superficial.SuperficialUser;
 import core.util.ApiResponse;
 import core.util.DataListener;
@@ -22,6 +24,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class TabArticlePanel {
 
@@ -45,10 +48,13 @@ public class TabArticlePanel {
     private JPanel chatPanel;
     private JButton addContributorButton;
 
+    private Paged paged;
+
     private Article article;
 
     public TabArticlePanel(Article article, Paged paged){
 
+        this.paged=paged;
         this.article=article;
 
         titleLabel.setText(article.getTitle());
@@ -61,6 +67,7 @@ public class TabArticlePanel {
 
         populateContributors(article,paged);
         populateChat(article);
+        populateComments(article);
 
         DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
             @Override
@@ -111,6 +118,27 @@ public class TabArticlePanel {
             }
         });
 
+        commentButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                String content=commentField.getText().trim();
+                if(!content.isEmpty()){
+                    CommentDto commentDto=new CommentDto();
+                    commentDto.setContent(content);
+                    commentDto.setArticle_id(TabArticlePanel.this.article.getId());
+                    DataHandler.getDataHandler().makeCommentAsync(commentDto, new DataListener<Comment>() {
+                        @Override
+                        public void onResult(ApiResponse<Comment> response) {
+                            System.out.println(response);
+                            if(response.isConfirmed()){
+                                addSingleComment(response.getData());
+                            }
+                        }
+                    });
+                    commentField.setText("");
+                }
+            }
+        });
 
     }
 
@@ -154,6 +182,29 @@ public class TabArticlePanel {
         gridLayout.setRows(Math.max(5,gridLayout.getRows()+1));
         chatPanel.add(new OneLineChatPanel(chatMessage).getPanel());
     }
+
+    private void populateComments(Article article){
+        DataHandler dataHandler=DataHandler.getDataHandler();
+        dataHandler.getCommentsByArticleAsync(article.getId(), new DataListener<List<Comment>>() {
+            @Override
+            public void onResult(ApiResponse<List<Comment>> response) {
+                if(response.isConfirmed()){
+                    ((GridLayout)commentPanel.getLayout()).setRows(Math.max(5,response.getData().size()));
+                    for(Comment comment:response.getData()){
+                        commentPanel.add(new OneLineComment(comment,paged).getPanel());
+                    }
+                }
+            }
+        });
+    }
+
+    private void addSingleComment(Comment comment){
+        GridLayout gridLayout=((GridLayout)commentPanel.getLayout());
+        gridLayout.setRows(Math.max(5,gridLayout.getRows()+1));
+        commentPanel.add(new OneLineComment(comment,paged).getPanel());
+    }
+
+
 
     public JPanel getPanel() {
         return panel;
