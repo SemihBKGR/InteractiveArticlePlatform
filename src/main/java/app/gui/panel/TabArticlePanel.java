@@ -1,5 +1,6 @@
 package app.gui.panel;
 
+import app.gui.dialog.ArticleEditDialog;
 import app.gui.dialog.ContributorDialog;
 import app.util.Paged;
 import core.DataHandler;
@@ -139,6 +140,15 @@ public class TabArticlePanel {
                 }
             }
         });
+
+        editButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                ArticleEditDialog articleEditDialog=new ArticleEditDialog(TabArticlePanel.this.article);
+                articleEditDialog.setVisible(true);
+            }
+        });
+
 
     }
 
