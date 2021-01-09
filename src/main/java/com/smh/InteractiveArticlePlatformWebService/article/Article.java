@@ -47,7 +47,7 @@ public class Article implements Serializable {
 
     @LastModifiedDate
     @Column(name="updated_at")
-    private long update_at;
+    private long updated_at;
 
     //TODO Set cascade type
     @ToString.Exclude

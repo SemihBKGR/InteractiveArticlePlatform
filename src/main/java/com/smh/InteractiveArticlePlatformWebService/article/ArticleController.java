@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @RestController
@@ -134,13 +133,7 @@ public class ArticleController {
         List<Article> searchResult=articleService.searchArticleByTitle(text);
         User user=userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
 
-        Iterator<Article> searchResultIterator=searchResult.iterator();
-
-        while(searchResultIterator.hasNext()){
-            if(!controlUserHaveAccess(user,searchResultIterator.next())){
-                searchResultIterator.remove();
-            }
-        }
+        searchResult.removeIf(article -> !controlUserHaveAccess(user, article));
 
         return ApiResponse.createApiResponse(searchResult,"Result found, size:"+searchResult.size());
 

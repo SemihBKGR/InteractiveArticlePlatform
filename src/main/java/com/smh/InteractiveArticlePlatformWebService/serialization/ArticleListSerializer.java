@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.smh.InteractiveArticlePlatformWebService.article.Article;
 import com.smh.InteractiveArticlePlatformWebService.serialization.superficial.SuperficialArticle;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,10 +28,16 @@ public class ArticleListSerializer extends StdSerializer<List<Article>> {
 
         List<SuperficialArticle> articleObjectList=new ArrayList<>();
         for(Article article:articles){
+
+            if(article.is_private()){
+
+            }
+
             articleObjectList.add(new SuperficialArticle(article));
         }
         jsonGenerator.writeObject(articleObjectList);
 
     }
+
 
 }
