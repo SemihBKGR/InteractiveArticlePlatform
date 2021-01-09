@@ -11,6 +11,7 @@ import core.util.ApiResponse;
 import core.util.DataListener;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
@@ -115,8 +116,10 @@ public class SearchPage {
 
     private void createUIComponents() {
         searchInnerPanel=new JPanel();
-        searchInnerPanel.setBorder(new LineBorder(Color.BLACK,3));
-        searchInnerPanel.setLayout(new GridLayout(0,1));
+        GridLayout gridLayout=new GridLayout(0,1);
+        gridLayout.setVgap(10);
+        searchInnerPanel.setLayout(gridLayout);
+        searchInnerPanel.setBorder(new EmptyBorder(50,50,50,50));
     }
 
     private void makeSearch(String text){

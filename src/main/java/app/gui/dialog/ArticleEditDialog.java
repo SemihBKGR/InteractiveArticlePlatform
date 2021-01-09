@@ -48,7 +48,6 @@ public class ArticleEditDialog extends JDialog {
             }
         });
 
-        contentTextArea.setText();
 
     }
 

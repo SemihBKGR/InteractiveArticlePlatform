@@ -10,7 +10,10 @@ import core.entity.Comment;
 import core.entity.User;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
 import java.util.ArrayList;
 
 public class MenuPage {
@@ -36,7 +39,6 @@ public class MenuPage {
                     }).getPanel());
             tabbedPanel.setSelectedIndex(tabbedPanel.indexOfTab(article.getId()+article.getTitle()));
         }
-
     }
 
     public void loadUserPanel(User user, Paged paged){
@@ -52,7 +54,6 @@ public class MenuPage {
                     }).getPanel());
             tabbedPanel.setSelectedIndex(tabbedPanel.indexOfTab(user.getUsername()));
         }
-
     }
 
     public JPanel getPanel() {

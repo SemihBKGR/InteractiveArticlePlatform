@@ -1,6 +1,8 @@
 package app.gui.panel;
 
+import app.Contracts;
 import app.util.Paged;
+import app.util.TypeConverts;
 import core.DataHandler;
 import core.entity.Article;
 import core.entity.superficial.SuperficialArticle;
@@ -16,20 +18,24 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class OneLineArticlePanel {
+
     private JPanel panel;
     private JLabel titleLabel;
     private JLabel updateLabel;
     private JLabel createDateLabel;
-    private JLabel isReleasedLabel;
+    private JLabel statusLabel;
 
     private Article article;
     private SuperficialArticle superficialArticle;
 
     private OneLineArticlePanel(Paged paged){
 
+        panel.setBorder(new LineBorder(Contracts.DEFAULT_LIGHT_GRAY,1));
+        panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
         panel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 if(article!=null){
                     paged.changePage(ButtonPanel.ActiveButton.menu.name(),article);
                 }else{
@@ -41,6 +47,24 @@ public class OneLineArticlePanel {
                     });
                 }
             }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                panel.setBorder(new LineBorder(Contracts.DEFAULT_BLUE,3));
+                titleLabel.setForeground(Color.WHITE);
+                statusLabel.setForeground(Color.WHITE);
+                createDateLabel.setForeground(Color.WHITE);
+                updateLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                panel.setBorder(new LineBorder(Contracts.DEFAULT_LIGHT_GRAY,1));
+                titleLabel.setForeground(Contracts.DEFAULT_WHITE);
+                statusLabel.setForeground(Contracts.DEFAULT_WHITE);
+                createDateLabel.setForeground(Contracts.DEFAULT_WHITE);
+                updateLabel.setForeground(Contracts.DEFAULT_WHITE);
+            }
         });
 
     }
@@ -50,16 +74,10 @@ public class OneLineArticlePanel {
         this(paged);
         this.superficialArticle=article;
 
-        panel.setBorder(new LineBorder(Color.BLACK,1));
-        panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        String pattern="dd-M-yyyy hh:mm";
-        SimpleDateFormat dateFormat=new SimpleDateFormat(pattern);
-
         titleLabel.setText("Title : "+article.getTitle());
-        updateLabel.setText("Last Update : "+ dateFormat.format(new Date(article.getUpdated_at())));
-        createDateLabel.setText("Created at : "+dateFormat.format(new Date(article.getCreated_at())));
-        isReleasedLabel.setText("Status : "+(article.is_private()?"Private":"Public")+"/"+(article.is_released()?"Released":"Writing"));
+        statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+" / "+(article.is_released()?"Released":"Writing"));
+        createDateLabel.setText("Created at : "+TypeConverts.getTimeString(article.getCreated_at()));
+        updateLabel.setText("Last Update : "+ TypeConverts.getTimeString(article.getUpdated_at()));
 
     }
 
@@ -68,16 +86,11 @@ public class OneLineArticlePanel {
         this(paged);
         this.article=article;
 
-        panel.setBorder(new LineBorder(Color.BLACK,1));
-        panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        String pattern="dd-M-yyyy hh:mm";
-        SimpleDateFormat dateFormat=new SimpleDateFormat(pattern);
-
         titleLabel.setText("Title : "+article.getTitle());
-        updateLabel.setText("Last Update : "+ dateFormat.format(new Date(article.getUpdate_at())));
-        createDateLabel.setText("Created at : "+dateFormat.format(new Date(article.getCreated_at())));
-        isReleasedLabel.setText("Status : "+(article.is_private()?"Private":"Public")+"/"+(article.is_released()?"Released":"Writing"));
+        statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+" / "+(article.is_released()?"Released":"Writing"));
+        createDateLabel.setText("Created at : "+TypeConverts.getTimeString(article.getCreated_at()));
+        updateLabel.setText("Last Update : "+ TypeConverts.getTimeString(article.getUpdate_at()));
+
 
     }
 
@@ -85,20 +98,5 @@ public class OneLineArticlePanel {
         return panel;
     }
 
-    public JLabel getTitleLabel() {
-        return titleLabel;
-    }
-
-    public JLabel getUpdateLabel() {
-        return updateLabel;
-    }
-
-    public JLabel getCreateDateLabel() {
-        return createDateLabel;
-    }
-
-    public JLabel getIsReleasedLabel() {
-        return isReleasedLabel;
-    }
 
 }

@@ -45,12 +45,41 @@ public class TabUserPanel {
 
     private void setInformation(Information information){
 
-        nameLabel.setText("Name : "+(information.getName()==null?"":information.getName()));
-        surnameLabel.setText("Surname : "+information.getSurname());
-        phoneLabel.setText("Phone : "+information.getPhone());
-        companyLabel.setText("Company : "+information.getCompany());
-        addressLabel.setText("Address : "+information.getAddress());
-        biographyLabel.setText("Biography : "+information.getAddress());
+        if(information.getName()!=null && !information.getName().isEmpty()){
+            nameLabel.setText("<html><h2>Name:</h2><h4>"+information.getName());
+        }else{
+            nameLabel.setVisible(false);
+        }
+
+        if(information.getSurname()!=null && !information.getSurname().isEmpty()){
+            surnameLabel.setText("<html><h2>Surname:</h2><h4>"+information.getSurname());
+        }else{
+            surnameLabel.setVisible(false);
+        }
+
+        if(information.getPhone()!=null && !information.getPhone().isEmpty()){
+            phoneLabel.setText("<html><h2>Phone:</h2><h4>"+information.getPhone());
+        }else{
+            phoneLabel.setVisible(false);
+        }
+
+        if(information.getCompany()!=null && !information.getCompany().isEmpty()){
+            companyLabel.setText("<html><h2>Company:</h2><h4>"+information.getCompany());
+        }else{
+            companyLabel.setVisible(false);
+        }
+
+        if(information.getAddress()!=null && !information.getAddress().isEmpty()){
+            addressLabel.setText("<html><h2>Address:</h2>"+information.getAddress());
+        }else{
+            addressLabel.setVisible(false);
+        }
+
+        if(information.getBiography()!=null && !information.getBiography().isEmpty()){
+            biographyLabel.setText("<html><h2>Biography:</h2>"+information.getBiography());
+        }else{
+            biographyLabel.setVisible(false);
+        }
 
         if(information.getImage()!=null){
 
@@ -60,17 +89,13 @@ public class TabUserPanel {
                 imageLabel.setIcon(imageIcon);
             } catch (IOException e) {
                 e.printStackTrace();
-                loadDefaultImage();
+                imageLabel.setIcon(Resources.defaultImageIcon);
             }
 
         }else{
-            loadDefaultImage();
+            imageLabel.setIcon(Resources.defaultImageIcon);
         }
 
-    }
-
-    private void loadDefaultImage(){
-        imageLabel.setIcon(Resources.defaultImageIcon);
     }
 
     private void populateArticle(User user,Paged paged){
@@ -96,4 +121,5 @@ public class TabUserPanel {
     public JPanel getPanel() {
         return panel;
     }
+
 }

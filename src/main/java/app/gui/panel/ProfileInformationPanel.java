@@ -1,6 +1,7 @@
 package app.gui.panel;
 
 
+import app.Contracts;
 import app.util.Resources;
 import core.DataHandler;
 import core.entity.Information;
@@ -15,6 +16,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -54,9 +56,6 @@ public class ProfileInformationPanel {
 
     private final Thread buttonControlThread;
 
-    private final Color saveButtonInactiveColor =new Color(187,187,187);
-    private final Color saveButtonActiveColor=Color.WHITE;
-
     private byte[] newImage;
 
     public ProfileInformationPanel() {
@@ -67,26 +66,37 @@ public class ProfileInformationPanel {
 
         newImage=null;
 
-        saveButton.setForeground(saveButtonInactiveColor);
+        saveButton.setForeground(Contracts.DEFAULT_WHITE);
 
         imageLabel.setBorder(new LineBorder(Color.BLACK,5));
         imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        panel.setFocusable(true);
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                panel.requestFocusInWindow();
+            }
+        });
 
         saveButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (saveButtonClickable.get()) {
                     saveButtonClickable.set(false);
-                    saveButton.setForeground(saveButtonInactiveColor);
+                    saveInformationLabel.setText("");
+                    saveButton.setForeground(Contracts.DEFAULT_WHITE);
                     saveInformation();
+                }else{
+                    saveInformationLabel.setText("No changes detected");
                 }
-                saveInformationLabel.setText("");
             }
         });
 
         imageLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                panel.requestFocusInWindow();
                 JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
                 jfc.setDialogTitle("Choose Image");
                 jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -108,6 +118,44 @@ public class ProfileInformationPanel {
                         ioException.printStackTrace();
                     }
                 }
+            }
+        });
+
+        usernameLabel.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                panel.requestFocusInWindow();
+                StringSelection stringSelection=new StringSelection(usernameLabel.getText());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection,null);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                usernameLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                usernameLabel.setForeground(Contracts.DEFAULT_WHITE);
+            }
+        });
+
+        emailLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                panel.requestFocusInWindow();
+                StringSelection stringSelection=new StringSelection(emailLabel.getText());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection,null);
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                emailLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                emailLabel.setForeground(Contracts.DEFAULT_WHITE);
             }
         });
 
@@ -149,7 +197,7 @@ public class ProfileInformationPanel {
 
     private void setSaveButtonActiveness(boolean active){
         saveButtonClickable.set(active);
-        saveButton.setForeground(active?saveButtonActiveColor:saveButtonInactiveColor);
+        saveButton.setForeground(active?Color.WHITE:Contracts.DEFAULT_WHITE);
     }
 
     private void setInformationText(){
@@ -214,6 +262,8 @@ public class ProfileInformationPanel {
         if(newImage!=null){
             newInformation.setImage(newImage);
             newImage=null;
+        }else{
+            newInformation.setImage(user.getInformation().getImage());
         }
 
         return newInformation;

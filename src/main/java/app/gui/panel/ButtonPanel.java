@@ -1,5 +1,6 @@
 package app.gui.panel;
 
+import app.Contracts;
 import app.util.LogoutListener;
 import app.util.Paged;
 import lombok.extern.log4j.Log4j;
@@ -11,9 +12,6 @@ import java.awt.event.MouseEvent;
 
 @Log4j
 public class ButtonPanel {
-
-    private static final Color ACTIVE_FORE_COLOR=Color.GREEN;
-    private static final Color INACTIVE_FORE_COLOR=Color.WHITE;
 
     private JButton logoutButton;
     private JButton profileButton;
@@ -93,19 +91,19 @@ public class ButtonPanel {
 
     public void setButtonForeColor(){
 
-        menuButton.setForeground(INACTIVE_FORE_COLOR);
-        searchButton.setForeground(INACTIVE_FORE_COLOR);
-        profileButton.setForeground(INACTIVE_FORE_COLOR);
-        logoutButton.setForeground(INACTIVE_FORE_COLOR);
+        menuButton.setForeground(Color.WHITE);
+        searchButton.setForeground(Color.WHITE);
+        profileButton.setForeground(Color.WHITE);
+        logoutButton.setForeground(Color.WHITE);
 
         if(activeButton==ActiveButton.menu){
-            menuButton.setForeground(ACTIVE_FORE_COLOR);
+            menuButton.setForeground(Contracts.DEFAULT_BLUE);
         }else if(activeButton==ActiveButton.logout){
-            logoutButton.setForeground(ACTIVE_FORE_COLOR);
+            logoutButton.setForeground(Contracts.DEFAULT_BLUE);
         }else if(activeButton==ActiveButton.search){
-            searchButton.setForeground(ACTIVE_FORE_COLOR);
+            searchButton.setForeground(Contracts.DEFAULT_BLUE);
         }else{
-            profileButton.setForeground(ACTIVE_FORE_COLOR);
+            profileButton.setForeground(Contracts.DEFAULT_BLUE);
         }
 
     }

@@ -1,5 +1,6 @@
 package app.gui.panel;
 
+import app.Contracts;
 import app.util.Paged;
 import app.util.Resources;
 import core.entity.User;
@@ -28,18 +29,40 @@ public class OneLineUserPanel {
     public OneLineUserPanel(User user, Paged paged){
 
         imageLabel.setBorder(new LineBorder(Color.BLACK,3));
+        panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        panel.setBorder(new LineBorder(Contracts.DEFAULT_LIGHT_GRAY));
 
-        usernameLabel.setText(user.getUsername());
-        emailLabel.setText(user.getEmail());
-        articleCountLabel.setText("Article : "+user.getOwnArticles().size());
-        contributorCountLabel.setText("Contributor : "+user.getContributorArticle().size());
+        usernameLabel.setText("Username : "+user.getUsername());
+        emailLabel.setText("Email : "+user.getEmail());
+        articleCountLabel.setText("Article Count : "+user.getOwnArticles().size());
+        contributorCountLabel.setText("Contribute Count : "+user.getContributorArticle().size());
         loadImage(user.getInformation().getImage());
         panel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 paged.changePage(ButtonPanel.ActiveButton.menu.name(),user);
             }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                panel.setBorder(new LineBorder(Contracts.DEFAULT_BLUE,3));
+                usernameLabel.setForeground(Color.WHITE);
+                emailLabel.setForeground(Color.WHITE);
+                contributorCountLabel.setForeground(Color.WHITE);
+                articleCountLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                panel.setBorder(new LineBorder(Contracts.DEFAULT_LIGHT_GRAY));
+                usernameLabel.setForeground(Contracts.DEFAULT_WHITE);
+                emailLabel.setForeground(Contracts.DEFAULT_WHITE);
+                contributorCountLabel.setForeground(Contracts.DEFAULT_WHITE);
+                articleCountLabel.setForeground(Contracts.DEFAULT_WHITE);
+            }
         });
+
+
 
     }
 
