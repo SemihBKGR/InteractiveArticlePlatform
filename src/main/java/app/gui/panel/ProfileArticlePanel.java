@@ -12,6 +12,7 @@ import core.util.DataListener;
 import core.util.Entities;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -23,8 +24,8 @@ public class ProfileArticlePanel {
     private JScrollPane articlePanel;
     private JPanel articleInnerPanel;
     private JButton createButton;
-    private JLabel reloadLabel;
     private JLabel infoLabel;
+    private JLabel reloadLabel;
 
     private User user;
     private int articleCount;
@@ -40,7 +41,9 @@ public class ProfileArticlePanel {
         reloadClickable=new AtomicBoolean(true);
 
         articlePanel.getVerticalScrollBar().setUnitIncrement(17);
-        reloadLabel.setIcon(Resources.getImageIcon("reload.png"));
+
+        reloadLabel.setBorder(new LineBorder(Color.BLACK));
+        reloadLabel.setIcon(new ImageIcon(Resources.getImage("reload.png",20,20)));
 
         createButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -117,8 +120,12 @@ public class ProfileArticlePanel {
     }
 
     private void createUIComponents() {
+
         articleInnerPanel=new JPanel();
         articleInnerPanel.setLayout(new GridLayout(0,1));
+
+
+
     }
 
 }

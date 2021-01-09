@@ -120,6 +120,7 @@ public class SearchPage {
         gridLayout.setVgap(10);
         searchInnerPanel.setLayout(gridLayout);
         searchInnerPanel.setBorder(new EmptyBorder(50,50,50,50));
+
     }
 
     private void makeSearch(String text){

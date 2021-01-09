@@ -238,10 +238,18 @@ public class TabArticlePanel {
             addContributorButton.setVisible(true);
         }
 
-
     }
 
+    private void filterRegardingPermission(){
 
+        DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
+            @Override
+            public void onResult(ApiResponse<User> response) {
+
+            }
+        });
+
+    }
 
 
 }

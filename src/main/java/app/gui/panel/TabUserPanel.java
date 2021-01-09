@@ -1,5 +1,6 @@
 package app.gui.panel;
 
+import app.Contracts;
 import app.util.Paged;
 import app.util.Resources;
 import core.entity.Information;
@@ -9,6 +10,9 @@ import core.entity.superficial.SuperficialArticle;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
@@ -46,37 +50,37 @@ public class TabUserPanel {
     private void setInformation(Information information){
 
         if(information.getName()!=null && !information.getName().isEmpty()){
-            nameLabel.setText("<html><h2>Name:</h2><h4>"+information.getName());
+            nameLabel.setText("Name:"+information.getName());
         }else{
             nameLabel.setVisible(false);
         }
 
         if(information.getSurname()!=null && !information.getSurname().isEmpty()){
-            surnameLabel.setText("<html><h2>Surname:</h2><h4>"+information.getSurname());
+            surnameLabel.setText("Surname:"+information.getSurname());
         }else{
             surnameLabel.setVisible(false);
         }
 
         if(information.getPhone()!=null && !information.getPhone().isEmpty()){
-            phoneLabel.setText("<html><h2>Phone:</h2><h4>"+information.getPhone());
+            phoneLabel.setText("Phone:"+information.getPhone());
         }else{
             phoneLabel.setVisible(false);
         }
 
         if(information.getCompany()!=null && !information.getCompany().isEmpty()){
-            companyLabel.setText("<html><h2>Company:</h2><h4>"+information.getCompany());
+            companyLabel.setText("Company:"+information.getCompany());
         }else{
             companyLabel.setVisible(false);
         }
 
         if(information.getAddress()!=null && !information.getAddress().isEmpty()){
-            addressLabel.setText("<html><h2>Address:</h2>"+information.getAddress());
+            addressLabel.setText("Address:"+information.getAddress());
         }else{
             addressLabel.setVisible(false);
         }
 
         if(information.getBiography()!=null && !information.getBiography().isEmpty()){
-            biographyLabel.setText("<html><h2>Biography:</h2>"+information.getBiography());
+            biographyLabel.setText("Biography:"+information.getBiography());
         }else{
             biographyLabel.setVisible(false);
         }
@@ -95,6 +99,44 @@ public class TabUserPanel {
         }else{
             imageLabel.setIcon(Resources.defaultImageIcon);
         }
+
+        usernameLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                panel.requestFocusInWindow();
+                StringSelection stringSelection=new StringSelection(usernameLabel.getText());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection,null);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                usernameLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                usernameLabel.setForeground(Contracts.DEFAULT_WHITE);
+            }
+        });
+
+        emailLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                panel.requestFocusInWindow();
+                StringSelection stringSelection=new StringSelection(emailLabel.getText());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection,null);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                emailLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                emailLabel.setForeground(Contracts.DEFAULT_WHITE);
+            }
+        });
 
     }
 

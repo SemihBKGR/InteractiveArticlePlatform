@@ -15,6 +15,7 @@ public class Main {
 
     public static void main(String[] args){
 
+        //-Dsun.java2d.uiScale=1.0
         Logger.getRootLogger().setLevel(Level.INFO);
 
         DataHandler.initialize(DataPolicy.getPolicyBySystemFeatures());

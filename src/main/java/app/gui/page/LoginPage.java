@@ -1,6 +1,9 @@
 package app.gui.page;
 
+import app.Contracts;
+
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -25,6 +28,8 @@ public class LoginPage {
 
     public void addMouseListeners(){
 
+        panel.setFocusable(true);
+
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -37,12 +42,32 @@ public class LoginPage {
             public void mousePressed(MouseEvent e) {
                 usernameField.requestFocusInWindow();
             }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                usernameLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                usernameLabel.setForeground(Contracts.DEFAULT_WHITE);
+            }
         });
 
         passwordLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 passwordField.requestFocusInWindow();
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                passwordLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                passwordLabel.setForeground(Contracts.DEFAULT_WHITE);
             }
         });
 

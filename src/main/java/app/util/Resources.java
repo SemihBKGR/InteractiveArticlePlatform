@@ -4,6 +4,7 @@ import com.bulenkov.iconloader.util.Scalr;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +44,34 @@ public class Resources {
         return new ImageIcon(Resources.class.getClassLoader()
                 .getResource(ICON_FOLDER_NAME).getFile()+"\\"+name);
 
+    }
+
+    public static Image getImage(String name,int width,int height){
+
+        BufferedImage bufferedImage= null;
+        try {
+            bufferedImage = ImageIO.read(
+                    new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\" + name));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return resize(bufferedImage,width,height);
+
+    }
+
+    private static BufferedImage resize(BufferedImage image, int width, int height) {
+        int type = image.getType() == 0? BufferedImage.TYPE_INT_ARGB : image.getType();
+        BufferedImage resizedImage = new BufferedImage(width, height, type);
+        Graphics2D g = resizedImage.createGraphics();
+        g.setComposite(AlphaComposite.Src);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.drawImage(image, 0, 0, width, height, null);
+        g.dispose();
+        return resizedImage;
     }
 
     public static BufferedImage cropAndResizeDefaultSize(BufferedImage image){
