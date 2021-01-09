@@ -62,6 +62,15 @@ public class CacheService {
         return null;
     }
 
+    public ApiResponse<byte[]> getImageIfNotExpired(int id){
+        CacheResponseData<byte[]> imageData=imageCacheTable.get(id);
+        if(imageData!=null && imageData.isValid()){
+            return imageData.getResponseData();
+        }
+        imageCacheTable.remove(id);
+        return null;
+    }
+
     public void clearExpiredUserCache(){
         //TODO clear user
     }
