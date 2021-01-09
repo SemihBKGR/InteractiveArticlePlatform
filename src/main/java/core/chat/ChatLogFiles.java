@@ -26,7 +26,7 @@ class ChatLogFiles {
 
 
     @SuppressWarnings("unchecked")
-    static List<ChatMessage> getMessages(int articleId,int userId) throws IOException, ClassNotFoundException {
+    static List<ChatMessage> getMessages(int articleId,int userId) throws IOException {
 
         File file=new File(CHAT_LOG_FILE.getAbsolutePath()+"\\"+userId);
         if(!file.exists()){
@@ -44,6 +44,8 @@ class ChatLogFiles {
 
         try(ObjectInputStream objectInputStream=new ObjectInputStream(new FileInputStream(file))){
             return (List<ChatMessage>) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            return new ArrayList<>();
         }
 
     }

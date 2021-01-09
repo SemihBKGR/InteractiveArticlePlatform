@@ -4,10 +4,14 @@ package core;
 public class DataPolicy {
 
     private int dataHandlerWorkerThreadCount;
-    private int cacheExpirationTime;
+
     private boolean cacheEnable;
+
+    private int articleCacheExpirationTimeMs;
+    private int userCacheExpirationTimeMs;
+    private int imageCacheExpirationTimeMs;
+
     private PolicyState policyState;
-    private boolean logChatMessages;
 
     public enum PolicyState{
         fixed,
@@ -15,26 +19,27 @@ public class DataPolicy {
         minimal;
     }
 
-
     private DataPolicy(){}
 
     public static DataPolicy getDefaultFixedPolicy(){
         DataPolicy dataPolicy=new DataPolicy();
-        dataPolicy.dataHandlerWorkerThreadCount=16;
-        dataPolicy.cacheExpirationTime=10_000;
+        dataPolicy.dataHandlerWorkerThreadCount=32;
+        dataPolicy.articleCacheExpirationTimeMs=20_000;
+        dataPolicy.userCacheExpirationTimeMs=20_000;
+        dataPolicy.imageCacheExpirationTimeMs=120_000;
         dataPolicy.cacheEnable=true;
         dataPolicy.policyState=PolicyState.fixed;
-        dataPolicy.logChatMessages=true;
         return dataPolicy;
     }
 
     public static DataPolicy getPolicyBySystemFeatures(){
         DataPolicy dataPolicy=new DataPolicy();
-        dataPolicy.dataHandlerWorkerThreadCount =Runtime.getRuntime().availableProcessors()*3;
-        dataPolicy.cacheExpirationTime=10_000;
+        dataPolicy.dataHandlerWorkerThreadCount=Runtime.getRuntime().availableProcessors()*8;
+        dataPolicy.articleCacheExpirationTimeMs=20_000;
+        dataPolicy.userCacheExpirationTimeMs=20_000;
+        dataPolicy.imageCacheExpirationTimeMs=120_000;
         dataPolicy.cacheEnable=true;
         dataPolicy.policyState=PolicyState.system;
-        dataPolicy.logChatMessages=true;
         return dataPolicy;
     }
 
@@ -47,9 +52,10 @@ public class DataPolicy {
         DataPolicy dataPolicy=new DataPolicy();
 
         dataPolicy.dataHandlerWorkerThreadCount = dataHandlerWorkerThreadCount;
-        dataPolicy.cacheExpirationTime = cacheExpirationTime;
+        dataPolicy.articleCacheExpirationTimeMs=cacheExpirationTime;
+        dataPolicy.userCacheExpirationTimeMs=cacheExpirationTime;
+        dataPolicy.imageCacheExpirationTimeMs=cacheExpirationTime;
         dataPolicy.cacheEnable=cacheEnable;
-        dataPolicy.logChatMessages=true;
         if(dataHandlerWorkerThreadCount>16){
             dataPolicy.policyState=PolicyState.system;
         }else{
@@ -64,8 +70,16 @@ public class DataPolicy {
         return dataHandlerWorkerThreadCount;
     }
 
-    public int getCacheExpirationTime() {
-        return cacheExpirationTime;
+    public int getArticleCacheExpirationTimeMs() {
+        return articleCacheExpirationTimeMs;
+    }
+
+    public int getUserCacheExpirationTimeMs() {
+        return userCacheExpirationTimeMs;
+    }
+
+    public int getImageCacheExpirationTimeMs() {
+        return imageCacheExpirationTimeMs;
     }
 
     public boolean isCacheEnable() {

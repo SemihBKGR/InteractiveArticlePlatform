@@ -18,6 +18,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.IOException;
 
 import static core.request.Contracts.*;
@@ -27,6 +28,8 @@ public class TransactionService implements Closeable {
 
     private final CloseableHttpClient httpClient;
     private final ObjectMapper objectMapper;
+
+
 
     public TransactionService(DataPolicy dataPolicy) {
 

@@ -77,36 +77,28 @@ public class RequestService implements Closeable {
         return sendPostRequest(concatUrlVariable(ARTICLE_GET_URL,id),true,null,Article.class);
     }
 
-    public ApiResponse<Information> saveInformation(User user) throws IOException {
-
+    public ApiResponse<Information> saveInformation(Information information) throws IOException {
         log.info("SaveInformation request is sending");
-        Objects.requireNonNull(user);
-        return sendPostRequest(INFORMATION_SAVE_URL,true,user,Information.class);
-
+        Objects.requireNonNull(information);
+        return sendPostRequest(INFORMATION_SAVE_URL,true,information,Information.class);
     }
 
     public ApiResponse<Article> createArticle(ArticleCreateDto articleCreateDto) throws IOException {
-
         log.info("ArticleCreate request is sending");
         Objects.requireNonNull(articleCreateDto);
         return sendPostRequest(ARTICLE_CREATE_URL,true,articleCreateDto,Article.class);
-
     }
 
     public ApiResponse<List<User>> searchUser(String text) throws IOException {
-
         log.info("UserSearch request is sending");
         Objects.requireNonNull(text);
         return sendPostRequestList(concatUrlVariable(USER_SEARCH_URL,text),true,null,User.class);
-
     }
 
     public ApiResponse<List<Article>> searchArticle(String text) throws IOException {
-
         log.info("ArticleSearch request is sending");
         Objects.requireNonNull(text);
         return sendPostRequestList(concatUrlVariable(ARTICLE_SEARCH_URL,text),true,null,Article.class);
-
     }
 
     public ApiResponse<List<Message>> getMessages() throws IOException {
@@ -189,7 +181,6 @@ public class RequestService implements Closeable {
         return result;
 
     }
-
 
     private static String concatUrlVariable(String url,Object variable){
         return url+"/"+variable;

@@ -17,4 +17,10 @@ public class SuperficialUser {
     @JsonProperty(required = true)
     private String email;
 
+    @JsonProperty(required = true)
+    private int article_count;
+
+    @JsonProperty(required = true)
+    private int contribute_count;
+
 }

@@ -11,11 +11,13 @@ public class CacheService {
 
     private final ConcurrentHashMap<Integer, CacheResponseData<User>> userCacheTable;
     private final ConcurrentHashMap<Integer, CacheResponseData<Article>> articleCacheTable;
+    private final ConcurrentHashMap<Integer, CacheResponseData<byte[]>> imageCacheTable;
 
     public CacheService(DataPolicy dataPolicy) {
         CacheResponseData.setDataPolicy(dataPolicy);
         userCacheTable = new ConcurrentHashMap<>();
         articleCacheTable=new ConcurrentHashMap<>();
+        imageCacheTable =new ConcurrentHashMap<>();
     }
 
     public void addUserCache(ApiResponse<User> userResponse){
@@ -40,14 +42,6 @@ public class CacheService {
         if(articleResponse!=null){
             articleCacheTable.put(id, CacheResponseData.create(articleResponse));
         }
-    }
-
-    public ApiResponse<User> getUser(int id){
-        return userCacheTable.get(id).getResponseData();
-    }
-
-    public ApiResponse<Article> getArticle(int id){
-        return articleCacheTable.get(id).getResponseData();
     }
 
     public ApiResponse<User> getUserIfNotExpired(int id){

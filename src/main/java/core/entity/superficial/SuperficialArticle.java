@@ -14,6 +14,18 @@ public class SuperficialArticle {
     @JsonProperty(required = true)
     private String title;
 
+    @JsonProperty(required = true)
+    private int owner_id;
+
+    @JsonProperty(required = true)
+    private String owner_name;
+
+    @JsonProperty(required = true)
+    private String owner_email;
+
+    @JsonProperty(required = true)
+    private int contributor_count;
+
     @JsonProperty(value="is_released",required = true)
     private boolean is_released;
 

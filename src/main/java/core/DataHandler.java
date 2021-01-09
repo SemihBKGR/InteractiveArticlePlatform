@@ -27,8 +27,6 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class DataHandler implements Closeable {
 
-    //TODO add logout and disconnect socket
-
     private ExecutorService executorService;
 
     private final TransactionService transactionService;
@@ -89,6 +87,10 @@ public class DataHandler implements Closeable {
 
     public String removeHeader(String key){
         return requestService.getHeaders().remove(key);
+    }
+
+    public void clearHeaders(){
+        requestService.getHeaders().clear();
     }
 
     public ApiResponse<KeyValue> login(LoginDto loginDto) throws IOException {
@@ -302,18 +304,18 @@ public class DataHandler implements Closeable {
 
     }
 
-    public ApiResponse<Information> informationSave(User user) throws IOException {
-        return requestService.saveInformation(user);
+    public ApiResponse<Information> informationSave(Information information) throws IOException {
+        return requestService.saveInformation(information);
     }
 
-    public void informationSaveAsync(User user, DataListener<Information> listener){
+    public void informationSaveAsync(Information information, DataListener<Information> listener){
 
         Objects.requireNonNull(listener);
 
         CompletableFuture.supplyAsync(()->{
             listener.onStart();
             try {
-                return requestService.saveInformation(user);
+                return requestService.saveInformation(information);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(),e);
             }
@@ -416,10 +418,20 @@ public class DataHandler implements Closeable {
         });
     }
 
-    public void connectChatSocketAsync(ChatListener chatListener){
+    public void disconnectWebSocketAsync(){
         executorService.execute(()->{
             try {
-                chatService.connectChatChannel(chatListener);
+                chatService.disconnectWebSocketAfterConnection();
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+        });
+    }
+
+    public void subscribeChatSocketAndLoadMessagesAsync(ChatListener chatListener){
+        executorService.execute(()->{
+            try {
+                chatService.subscribeChatChannelAfterConnection(chatListener);
                 chatService.loadMessages(requestService.getMessages().getData());
             } catch (InterruptedException | IOException interruptedException) {
                 interruptedException.printStackTrace();
@@ -536,7 +548,6 @@ public class DataHandler implements Closeable {
             return null;
         });
     }
-
 
     public ChatService getChatService() {
         return chatService;

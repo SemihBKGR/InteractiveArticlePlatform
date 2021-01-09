@@ -82,7 +82,13 @@ public class ChatService {
 
     }
 
-    public void connectChatChannel(ChatListener chatListener) throws InterruptedException {
+    public void disconnectWebSocketAfterConnection() throws InterruptedException {
+        socketConnectLatch.await();
+        session.disconnect();
+        log.info("Disconnected from web socket");
+    }
+
+    public void subscribeChatChannelAfterConnection(ChatListener chatListener) throws InterruptedException {
         socketConnectLatch.await();
         subscribeChatChannel(chatListener);
     }
@@ -153,7 +159,7 @@ public class ChatService {
             try {
                 chatMessages=ChatLogFiles.getMessages(articleId,userId);
                 articleChatMessagesMap.put(articleId,chatMessages);
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
