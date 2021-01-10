@@ -2,7 +2,7 @@ package core.request;
 
 import com.fasterxml.jackson.databind.introspect.VirtualAnnotatedMember;
 
-class Contracts {
+public class Contracts {
 
     private static final String HOST;
 
@@ -15,7 +15,7 @@ class Contracts {
     }
 
 
-    static final String BASE_URL="http://"+HOST+":8080";
+    public static final String BASE_URL="http://"+HOST+":8080";
 
     //Transaction
     static final String LOGIN_URL=BASE_URL+"/loginControl";

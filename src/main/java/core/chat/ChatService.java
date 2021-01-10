@@ -1,7 +1,9 @@
 package core.chat;
 
 import core.DataPolicy;
+import core.request.Contracts;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.annotation.Contract;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -24,7 +26,7 @@ import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class ChatService {
 
-    private static final String WS_URL ="http://localhost:8080/ws";
+    private static final String WS_URL = Contracts.BASE_URL+"/ws";
     private static final String LISTEN_END_PATH="/user/queue/search";
     private static final String CHAT_END_PATH ="/chat";
 
@@ -166,6 +168,13 @@ public class ChatService {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void clearChatService(){
+        articleChatMessagesMap.clear();
+        singleListenerMap.clear();
+        socketConnectLatch=new CountDownLatch(1);
+        userId=-1;
     }
 
     public void addSingleListener(int articleId,ChatListener chatListener){

@@ -196,7 +196,7 @@ class DataHandlerTest{
         ApiResponse<User> data=null;
 
         try {
-            data=dataHandler.getUser(id);
+            data=dataHandler.getUser(id,false);
         } catch (IOException e) {
             e.printStackTrace();
             fail();
@@ -218,21 +218,11 @@ class DataHandlerTest{
 
         int id=1;
 
-        dataHandler.getUserAsync(id,new DataListener<User>() {
+        dataHandler.getUserAsync(id,false,new DataListener<User>() {
 
             @Override
             public void onStart() {
                 System.out.println("Started");
-            }
-
-            @Override
-            public void onCache() {
-                System.out.println("Data came from cache");
-            }
-
-            @Override
-            public void onRequest() {
-                System.out.println("Data came from request");
             }
 
             @Override
@@ -292,7 +282,7 @@ class DataHandlerTest{
         ApiResponse<Article> response=null;
 
         try {
-            response=dataHandler.getArticle(id);
+            response=dataHandler.getArticle(id,false);
         } catch (IOException e) {
             e.printStackTrace();
             fail();
@@ -314,23 +304,13 @@ class DataHandlerTest{
 
         CountDownLatch countDownLatch=new CountDownLatch(1);
 
-        dataHandler.getArticleAsync(id, new DataListener<Article>() {
+        dataHandler.getArticleAsync(id,false, new DataListener<Article>() {
 
             @Override
             public void onException(Throwable t) {
                 t.printStackTrace();
                 fail();
                 countDownLatch.countDown();
-            }
-
-            @Override
-            public void onCache() {
-                System.out.println("Data came from cache");
-            }
-
-            @Override
-            public void onRequest() {
-                System.out.println("Data came from request");
             }
 
             @Override
