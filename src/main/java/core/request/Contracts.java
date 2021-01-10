@@ -4,7 +4,18 @@ import com.fasterxml.jackson.databind.introspect.VirtualAnnotatedMember;
 
 class Contracts {
 
-    static final String BASE_URL="http://localhost:8080";
+    private static final String HOST;
+
+    static {
+        if(System.getProperty("host")!=null){
+            HOST=System.getProperty("host");
+        }else{
+            HOST="localhost";
+        }
+    }
+
+
+    static final String BASE_URL="http://"+HOST+":8080";
 
     //Transaction
     static final String LOGIN_URL=BASE_URL+"/loginControl";

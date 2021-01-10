@@ -13,7 +13,7 @@ public class Entities {
         superficialArticle.set_private(article.is_private());
         superficialArticle.set_released(article.is_released());
         superficialArticle.setCreated_at(article.getCreated_at());
-        superficialArticle.setUpdated_at(article.getUpdate_at());
+        superficialArticle.setUpdated_at(article.getUpdated_at());
         return superficialArticle;
 
     }

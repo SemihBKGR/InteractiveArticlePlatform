@@ -20,6 +20,9 @@ public class Article {
     @JsonProperty(required = true)
     private String title;
 
+    @JsonProperty
+    private String content;
+
     @JsonProperty(required = true)
     private boolean is_released;
 
@@ -30,7 +33,7 @@ public class Article {
     private long created_at;
 
     @JsonProperty
-    private long update_at;
+    private long updated_at;
 
     @JsonProperty
     private SuperficialUser owner;

@@ -127,7 +127,7 @@ public class RequestService implements Closeable {
         return sendPostRequestList(concatUrlVariable(COMMENT_GET_BY_ARTICLE_URL,articleId),true,null,Comment.class);
     }
 
-    public ApiResponse<byte[]> getImageByUserId(int userId) throws IOException {
+    public ApiResponse<byte[]> getImage(int userId) throws IOException {
         return sendPostRequest(concatUrlVariable(INFORMATION_GET_IMAGE_URL,userId),true,null,byte[].class);
     }
 

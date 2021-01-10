@@ -1,6 +1,5 @@
 package core;
 
-
 import core.cache.CacheService;
 import core.chat.ChatListener;
 import core.chat.ChatService;
@@ -102,9 +101,7 @@ public class DataHandler implements Closeable {
     }
 
     public void loginAsync(LoginDto loginDto, DataListener<KeyValue> listener){
-
         Objects.requireNonNull(listener);
-
         CompletableFuture
         .supplyAsync(()->{
             listener.onStart();
@@ -132,16 +129,13 @@ public class DataHandler implements Closeable {
     }
 
     public ApiResponse<User> register(String username,String email,String password) throws IOException {
-
         return register(new RegisterDto(Objects.requireNonNull(username),
                 Objects.requireNonNull(email),Objects.requireNonNull(password)));
 
     }
 
     public void registerAsync (RegisterDto registerDto,DataListener<User> listener){
-
         Objects.requireNonNull(listener);
-
         CompletableFuture
         .supplyAsync(()->{
             listener.onStart();
@@ -160,9 +154,7 @@ public class DataHandler implements Closeable {
     }
 
     public void registerAsync (String username,String email,String password,DataListener<User> listener) {
-
         registerAsync(new RegisterDto(username,email,password),listener);
-
     }
 
     public ApiResponse<User> getMe() throws IOException {
@@ -170,16 +162,14 @@ public class DataHandler implements Closeable {
     }
 
     public void getMeAsync(DataListener<User> listener){
-
         Objects.requireNonNull(listener);
-
         CompletableFuture
         .supplyAsync(()->{
             listener.onStart();
             try {
                 return requestService.getMe();
             } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new RuntimeException(e.getMessage(),e);
             }
         },executorService)
         .thenAccept(listener::onResult)
@@ -187,16 +177,18 @@ public class DataHandler implements Closeable {
             listener.onException(throwable);
             return null;
         }));
-
     }
 
-    public ApiResponse<User> getUser(int id) throws IOException {
+    public ApiResponse<User> getUser(int id,boolean fromCache) throws IOException {
         ApiResponse<User> response=null;
         if(dataPolicy.isCacheEnable()){
-            response=cacheService.getUserIfNotExpired(id);
+            if(fromCache){
+                response=cacheService.getUserIfNotExpired(id);
+            }
             if(response==null){
                 response=requestService.getUser(id);
                 cacheService.addUserCache(id,response);
+                cacheService.addImageCache(id,ApiResponse.extractUserToImage(response));
             }
         }else{
             response=requestService.getUser(id);
@@ -204,53 +196,29 @@ public class DataHandler implements Closeable {
         return response;
     }
 
-    public void getUserAsync(int id,DataListener<User> listener){
+    public void getUserAsync(int id,boolean fromCache,DataListener<User> listener){
         Objects.requireNonNull(listener);
-
         CompletableFuture.supplyAsync(()->{
-
             listener.onStart();
-            ApiResponse<User> response=null;
-
-            if(dataPolicy.isCacheEnable()){
-                response=cacheService.getUserIfNotExpired(id);
-                if(response!=null){
-                    listener.onCache();
-                }else{
-                    try {
-                        response=requestService.getUser(id);
-                        listener.onRequest();
-                        cacheService.addUserCache(id,response);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e.getMessage(),e);
-                    }
-                }
-            }else{
-                try {
-                    response= requestService.getUser(id);
-                    listener.onRequest();
-                } catch (IOException e) {
-                    throw new RuntimeException(e.getMessage(),e);
-                }
+            try {
+                return getUser(id,fromCache);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(),e);
             }
-
-            return response;
-
         },executorService)
         .thenAccept(listener::onResult)
         .exceptionally((throwable)->{
             listener.onException(throwable);
             return null;
         });
-
     }
 
-
-    public ApiResponse<Article> getArticle(int id) throws IOException {
+    public ApiResponse<Article> getArticle(int id,boolean fromCache) throws IOException {
         ApiResponse<Article> response=null;
-
         if(dataPolicy.isCacheEnable()){
-            response=cacheService.getArticleIfNotExpired(id);
+            if(fromCache){
+                response=cacheService.getArticleIfNotExpired(id);
+            }
             if(response==null){
                 response=requestService.getArticle(id);
                 cacheService.addArticleCache(id,response);
@@ -258,43 +226,19 @@ public class DataHandler implements Closeable {
         }else{
             response=requestService.getArticle(id);
         }
-
         return response;
-
     }
 
-    public void getArticleAsync(int id,DataListener<Article> listener){
+    public void getArticleAsync(int id,boolean fromCache,DataListener<Article> listener){
 
         Objects.requireNonNull(listener);
-
         CompletableFuture.supplyAsync(()->{
-
             listener.onStart();
-            ApiResponse<Article> response=null;
-
-            if(dataPolicy.isCacheEnable()){
-                response=cacheService.getArticleIfNotExpired(id);
-                if(response!=null){
-                    listener.onCache();
-                }else{
-                    try {
-                        response=requestService.getArticle(id);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e.getMessage(),e);
-                    }
-                    listener.onRequest();
-                    cacheService.addArticleCache(id,response);
-                }
-            }else{
-                try {
-                    response=requestService.getArticle(id);
-                } catch (IOException e) {
-                    throw new RuntimeException(e.getMessage(),e);
-                }
+            try {
+                return getArticle(id,fromCache);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(),e);
             }
-
-            return response;
-
         },executorService)
         .thenAccept(listener::onResult)
         .exceptionally(throwable -> {
@@ -309,9 +253,7 @@ public class DataHandler implements Closeable {
     }
 
     public void informationSaveAsync(Information information, DataListener<Information> listener){
-
         Objects.requireNonNull(listener);
-
         CompletableFuture.supplyAsync(()->{
             listener.onStart();
             try {
@@ -319,28 +261,34 @@ public class DataHandler implements Closeable {
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(),e);
             }
-
         },executorService)
         .thenAccept(listener::onResult)
         .exceptionally((throwable -> {
             listener.onException(throwable);
             return null;
         }));
-
     }
 
     public ApiResponse<Article> createArticle(ArticleCreateDto articleCreateDto) throws IOException {
-        return requestService.createArticle(articleCreateDto);
+        ApiResponse<Article> articleApiResponse=requestService.createArticle(articleCreateDto);
+        if(dataPolicy.isCacheEnable()){
+            cacheService.addArticleCache(articleApiResponse);
+        }
+        return articleApiResponse;
     }
 
     public void createArticleAsync(ArticleCreateDto articleCreateDto,DataListener<Article> listener){
-
         Objects.requireNonNull(listener);
-
         CompletableFuture.supplyAsync(()->{
             listener.onStart();
             try {
-                return requestService.createArticle(articleCreateDto);
+                if(dataPolicy.isCacheEnable()){
+                    ApiResponse<Article> articleApiResponse=requestService.createArticle(articleCreateDto);
+                    cacheService.addArticleCache(articleApiResponse);
+                    return articleApiResponse;
+                }else{
+                    return requestService.createArticle(articleCreateDto);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(),e);
             }
@@ -350,21 +298,25 @@ public class DataHandler implements Closeable {
             listener.onException(throwable);
             return null;
         });
-
     }
 
     public ApiResponse<List<User>> searchUser(String text) throws IOException {
+        if(dataPolicy.isCacheEnable()){
+            ApiResponse<List<User>> listApiResponse=requestService.searchUser(text);
+            for(ApiResponse<User> userApiResponse: ApiResponse.extractList(listApiResponse)){
+                cacheService.addUserCache(userApiResponse);
+                cacheService.addImageCache(userApiResponse.getData().getId(),ApiResponse.extractUserToImage(userApiResponse));
+            }
+        }
         return requestService.searchUser(text);
     }
 
     public void searchUserAsync(String text,DataListener<List<User>> listener){
-
         Objects.requireNonNull(listener);
-
         CompletableFuture.supplyAsync(()->{
             listener.onStart();
             try {
-                return requestService.searchUser(text);
+                return searchUser(text);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
                 throw new RuntimeException(e.getMessage(),e);
@@ -375,21 +327,24 @@ public class DataHandler implements Closeable {
             listener.onException(throwable);
             return null;
         }));
-
     }
 
     public ApiResponse<List<Article>> searchArticle(String text) throws IOException {
-        return requestService.searchArticle(text);
+        ApiResponse<List<Article>> apiResponse=requestService.searchArticle(text);
+        if(dataPolicy.isCacheEnable()){
+            for(ApiResponse<Article> articleApiResponse:ApiResponse.extractList(apiResponse)){
+                cacheService.addArticleCache(articleApiResponse);
+            }
+        }
+        return apiResponse;
     }
 
     public void searchArticleAsync(String text,DataListener<List<Article>> listener){
-
         Objects.requireNonNull(listener);
-
         CompletableFuture.supplyAsync(()->{
             listener.onStart();
             try {
-                return requestService.searchArticle(text);
+                return searchArticle(text);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(),e);
             }
@@ -445,7 +400,9 @@ public class DataHandler implements Closeable {
             listener.onStart();
             try {
                 ApiResponse<Article> response=requestService.addContributor(articleId,userId);
-                cacheService.addArticleCache(response);
+                if(dataPolicy.isCacheEnable()){
+                    cacheService.addArticleCache(response);
+                }
                 return response;
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(),e);
@@ -464,7 +421,9 @@ public class DataHandler implements Closeable {
             listener.onStart();
             try {
                 ApiResponse<Article> response=requestService.removeContributor(articleId,userId);
-                cacheService.addArticleCache(response);
+                if(dataPolicy.isCacheEnable()){
+                    cacheService.addArticleCache(response);
+                }
                 return response;
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(),e);
@@ -510,15 +469,30 @@ public class DataHandler implements Closeable {
             listener.onException(throwable);
             return null;
         });
-
     }
 
-    public void getImageByUserIdAsync(int userId,DataListener<byte[]> listener){
+    public ApiResponse<byte[]> getImage(int userId,boolean fromCache) throws IOException {
+        if(dataPolicy.isCacheEnable()){
+            ApiResponse<byte[]> apiResponse=null;
+            if(fromCache){
+                apiResponse=cacheService.getImageIfNotExpired(userId);
+            }
+            if(apiResponse==null){
+                apiResponse=requestService.getImage(userId);
+                cacheService.addImageCache(userId,apiResponse);
+            }
+            return apiResponse;
+        }else{
+            return requestService.getImage(userId);
+        }
+    }
+
+    public void getImageAsync(int userId, boolean fromCache, DataListener<byte[]> listener){
         Objects.requireNonNull(listener);
         CompletableFuture.supplyAsync(()->{
             listener.onStart();
             try {
-                return requestService.getImageByUserId(userId);
+                return getImage(userId,fromCache);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(),e);
             }
@@ -530,14 +504,20 @@ public class DataHandler implements Closeable {
         });
     }
 
+    public ApiResponse<Article> saveArticle(ArticleSaveDto articleSaveDto) throws IOException {
+        ApiResponse<Article> apiResponseApiResponse=requestService.saveArticle(articleSaveDto);
+        if(dataPolicy.isCacheEnable()){
+            cacheService.addArticleCache(apiResponseApiResponse);
+        }
+        return apiResponseApiResponse;
+    }
+
     public void saveArticleAsync(ArticleSaveDto articleSaveDto,DataListener<Article> listener){
         Objects.requireNonNull(listener);
         CompletableFuture.supplyAsync(()->{
             listener.onStart();
             try {
-                ApiResponse<Article> response=requestService.saveArticle(articleSaveDto);
-                cacheService.addArticleCache(response);
-                return response;
+                return saveArticle(articleSaveDto);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(),e);
             }

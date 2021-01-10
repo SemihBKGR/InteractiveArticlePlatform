@@ -22,25 +22,31 @@ public class CacheService {
 
     public void addUserCache(ApiResponse<User> userResponse){
         if(userResponse!=null && userResponse.getData()!=null){
-            userCacheTable.put(userResponse.getData().getId(), CacheResponseData.create(userResponse));
+            userCacheTable.put(userResponse.getData().getId(), CacheResponseData.create(userResponse,User.class));
         }
     }
 
     public void addUserCache(int id,ApiResponse<User> userResponse){
-        if(userResponse!=null){
-            userCacheTable.put(id, CacheResponseData.create(userResponse));
+        if(userResponse!=null && userResponse.getData()!=null){
+            userCacheTable.put(id, CacheResponseData.create(userResponse,User.class));
         }
     }
 
     public void addArticleCache(ApiResponse<Article> articleResponse){
         if(articleResponse!=null && articleResponse.getData()!=null){
-            articleCacheTable.put(articleResponse.getData().getId(), CacheResponseData.create(articleResponse));
+            articleCacheTable.put(articleResponse.getData().getId(), CacheResponseData.create(articleResponse,Article.class));
         }
     }
 
     public void addArticleCache(int id,ApiResponse<Article> articleResponse){
-        if(articleResponse!=null){
-            articleCacheTable.put(id, CacheResponseData.create(articleResponse));
+        if(articleResponse!=null && articleResponse.getData()!=null){
+            articleCacheTable.put(id, CacheResponseData.create(articleResponse,Article.class));
+        }
+    }
+
+    public void addImageCache(int id,ApiResponse<byte[]> byteResponse){
+        if(byteResponse !=null && byteResponse.getData()!=null){
+            imageCacheTable.put(id,CacheResponseData.create(byteResponse,byte[].class));
         }
     }
 
@@ -69,14 +75,6 @@ public class CacheService {
         }
         imageCacheTable.remove(id);
         return null;
-    }
-
-    public void clearExpiredUserCache(){
-        //TODO clear user
-    }
-
-    public void clearExpiredArticleCache(){
-        //TODO clear article
     }
 
 }

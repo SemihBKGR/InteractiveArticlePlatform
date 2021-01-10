@@ -45,15 +45,6 @@ public class ChatService {
         socketConnectLatch =new CountDownLatch(1);
         articleChatMessagesMap=new ConcurrentHashMap<>();
         singleListenerMap =new WeakHashMap<>();
-        Runtime.getRuntime().addShutdownHook(new Thread(()->{
-            for(Map.Entry<Integer,List<ChatMessage>> chatMeIntegerListEntry:articleChatMessagesMap.entrySet()){
-                try {
-                    ChatLogFiles.saveMessages(chatMeIntegerListEntry.getKey(),userId,chatMeIntegerListEntry.getValue());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }));
     }
 
     private volatile StompSession session;
@@ -165,6 +156,16 @@ public class ChatService {
         }
         return chatMessages;
 
+    }
+
+    public void saveMessagesInLogFiles(){
+        for(Map.Entry<Integer,List<ChatMessage>> chatMeIntegerListEntry:articleChatMessagesMap.entrySet()){
+            try {
+                ChatLogFiles.saveMessages(chatMeIntegerListEntry.getKey(),userId,chatMeIntegerListEntry.getValue());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void addSingleListener(int articleId,ChatListener chatListener){

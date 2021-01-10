@@ -5,6 +5,8 @@ import core.entity.Article;
 import core.entity.User;
 import core.util.ApiResponse;
 
+import java.lang.ref.SoftReference;
+
 class CacheResponseData<T> {
 
     private static DataPolicy dataPolicy;
@@ -13,12 +15,12 @@ class CacheResponseData<T> {
         CacheResponseData.dataPolicy=dataPolicy;
     }
 
-    private final ApiResponse<T> responseData;
+    private final SoftReference<ApiResponse<T>> responseDataSoftReference;
     private final Class<T> clazz;
     private final long expirationTime;
 
     private CacheResponseData(ApiResponse<T> responseData,Class<T> clazz) {
-        this.responseData=responseData;
+        responseDataSoftReference =new SoftReference<>(responseData);
         this.clazz=clazz;
         if(clazz == Article.class){
             expirationTime=dataPolicy.getArticleCacheExpirationTimeMs();
@@ -39,11 +41,15 @@ class CacheResponseData<T> {
     }
 
     ApiResponse<T> getResponseData(){
-        return responseData;
+        return responseDataSoftReference.get();
     }
 
     boolean isValid(){
-        return System.currentTimeMillis()-responseData.getTime()<expirationTime;
+        ApiResponse<T> data=responseDataSoftReference.get();
+        if(data!=null){
+            return System.currentTimeMillis()-data.getTime()<expirationTime;
+        }
+        return false;
     }
 
 }
