@@ -1,6 +1,9 @@
 package app.gui.page;
 
+import app.Contracts;
+
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -20,7 +23,6 @@ public class RegisterPage {
     private JButton registerButton;
     private JLabel registerInfoLabel;
     private JButton loginButton;
-    private JCheckBox policyCheckBox;
 
     public JPanel getPanel() {
         return panel;
@@ -40,6 +42,16 @@ public class RegisterPage {
             public void mousePressed(MouseEvent e) {
                 usernameField.requestFocusInWindow();
             }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                usernameLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                usernameLabel.setForeground(Contracts.DEFAULT_WHITE);
+            }
         });
 
         emailLabel.addMouseListener(new MouseAdapter() {
@@ -47,12 +59,32 @@ public class RegisterPage {
             public void mousePressed(MouseEvent e) {
                 emailField.requestFocusInWindow();
             }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                emailLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+               emailLabel.setForeground(Contracts.DEFAULT_WHITE);
+            }
         });
 
         passwordLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 passwordField.requestFocusInWindow();
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                passwordLabel.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                passwordLabel.setForeground(Contracts.DEFAULT_WHITE);
             }
         });
 
@@ -110,8 +142,5 @@ public class RegisterPage {
         return loginButton;
     }
 
-    public JCheckBox getPolicyCheckBox() {
-        return policyCheckBox;
-    }
 
 }

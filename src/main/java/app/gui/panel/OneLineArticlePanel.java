@@ -39,7 +39,7 @@ public class OneLineArticlePanel {
                 if(article!=null){
                     paged.changePage(ButtonPanel.ActiveButton.menu.name(),article);
                 }else{
-                    DataHandler.getDataHandler().getArticleAsync(superficialArticle.getId(), new DataListener<Article>() {
+                    DataHandler.getDataHandler().getArticleAsync(superficialArticle.getId(),false,new DataListener<Article>() {
                         @Override
                         public void onResult(ApiResponse<Article> response) {
                             paged.changePage(ButtonPanel.ActiveButton.menu.name(),response.getData());
@@ -89,7 +89,7 @@ public class OneLineArticlePanel {
         titleLabel.setText("Title : "+article.getTitle());
         statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+" / "+(article.is_released()?"Released":"Writing"));
         createDateLabel.setText("Created at : "+TypeConverts.getTimeString(article.getCreated_at()));
-        updateLabel.setText("Last Update : "+ TypeConverts.getTimeString(article.getUpdate_at()));
+        updateLabel.setText("Last Update : "+ TypeConverts.getTimeString(article.getUpdated_at()));
 
 
     }

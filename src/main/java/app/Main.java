@@ -13,9 +13,12 @@ import java.io.IOException;
 
 public class Main {
 
+    //System property
+    //-Dsun.java2d.uiScale=1.0
+    //-Dhost='host'
+
     public static void main(String[] args){
 
-        //-Dsun.java2d.uiScale=1.0
         Logger.getRootLogger().setLevel(Level.INFO);
 
         DataHandler.initialize(DataPolicy.getPolicyBySystemFeatures());
@@ -44,14 +47,13 @@ public class Main {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            DataHandler.getDataHandler().getChatService().saveMessagesInLogFiles();
             try {
                 DataHandler.getDataHandler().close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }));
-
-
 
     }
 

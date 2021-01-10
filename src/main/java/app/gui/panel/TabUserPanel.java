@@ -143,7 +143,7 @@ public class TabUserPanel {
     private void populateArticle(User user,Paged paged){
 
         articleCount=user.getOwnArticles().size()+user.getContributorArticle().size();
-        ((GridLayout)articleInnerPanel.getLayout()).setRows(articleCount);
+        ((GridLayout)articleInnerPanel.getLayout()).setRows(Math.max(5,articleCount));
 
         for(SuperficialArticle article:user.getOwnArticles()){
             articleInnerPanel.add(new OneLineArticlePanel(paged,article).getPanel());

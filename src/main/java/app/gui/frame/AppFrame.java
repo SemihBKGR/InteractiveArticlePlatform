@@ -30,12 +30,12 @@ public class AppFrame extends JFrame implements Paged {
     private void createUIComponents() {
         buttonPanel=new ButtonPanel(this,()->{
             profilePage.stop();
+            DataHandler.getDataHandler().getChatService().saveMessagesInLogFiles();
+            DataHandler.getDataHandler().getChatService().clearChatService();
             dispose();
             new TransactionFrame().setVisible(true);
         });
-
         buttonToolBar=buttonPanel.getButtonToolBar();
-
     }
 
 

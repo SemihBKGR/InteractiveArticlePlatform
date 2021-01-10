@@ -1,7 +1,7 @@
 package app.gui.panel;
 
 import app.Contracts;
-import app.util.LogoutListener;
+import app.util.ClickListener;
 import app.util.Paged;
 import lombok.extern.log4j.Log4j;
 
@@ -34,7 +34,7 @@ public class ButtonPanel {
 
     private ActiveButton activeButton;
 
-    public ButtonPanel (Paged paged, LogoutListener logoutListener){
+    public ButtonPanel (Paged paged, ClickListener logoutListener){
 
         logoutButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -43,7 +43,7 @@ public class ButtonPanel {
                     log.info("ButtonPanel clicked logout");
                     activeButton=ActiveButton.logout;
                     setButtonForeColor();
-                    logoutListener.logout();
+                    logoutListener.clicked();
                 }
             }
         });

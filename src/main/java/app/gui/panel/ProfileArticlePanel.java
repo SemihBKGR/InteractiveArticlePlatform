@@ -42,7 +42,6 @@ public class ProfileArticlePanel {
 
         articlePanel.getVerticalScrollBar().setUnitIncrement(17);
 
-        reloadLabel.setBorder(new LineBorder(Color.BLACK));
         reloadLabel.setIcon(new ImageIcon(Resources.getImage("reload.png",20,20)));
 
         createButton.addMouseListener(new MouseAdapter() {

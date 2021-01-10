@@ -3,6 +3,8 @@ package app.gui.panel;
 import app.gui.dialog.ArticleEditDialog;
 import app.gui.dialog.ContributorDialog;
 import app.util.Paged;
+import app.util.Resources;
+import app.util.TypeConverts;
 import core.DataHandler;
 import core.chat.ChatListener;
 import core.chat.ChatMessage;
@@ -39,7 +41,6 @@ public class TabArticlePanel {
     private JPanel leftPanel;
     private JPanel rightPanel;
     private JPanel contributorPanel;
-    private JLabel permissionLabel;
     private JButton readButton;
     private JPanel commentPanel;
     private JButton commentButton;
@@ -48,6 +49,11 @@ public class TabArticlePanel {
     private JTextField chatField;
     private JPanel chatPanel;
     private JButton addContributorButton;
+    private JLabel reloadContributorLabel;
+    private JLabel reloadCommentLabel;
+    private JScrollPane commentScrollPanel;
+    private JScrollPane chatScrollPanel;
+    private JScrollPane contributorScrollPanel;
 
     private Paged paged;
 
@@ -60,15 +66,15 @@ public class TabArticlePanel {
 
         titleLabel.setText(article.getTitle());
 
-        String pattern="dd-M-yyyy hh:mm";
-        SimpleDateFormat dateFormat=new SimpleDateFormat(pattern);
-        createLabel.setText("Created at : "+dateFormat.format(new Date(article.getCreated_at())));
-        updateLabel.setText("Last update : "+dateFormat.format(new Date(article.getUpdate_at())));
-        statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+(article.is_released()?"Published":"Writing"));
-
+        setArticleLabel(article);
         populateContributors(article,paged);
         populateChat(article);
         populateComments(article);
+
+        contributorScrollPanel.getVerticalScrollBar().setUnitIncrement(17);
+        commentScrollPanel.getVerticalScrollBar().setUnitIncrement(11);
+        chatScrollPanel.getVerticalScrollBar().setUnitIncrement(11);
+
 
         DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
             @Override
@@ -108,7 +114,7 @@ public class TabArticlePanel {
             public void mouseClicked(MouseEvent e) {
                 ContributorDialog dialog = new ContributorDialog(TabArticlePanel.this.article,paged);
                 dialog.setVisible(true);
-                DataHandler.getDataHandler().getArticleAsync(article.getId(), new DataListener<Article>() {
+                DataHandler.getDataHandler().getArticleAsync(article.getId(),false, new DataListener<Article>() {
                     @Override
                     public void onResult(ApiResponse<Article> response) {
                         TabArticlePanel.this.article=response.getData();
@@ -146,10 +152,38 @@ public class TabArticlePanel {
             public void mouseClicked(MouseEvent e) {
                 ArticleEditDialog articleEditDialog=new ArticleEditDialog(TabArticlePanel.this.article);
                 articleEditDialog.setVisible(true);
+                editWarnLabel.setText(articleEditDialog.getDialogMessage());
+                if(articleEditDialog.getSavedArticle()!=null){
+                    TabArticlePanel.this.article=articleEditDialog.getSavedArticle();
+                    setArticleLabel(articleEditDialog.getSavedArticle());
+                }
             }
         });
 
+        reloadCommentLabel.setIcon(new ImageIcon(Resources.getImage("reload.png",20,20)));
+        reloadCommentLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                commentPanel.removeAll();
+                populateComments(TabArticlePanel.this.article);
+            }
+        });
 
+        reloadContributorLabel.setIcon(new ImageIcon(Resources.getImage("reload.png",20,20)));
+        reloadContributorLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                contributorPanel.removeAll();
+                populateContributors(TabArticlePanel.this.article,paged);
+            }
+        });
+
+    }
+
+    private void setArticleLabel(Article article){
+        createLabel.setText("Created at : "+ TypeConverts.getTimeString(article.getCreated_at()));
+        updateLabel.setText("Last update : "+TypeConverts.getTimeString(article.getUpdated_at()));
+        statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+" / "+(article.is_released()?"Published":"Writing"));
     }
 
     private void populateContributors(Article article,Paged paged){
@@ -158,7 +192,7 @@ public class TabArticlePanel {
 
         ((GridLayout)contributorPanel.getLayout()).setRows((Math.max(article.getContributors().size() + 1, 5)));
 
-        dataHandler.getUserAsync(article.getOwner().getId(), new DataListener<User>() {
+        dataHandler.getUserAsync(article.getOwner().getId(),false, new DataListener<User>() {
             @Override
             public void onResult(ApiResponse<User> response) {
                 contributorPanel.add(new OneLineUserPanel(response.getData(),paged).getPanel());
@@ -167,7 +201,7 @@ public class TabArticlePanel {
         });
 
         for(SuperficialUser superficialUser:article.getContributors()){
-            dataHandler.getUserAsync(superficialUser.getId(), new DataListener<User>() {
+            dataHandler.getUserAsync(superficialUser.getId(),false, new DataListener<User>() {
                 @Override
                 public void onResult(ApiResponse<User> response) {
                     contributorPanel.add(new OneLineUserPanel(response.getData(),paged).getPanel());
@@ -203,6 +237,7 @@ public class TabArticlePanel {
                     for(Comment comment:response.getData()){
                         commentPanel.add(new OneLineComment(comment,paged).getPanel());
                     }
+                    commentPanel.invalidate();
                 }
             }
         });

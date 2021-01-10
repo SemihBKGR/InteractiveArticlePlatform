@@ -238,7 +238,7 @@ public class ProfileInformationPanel {
         Information newInformation=generateNewInformation();
         if(!user.getInformation().equals(newInformation)){
             user.setInformation(newInformation);
-            DataHandler.getDataHandler().informationSaveAsync(user, new DataListener<Information>() {
+            DataHandler.getDataHandler().informationSaveAsync(newInformation, new DataListener<Information>() {
                 @Override
                 public void onResult(ApiResponse<Information> response) {
                     saveInformationLabel.setText(response.getMessage());

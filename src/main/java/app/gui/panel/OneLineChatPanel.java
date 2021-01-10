@@ -1,5 +1,6 @@
 package app.gui.panel;
 
+import app.Contracts;
 import core.DataHandler;
 import core.chat.ChatMessage;
 import core.entity.User;
@@ -7,6 +8,7 @@ import core.util.ApiResponse;
 import core.util.DataListener;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,8 +24,10 @@ public class OneLineChatPanel {
 
         dataHandler=DataHandler.getDataHandler();
 
+        panel.setBorder(new LineBorder(Contracts.DEFAULT_LIGHT_GRAY));
+
         messageLabel.setText(chatMessage.getMessage());
-        dataHandler.getUserAsync(chatMessage.getFrom_user_id(),new DataListener<User>() {
+        dataHandler.getUserAsync(chatMessage.getFrom_user_id(),false,new DataListener<User>() {
             @Override
             public void onResult(ApiResponse<User> response) {
 

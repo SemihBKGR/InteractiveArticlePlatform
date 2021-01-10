@@ -1,5 +1,6 @@
 package app.gui.panel;
 
+import app.Contracts;
 import app.util.Paged;
 import app.util.Resources;
 import app.util.TypeConverts;
@@ -32,7 +33,7 @@ public class OneLineComment {
 
         imageLabel.setBorder(new LineBorder(Color.BLACK,2));
 
-        DataHandler.getDataHandler().getImageByUserIdAsync(comment.getUser().getId(), new DataListener<byte[]>() {
+        DataHandler.getDataHandler().getImageAsync(comment.getUser().getId(),true, new DataListener<byte[]>() {
             @Override
             public void onResult(ApiResponse<byte[]> response) {
                 byte[] image=response.getData();
@@ -51,20 +52,36 @@ public class OneLineComment {
             }
         });
 
+        panel.setBorder(new LineBorder(Contracts.DEFAULT_LIGHT_GRAY));
+
         panel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                DataHandler.getDataHandler().getUserAsync(comment.getUser().getId(), new DataListener<User>() {
+            public void mousePressed(MouseEvent e) {
+                DataHandler.getDataHandler().getUserAsync(comment.getUser().getId(),false, new DataListener<User>() {
                     @Override
                     public void onResult(ApiResponse<User> response){
                         if(response.isConfirmed()){
                             paged.changePage(ButtonPanel.ActiveButton.menu.name(),response.getData());
-
                         }
                     }
                 });
             }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                usernameLabel.setForeground(Color.WHITE);
+                contentLabel.setForeground(Color.WHITE);
+                panel.setBorder(new LineBorder(Contracts.DEFAULT_BLUE,2));
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                usernameLabel.setForeground(Contracts.DEFAULT_WHITE);
+                contentLabel.setForeground(Contracts.DEFAULT_WHITE);
+                panel.setBorder(new LineBorder(Contracts.DEFAULT_LIGHT_GRAY));
+            }
         });
+
+
+
 
     }
 
