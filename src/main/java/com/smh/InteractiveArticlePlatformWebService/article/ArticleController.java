@@ -43,7 +43,7 @@ public class ArticleController {
             Article article =articleService.findById(articleSaveDto.getId());
             if(article!=null){
                 article.setContent(articleSaveDto.getContent());
-                articleService.save(article);
+                article=articleService.save(article);
                 return ApiResponse.createApiResponse(article,"Changes saved successfully");
             }else{
                 return ApiResponse.createApiResponse(null,"No such article with given id, id:"+articleSaveDto.getId());
@@ -82,7 +82,7 @@ public class ArticleController {
                 if(controlUserHavePermission(owner,articleId)){
                     if(!controlUserHavePermission(user,articleId)){
                         article.getContributors().add(user);
-                        articleService.save(article);
+                        article=articleService.save(article);
                         return ApiResponse.createApiResponse(article,"Contributor added");
                     }else{
                         return ApiResponse.createApiResponse(article,"This user is already contributor",false);
@@ -112,7 +112,7 @@ public class ArticleController {
                 if(controlUserHavePermission(owner,articleId)){
                     if(controlUserHavePermission(user,articleId)){
                         article.getContributors().remove(user);
-                        articleService.save(article);
+                        article=articleService.save(article);
                         return ApiResponse.createApiResponse(article,"Contributor has been removed from article");
                     }else{
                         return ApiResponse.createApiResponse(article,"This user is not already contributor",false);
@@ -160,8 +160,5 @@ public class ArticleController {
         return user.getOwnArticles().stream().map(Article::getId).anyMatch(id->id==articleId) ||
                 user.getContributorArticle().stream().map(Article::getId).anyMatch(id->id==articleId);
     }
-
-
-
 
 }

@@ -18,14 +18,13 @@ public class InformationController {
     public ApiResponse<Information> save(@RequestBody Information information){
         User user= userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         user.setInformation(information);
-        userService.save(user);
-        return ApiResponse.createApiResponse(information,"Information saved");
+        user=userService.save(user);
+        return ApiResponse.createApiResponse(user.getInformation(),"Information saved");
     }
 
     @PostMapping("/image/get/{id}")
     public ApiResponse<byte[]> getImage(@PathVariable("id") int id){
         return ApiResponse.createApiResponse(userService.findById(id).getInformation().getImage(),"Image found");
     }
-
 
 }
