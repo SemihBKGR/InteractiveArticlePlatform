@@ -1,5 +1,6 @@
 package app.gui.panel;
 
+import app.Contracts;
 import app.util.Paged;
 import app.util.Resources;
 import core.DataHandler;
@@ -18,7 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class OneLineContributorPanel {
+public class OneLineAddContributorPanel {
 
     private JLabel usernameLabel;
     private JButton addButton;
@@ -29,7 +30,9 @@ public class OneLineContributorPanel {
 
     private AtomicBoolean clicked;
 
-    public OneLineContributorPanel(User user,int articleId,boolean isContributor, Paged paged){
+    public OneLineAddContributorPanel(User user, int articleId, boolean isContributor, Paged paged){
+
+        panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         usernameLabel.setText(user.getUsername());
         imageLabel.setBorder(new LineBorder(Color.BLACK,2));
@@ -40,10 +43,22 @@ public class OneLineContributorPanel {
         clicked=new AtomicBoolean(false);
         addButton.setEnabled(!isContributor);
 
+        panel.setBorder(new LineBorder(Contracts.DEFAULT_LIGHT_GRAY));
+
         innerPanel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 paged.changePage(ButtonPanel.ActiveButton.menu.name(),user);
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                panel.setBorder(new LineBorder(Contracts.DEFAULT_BLUE,2));
+                usernameLabel.setForeground(Color.WHITE);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                panel.setBorder(new LineBorder(Contracts.DEFAULT_LIGHT_GRAY));
+                usernameLabel.setForeground(Contracts.DEFAULT_WHITE);
             }
         });
 

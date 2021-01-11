@@ -14,7 +14,7 @@ public class Confirmation {
 
     private final static String EMAIL_REGEX_PATTERN="^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
 
-    private final static String TITLE_REGEX_PATTERN="[a-zA-Z0-9_.-]+";
+    private final static String TITLE_REGEX_PATTERN="^[a-zA-Z0-9\\s]+$";
     private final static int TITLE_MIN_LENGTH=5;
     private final static int TITLE_MAX_LENGTH=50;
 

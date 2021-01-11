@@ -2,7 +2,8 @@ package app.gui.panel;
 
 import app.gui.dialog.ArticleEditDialog;
 import app.gui.dialog.ArticleReadDialog;
-import app.gui.dialog.EditContributorDialog;
+import app.gui.dialog.AddContributorDialog;
+import app.gui.dialog.RemoveContributorDialog;
 import app.util.Paged;
 import app.util.Resources;
 import app.util.TypeConverts;
@@ -20,6 +21,8 @@ import core.util.DataListener;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -54,9 +57,14 @@ public class TabArticlePanel {
     private JScrollPane contributorScrollPanel;
     private JLabel contributorInfoLabel;
     private JLabel commentInfoLabel;
+    private JPanel ownerPanel;
+    private JLabel ownerLabel;
+    private JButton removeContributorButton;
 
     private AtomicBoolean reloadCommentClickable;
     private AtomicBoolean reloadContributorClickable;
+
+    private AtomicInteger atomicCommentCount;
 
     private Paged paged;
 
@@ -70,24 +78,27 @@ public class TabArticlePanel {
         reloadCommentClickable=new AtomicBoolean(false);
         reloadContributorClickable=new AtomicBoolean(false);
 
+        atomicCommentCount=new AtomicInteger(0);
+
         titleLabel.setText(article.getTitle());
         createLabel.setText("Created at : "+ TypeConverts.getTimeString(article.getCreated_at()));
         updateLabel.setText("Last update : "+TypeConverts.getTimeString(article.getUpdated_at()));
         statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+" / "+(article.is_released()?"Published":"Writing"));
 
+        ownerLabel.setText("Owner");
 
         populateContributors(article,paged);
         populateChat(article);
-        populateComments(article);
+        populateComments(article,paged);
 
         contributorScrollPanel.getVerticalScrollBar().setUnitIncrement(17);
         commentScrollPanel.getVerticalScrollBar().setUnitIncrement(11);
         chatScrollPanel.getVerticalScrollBar().setUnitIncrement(11);
 
-
         DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
             @Override
             public void onResult(ApiResponse<User> response) {
+                ownerPanel.add(new OneLineUserPanel(response.getData(),paged).getPanel());
                 filterRegardingPermission(response.getData());
             }
         });
@@ -103,16 +114,15 @@ public class TabArticlePanel {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                String chatText=chatField.getText().trim();
-                if(!chatText.isEmpty()){
-                    ChatService chatService=DataHandler.getDataHandler().getChatService();
-                    ChatMessage chatMessage=new ChatMessage();
-                    chatMessage.setMessage(chatText);
-                    chatMessage.setSent_at(System.currentTimeMillis());
-                    chatMessage.setTo_article_id(article.getId());
-                    chatMessage.setFrom_user_id(chatService.getUserId());
-                    chatService.sendChatMessage(chatMessage);
-                    chatField.setText("");
+                sendMessage();
+            }
+        });
+
+        chatField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    sendMessage();
                 }
             }
         });
@@ -121,7 +131,7 @@ public class TabArticlePanel {
         addContributorButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                EditContributorDialog dialog = new EditContributorDialog(TabArticlePanel.this.article,paged);
+                AddContributorDialog dialog = new AddContributorDialog(TabArticlePanel.this.article,paged);
                 dialog.setVisible(true);
                 DataHandler.getDataHandler().getArticleAsync(article.getId(),false, new DataListener<Article>() {
                     @Override
@@ -134,25 +144,34 @@ public class TabArticlePanel {
             }
         });
 
+        removeContributorButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                RemoveContributorDialog dialog=new RemoveContributorDialog(TabArticlePanel.this.article,paged);
+                dialog.setVisible(true);
+                DataHandler.getDataHandler().getArticleAsync(article.getId(),false, new DataListener<Article>() {
+                    @Override
+                    public void onResult(ApiResponse<Article> response) {
+                        TabArticlePanel.this.article=response.getData();
+                        contributorPanel.removeAll();
+                        populateContributors(response.getData(),paged);
+                    }
+                });
+            }
+        });
 
         commentButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                String content=commentField.getText().trim();
-                if(!content.isEmpty()){
-                    CommentDto commentDto=new CommentDto();
-                    commentDto.setContent(content);
-                    commentDto.setArticle_id(TabArticlePanel.this.article.getId());
-                    DataHandler.getDataHandler().makeCommentAsync(commentDto, new DataListener<Comment>() {
-                        @Override
-                        public void onResult(ApiResponse<Comment> response) {
-                            if(response.isConfirmed()){
-                                addSingleComment(response.getData());
+                makeComment();
+            }
+        });
 
-                            }
-                        }
-                    });
-                    commentField.setText("");
+        commentField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    makeComment();
                 }
             }
         });
@@ -186,7 +205,7 @@ public class TabArticlePanel {
                 if(reloadCommentClickable.get()){
                     reloadCommentClickable.set(false);
                     commentPanel.removeAll();
-                    populateComments(TabArticlePanel.this.article);
+                    populateComments(TabArticlePanel.this.article,paged);
                 }
             }
         });
@@ -255,7 +274,7 @@ public class TabArticlePanel {
         chatPanel.invalidate();
     }
 
-    private void populateComments(Article article){
+    private void populateComments(Article article,Paged paged){
         DataHandler dataHandler=DataHandler.getDataHandler();
         dataHandler.getCommentsByArticleAsync(article.getId(), new DataListener<List<Comment>>() {
             @Override
@@ -266,6 +285,7 @@ public class TabArticlePanel {
             public void onResult(ApiResponse<List<Comment>> response) {
                 if(response.isConfirmed()){
                     int commentCount=response.getData().size();
+                    atomicCommentCount.set(commentCount);
                     ((GridLayout)commentPanel.getLayout()).setRows(Math.max(5,commentCount));
                     for(Comment comment:response.getData()){
                         commentPanel.add(new OneLineComment(comment,paged).getPanel());
@@ -281,11 +301,46 @@ public class TabArticlePanel {
 
     private void addSingleComment(Comment comment){
         GridLayout gridLayout=((GridLayout)commentPanel.getLayout());
-        gridLayout.setRows(Math.max(5,gridLayout.getRows()+1));
+        gridLayout.setRows(Math.max(5,atomicCommentCount.incrementAndGet()));
         commentPanel.add(new OneLineComment(comment,paged).getPanel());
         commentPanel.invalidate();
+        commentInfoLabel.setText("Comment count : "+atomicCommentCount.get());
+        commentInfoLabel.invalidate();
     }
 
+
+    private void sendMessage(){
+        String chatText=chatField.getText().trim();
+        if(!chatText.isEmpty()){
+            ChatService chatService=DataHandler.getDataHandler().getChatService();
+            ChatMessage chatMessage=new ChatMessage();
+            chatMessage.setMessage(chatText);
+            chatMessage.setSent_at(System.currentTimeMillis());
+            chatMessage.setTo_article_id(article.getId());
+            chatMessage.setFrom_user_id(chatService.getUserId());
+            chatService.sendChatMessage(chatMessage);
+            chatField.setText("");
+        }
+    }
+
+    private void makeComment(){
+        String content=commentField.getText().trim();
+        if(!content.isEmpty()){
+            CommentDto commentDto=new CommentDto();
+            commentDto.setContent(content);
+            commentDto.setArticle_id(TabArticlePanel.this.article.getId());
+            DataHandler.getDataHandler().makeCommentAsync(commentDto, new DataListener<Comment>() {
+                @Override
+                public void onResult(ApiResponse<Comment> response) {
+                    if(response.isConfirmed()){
+                        addSingleComment(response.getData());
+
+                    }
+                }
+            });
+            commentField.setText("");
+        }
+    }
 
 
     public JPanel getPanel() {
@@ -295,15 +350,15 @@ public class TabArticlePanel {
 
     private void createUIComponents() {
         contributorPanel=new JPanel(new GridLayout(0,1));
-
         commentPanel=new JPanel(new GridLayout(0,1));
         chatPanel=new JPanel(new GridLayout(0,1));
-
+        ownerPanel=new JPanel(new GridLayout(1,1));
     }
 
     private void filterRegardingPermission(User user){
         boolean isOwner=controlIfOwner(TabArticlePanel.this.article,user);
         addContributorButton.setVisible(isOwner);
+        removeContributorButton.setVisible(isOwner);
         boolean havePermission=controlIfHavePermission(TabArticlePanel.this.article,user);
         chatPanel.setVisible(havePermission);
         sendMessageButton.setVisible(havePermission);

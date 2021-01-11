@@ -43,7 +43,7 @@ public class CreateArticleDialog extends JDialog {
                 if(okButtonClickable.get()){
                     okButtonClickable.set(false);
                     warnMessages.setText("");
-                    String title=titleField.getText();
+                    String title=titleField.getText().trim();
                     Confirmation.ConfirmationMessage message=Confirmation.articleTitleConfirmation(title);
                     if(message.isConfirmed()){
                         ArticleCreateDto articleCreateDto=new ArticleCreateDto();

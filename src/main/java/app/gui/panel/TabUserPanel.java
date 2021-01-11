@@ -3,9 +3,12 @@ package app.gui.panel;
 import app.Contracts;
 import app.util.Paged;
 import app.util.Resources;
+import core.DataHandler;
 import core.entity.Information;
 import core.entity.User;
 import core.entity.superficial.SuperficialArticle;
+import core.util.ApiResponse;
+import core.util.DataListener;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,6 +18,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TabUserPanel {
 
@@ -31,8 +35,11 @@ public class TabUserPanel {
     private JLabel biographyLabel;
     private JPanel articleInnerPanel;
     private JScrollPane articlePanel;
+    private JLabel articleCountLabel;
+    private JLabel reloadLabel;
+    private JLabel reloadInfoLabel;
 
-    private int articleCount;
+    private AtomicBoolean reloadClickable;
 
     public TabUserPanel(User user, Paged paged){
 
@@ -42,7 +49,40 @@ public class TabUserPanel {
         setInformation(user.getInformation());
         populateArticle(user,paged);
 
+        reloadClickable=new AtomicBoolean(true);
+
         articlePanel.getVerticalScrollBar().setUnitIncrement(17);
+
+        reloadLabel.setIcon(new ImageIcon(Resources.getImage("reload.png",20,20)));
+        reloadLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if(reloadClickable.get()){
+                    reloadClickable.set(false);
+                    DataHandler.getDataHandler().getUserAsync(user.getId(), false, new DataListener<User>() {
+                        @Override
+                        public void onStart() {
+                            reloadInfoLabel.setText("Reloading ...");
+                        }
+
+                        @Override
+                        public void onException(Throwable t) {
+                            reloadInfoLabel.setText("Something went wrong");
+                            reloadClickable.set(true);
+                        }
+
+                        @Override
+                        public void onResult(ApiResponse<User> response) {
+                            setInformation(response.getData().getInformation());
+                            articleInnerPanel.removeAll();
+                            populateArticle(response.getData(),paged);
+                            reloadInfoLabel.setText("User reloaded");
+                            reloadClickable.set(true);
+                        }
+                    });
+                }
+            }
+        });
 
     }
 
@@ -135,7 +175,7 @@ public class TabUserPanel {
 
     private void populateArticle(User user,Paged paged){
 
-        articleCount=user.getOwnArticles().size()+user.getContributorArticle().size();
+        int articleCount=user.getOwnArticles().size()+user.getContributorArticle().size();
         ((GridLayout)articleInnerPanel.getLayout()).setRows(Math.max(5,articleCount));
 
         for(SuperficialArticle article:user.getOwnArticles()){
@@ -145,6 +185,8 @@ public class TabUserPanel {
         for(SuperficialArticle article:user.getContributorArticle()){
             articleInnerPanel.add(new OneLineArticlePanel(paged,article).getPanel());
         }
+
+        articleCountLabel.setText("Own Article : "+user.getOwnArticles().size()+" / "+"Contribute Article : "+user.getContributorArticle().size());
 
     }
 

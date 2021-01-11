@@ -130,6 +130,11 @@ public class SearchPage {
                 DataHandler.getDataHandler().searchUserAsync(text, new DataListener<List<User>>() {
 
                     @Override
+                    public void onStart() {
+                        infoLabel.setText("Searching ...");
+                    }
+
+                    @Override
                     public void onException(Throwable t) {
                         infoLabel.setText("Something wrong");
                         t.printStackTrace();

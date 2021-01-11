@@ -17,6 +17,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProfileArticlePanel {
 
@@ -26,19 +27,24 @@ public class ProfileArticlePanel {
     private JButton createButton;
     private JLabel infoLabel;
     private JLabel reloadLabel;
+    private JLabel articleCountLabel;
 
     private User user;
-    private int articleCount;
 
     Paged paged;
 
     private AtomicBoolean reloadClickable;
+
+    private AtomicInteger ownCount;
+    private AtomicInteger contributeCount;
 
     public ProfileArticlePanel(Paged paged) {
 
         this.paged=paged;
 
         reloadClickable=new AtomicBoolean(true);
+        ownCount=new AtomicInteger(0);
+        contributeCount=new AtomicInteger(0);
 
         articlePanel.getVerticalScrollBar().setUnitIncrement(17);
 
@@ -53,11 +59,11 @@ public class ProfileArticlePanel {
                 dialog.setVisible(true);
                 if(dialog.getArticle()!=null){
                     SuperficialArticle createdArticle=Entities.articleToSuperficialArticle(dialog.getArticle());
-                    articleCount++;
                     user.getContributorArticle().add(createdArticle);
-                    ((GridLayout)articleInnerPanel.getLayout()).setRows(Math.max(5,articleCount));
+                    ((GridLayout)articleInnerPanel.getLayout()).setRows(Math.max(5,ownCount.incrementAndGet()));
                     articleInnerPanel.add(new OneLineArticlePanel(paged,createdArticle).getPanel());
                     infoLabel.setText("New article '"+createdArticle.getTitle()+"' created");
+                    articleCountLabel.setText("Own Article : "+ownCount.get()+" / "+"Contribute Article : "+contributeCount.get());
                 }
             }
             @Override
@@ -79,13 +85,17 @@ public class ProfileArticlePanel {
                     reloadClickable.set(false);
                     DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
                         @Override
+                        public void onStart() {
+                            infoLabel.setText("Reloading ...");
+                        }
+
+                        @Override
                         public void onException(Throwable t) {
                             infoLabel.setText("Articles cannot be reloaded, something went wrong");
                             reloadClickable.set(true);
                         }
                         @Override
                         public void onResult(ApiResponse<User> apiResponse) {
-                            infoLabel.setText("Articles reloaded");
                             articleInnerPanel.removeAll();
                             loadAndStartPanel(apiResponse.getData());
                             reloadClickable.set(true);
@@ -100,7 +110,12 @@ public class ProfileArticlePanel {
     public void loadAndStartPanel(User user){
 
         this.user=user;
-        articleCount=user.getOwnArticles().size()+user.getContributorArticle().size();
+
+        ownCount.set(user.getOwnArticles().size());
+        contributeCount.set(user.getContributorArticle().size());
+        int articleCount=ownCount.get()+contributeCount.get();
+
+        infoLabel.setText("Article count : "+articleCount);
 
         ((GridLayout)articleInnerPanel.getLayout()).setRows(Math.max(5,articleCount));
 
@@ -111,6 +126,8 @@ public class ProfileArticlePanel {
         for(SuperficialArticle article:user.getContributorArticle()){
             articleInnerPanel.add(new OneLineArticlePanel(paged,article).getPanel());
         }
+
+        articleCountLabel.setText("Own Article : "+ownCount.get()+" / "+"Contribute Article : "+contributeCount.get());
 
     }
 

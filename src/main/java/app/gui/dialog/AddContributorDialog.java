@@ -1,8 +1,7 @@
 package app.gui.dialog;
 
 
-import app.gui.panel.OneLineChatPanel;
-import app.gui.panel.OneLineContributorPanel;
+import app.gui.panel.OneLineAddContributorPanel;
 import app.util.Confirmation;
 import app.util.Paged;
 import app.util.Resources;
@@ -13,15 +12,13 @@ import core.entity.superficial.SuperficialUser;
 import core.util.ApiResponse;
 import core.util.DataListener;
 
-import javax.sound.sampled.DataLine;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.module.Configuration;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class EditContributorDialog extends JDialog {
+public class AddContributorDialog extends JDialog {
 
     private JPanel contentPane;
     private JButton buttonCancel;
@@ -30,10 +27,14 @@ public class EditContributorDialog extends JDialog {
     private JPanel userPanel;
     private JLabel warnLabel;
 
-    public EditContributorDialog(Article article, Paged paged) {
+    private AtomicBoolean searchButtonClickable;
+
+    public AddContributorDialog(Article article, Paged paged) {
 
         setContentPane(contentPane);
         setModal(true);
+
+        searchButtonClickable=new AtomicBoolean(true);
 
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -62,29 +63,40 @@ public class EditContributorDialog extends JDialog {
         searchButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                warnLabel.setText("");
-                userPanel.removeAll();
-                String text= searchField.getText();
-                Confirmation.ConfirmationMessage confirmationMessage=Confirmation.searchTextConfirmation(text);
-                if(confirmationMessage.isConfirmed()){
-                    DataHandler.getDataHandler().searchUserAsync(text, new DataListener<List<User>>() {
-                        @Override
-                        public void onResult(ApiResponse<List<User>> response) {
-                            ((GridLayout)userPanel.getLayout()).setRows(Math.max(5,response.getData().size()));
-                            for(User user:response.getData()){
-                                userPanel.add(new OneLineContributorPanel(user,article.getId()
-                                        ,isContributor(user,article),paged).getPanel());
+                if(searchButtonClickable.get()){
+                    searchButtonClickable.set(false);
+                    warnLabel.setText("");
+                    userPanel.removeAll();
+                    String text= searchField.getText();
+                    Confirmation.ConfirmationMessage confirmationMessage=Confirmation.searchTextConfirmation(text);
+                    if(confirmationMessage.isConfirmed()){
+                        DataHandler.getDataHandler().searchUserAsync(text, new DataListener<List<User>>() {
+                            @Override
+                            public void onStart() {
+                                warnLabel.setText("Searching ...");
+                                warnLabel.invalidate();
                             }
-                            warnLabel.setText("User result size:"+response.getData().size());
-                        }
-                        @Override
-                        public void onException(Throwable t) {
-                            warnLabel.setText("Something went wrong");
-                        }
-                    });
-                }else{
-                    warnLabel.setText(confirmationMessage.getMessages());
+                            @Override
+                            public void onResult(ApiResponse<List<User>> response) {
+                                ((GridLayout)userPanel.getLayout()).setRows(Math.max(5,response.getData().size()));
+                                for(User user:response.getData()){
+                                    userPanel.add(new OneLineAddContributorPanel(user,article.getId()
+                                            ,isContributor(user,article),paged).getPanel());
+                                }
+                                warnLabel.setText("User result size:"+response.getData().size());
+                                searchButtonClickable.set(true);
+                            }
+                            @Override
+                            public void onException(Throwable t) {
+                                warnLabel.setText("Something went wrong");
+                                searchButtonClickable.set(true);
+                            }
+                        });
+                    }else{
+                        warnLabel.setText(confirmationMessage.getMessages());
+                    }
                 }
+
             }
         });
     }

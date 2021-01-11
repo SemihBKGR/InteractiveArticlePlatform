@@ -28,6 +28,8 @@ public class OneLineComment {
 
     public OneLineComment(Comment comment, Paged paged) {
 
+        panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
         usernameLabel.setText(comment.getUser().getUsername() + " (" + TypeConverts.getTimeString(comment.getCreated_at()) + ") :");
         contentLabel.setText(comment.getContent());
 

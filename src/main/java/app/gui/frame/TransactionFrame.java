@@ -154,9 +154,16 @@ public class TransactionFrame extends JFrame{
             log.info("Login transaction started.");
 
             dataHandler.loginAsync(username, new String(password), new DataListener<KeyValue>() {
-                    @Override
+
+                @Override
+                public void onStart() {
+                    loginPanel.getLoginInfoLabel().setText("Processing");
+                }
+
+                @Override
                     public void onException(Throwable e) {
-                        e.printStackTrace();
+                        loginPanel.getLoginInfoLabel().setText("Something went wrong");
+                        loginButtonClickable.set(true);
                     }
 
                     @Override
@@ -226,8 +233,14 @@ public class TransactionFrame extends JFrame{
 
             dataHandler.registerAsync(username, email, new String(password), new DataListener<User>() {
                 @Override
+                public void onStart() {
+                    registerPanel.getRegisterInfoLabel().setText("Processing");
+                }
+
+                @Override
                 public void onException(Throwable e) {
-                    e.printStackTrace();
+                    registerPanel.getRegisterInfoLabel().setText("Something went wrong");
+                    registerButtonClickable.set(true);
                 }
 
                 @Override
