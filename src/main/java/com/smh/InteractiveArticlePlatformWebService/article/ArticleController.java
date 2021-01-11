@@ -4,6 +4,8 @@ import com.smh.InteractiveArticlePlatformWebService.user.User;
 import com.smh.InteractiveArticlePlatformWebService.user.UserService;
 import com.smh.InteractiveArticlePlatformWebService.util.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,7 +47,7 @@ public class ArticleController {
             if(article!=null){
                 article.setContent(articleSaveDto.getContent());
                 article=articleService.save(article);
-                return ApiResponse.createApiResponse(article,"Changes saved successfully");
+                return ApiResponse.createApiResponse(article,"Changes saved");
             }else{
                 return ApiResponse.createApiResponse(null,"No such article with given id, id:"+articleSaveDto.getId());
             }
@@ -86,6 +88,7 @@ public class ArticleController {
                             article.setContributors(new ArrayList<>(Arrays.asList(user)));
                         }
                         article=articleService.save(article);
+                        userService.clearUserCache(user);
                         return ApiResponse.createApiResponse(article,"Contributor added");
                     }else{
                         return ApiResponse.createApiResponse(article,"This user is already contributor",false);
@@ -114,8 +117,9 @@ public class ArticleController {
             }else{
                 if(controlUserHavePermission(owner,articleId)){
                     if(controlUserHavePermission(user,articleId)){
-                        article.getContributors().remove(user);
+                        article.getContributors().removeIf((contributor)->contributor.getId()==userId);
                         article=articleService.save(article);
+                        userService.clearUserCache(user);
                         return ApiResponse.createApiResponse(article,"Contributor has been removed from article");
                     }else{
                         return ApiResponse.createApiResponse(article,"This user is not already contributor",false);
@@ -163,5 +167,6 @@ public class ArticleController {
         return user.getOwnArticles().stream().map(Article::getId).anyMatch(id->id==articleId) ||
                 user.getContributorArticle().stream().map(Article::getId).anyMatch(id->id==articleId);
     }
+
 
 }

@@ -13,4 +13,6 @@ public interface UserService {
     List<User> searchByUsername(String username);
     List<User> searchByEmail(String email);
 
+    void clearUserCache(User user);
+
 }

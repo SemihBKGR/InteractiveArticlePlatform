@@ -82,4 +82,15 @@ public class UserServiceImpl implements UserService {
         return userRepository.searchUserByEmail(email);
     }
 
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "user",key = "#user.id"),
+                    @CacheEvict(value = "user",key = "#user.username"),
+                    @CacheEvict(value = "user",key = "#user.email"),
+            }
+    )
+    public void clearUserCache(User user){
+
+    }
+
 }
