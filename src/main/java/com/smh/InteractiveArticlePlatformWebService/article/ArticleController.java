@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -30,7 +31,7 @@ public class ArticleController {
         article.setTitle(articleCreateDto.getTitle());
         article.set_private(articleCreateDto.is_private());
         article.setContributors(new ArrayList<>());
-        articleService.save(article);
+        article=articleService.save(article);
 
         return ApiResponse.createApiResponse(article,"Article created successfully");
 
@@ -55,11 +56,9 @@ public class ArticleController {
 
     @PostMapping("/get/id/{id}")
     public ApiResponse<Article> getArticleById(@PathVariable("id") int id){
-
         Article article=articleService.findById(id);
-
         if(article!=null && controlUserHaveAccess(article)){
-            return ApiResponse.createApiResponse(article,"Article hjas been found with given id, id:"+id);
+            return ApiResponse.createApiResponse(article,"Article has been found with given id, id:"+id);
         }else{
             return ApiResponse.createApiResponse(null,"Article cannot be found with given id, id:"+id);
         }
@@ -81,7 +80,11 @@ public class ArticleController {
             }else{
                 if(controlUserHavePermission(owner,articleId)){
                     if(!controlUserHavePermission(user,articleId)){
-                        article.getContributors().add(user);
+                        if(article.getContributors()!=null){
+                            article.getContributors().add(user);
+                        }else{
+                            article.setContributors(new ArrayList<>(Arrays.asList(user)));
+                        }
                         article=articleService.save(article);
                         return ApiResponse.createApiResponse(article,"Contributor added");
                     }else{

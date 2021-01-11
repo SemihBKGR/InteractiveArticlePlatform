@@ -9,7 +9,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ArticleListSerializer extends StdSerializer<List<Article>> {
 
@@ -26,13 +28,8 @@ public class ArticleListSerializer extends StdSerializer<List<Article>> {
                           JsonGenerator jsonGenerator,
                           SerializerProvider serializerProvider) throws IOException {
 
-        List<SuperficialArticle> articleObjectList=new ArrayList<>();
+        Set<SuperficialArticle> articleObjectList=new HashSet<>();
         for(Article article:articles){
-
-            if(article.is_private()){
-
-            }
-
             articleObjectList.add(new SuperficialArticle(article));
         }
         jsonGenerator.writeObject(articleObjectList);

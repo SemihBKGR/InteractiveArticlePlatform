@@ -22,7 +22,6 @@ public class SuperficialArticle {
     private long created_at;
     private long updated_at;
 
-
     public SuperficialArticle(Article article){
 
         id=article.getId();

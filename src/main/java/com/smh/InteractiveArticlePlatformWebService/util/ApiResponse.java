@@ -2,6 +2,7 @@ package com.smh.InteractiveArticlePlatformWebService.util;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,8 +11,7 @@ import org.springframework.http.HttpStatus;
 import java.util.function.Supplier;
 
 
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @JsonFormat
 public class ApiResponse <T> {

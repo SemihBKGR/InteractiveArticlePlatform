@@ -50,7 +50,6 @@ public class Article implements Serializable {
     private long updated_at;
 
     //TODO Set cascade type
-    @ToString.Exclude
     @JsonSerialize(using = UserSerializer.class)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id",updatable = false)
@@ -58,7 +57,6 @@ public class Article implements Serializable {
 
     //TODO Set cascade type
     //TODO Change information fetch type to lazy.
-    @ToString.Exclude
     @JsonSerialize(using = UserListSerializer.class)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name="contributor_joins",

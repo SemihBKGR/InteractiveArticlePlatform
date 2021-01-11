@@ -56,7 +56,7 @@ public class UserTransactionController {
             user.setEmail(userRegisterDto.getEmail());
             user.setPassword(passwordEncoder.encode(userRegisterDto.getPassword()));
             user.setInformation(new Information());
-            userService.save(user);
+            user=userService.save(user);
             return ApiResponse.createApiResponse(user,"Account created");
         }
 
