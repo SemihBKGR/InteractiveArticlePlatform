@@ -39,14 +39,12 @@ public class ProfileInformationPanel {
     private JLabel emailLabel;
     private JLabel usernameLabel;
     private JLabel imageLabel;
-    private JLabel phoneLabel;
 
     private JTextField nameField;
     private JTextField surnameField;
     private JTextField companyField;
     private JTextField addressField;
     private JTextArea biographyArea;
-    private JFormattedTextField phoneField;
 
     private JButton saveButton;
 
@@ -169,8 +167,7 @@ public class ProfileInformationPanel {
                     (!surnameField.getText().equals(information.getSurname()!=null?information.getSurname():"")) ||
                     (!addressField.getText().equals(information.getAddress()!=null?information.getAddress():"")) ||
                     (!biographyArea.getText().equals(information.getBiography()!=null?information.getBiography():"")) ||
-                    (!companyField.getText().equals(information.getCompany()!=null?information.getCompany():"")) ||
-                    (!phoneField.getText().equals(information.getPhone()!=null?information.getPhone():""))
+                    (!companyField.getText().equals(information.getCompany()!=null?information.getCompany():""))
                 ) {
                     setSaveButtonActiveness(true);
 

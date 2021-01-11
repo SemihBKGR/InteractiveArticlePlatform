@@ -17,6 +17,8 @@ public class Main {
     //-Dsun.java2d.uiScale=1.0
     //-Dhost='host'
 
+
+    //Remove contributor
     public static void main(String[] args){
 
         Logger.getRootLogger().setLevel(Level.INFO);

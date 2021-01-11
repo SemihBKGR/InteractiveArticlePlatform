@@ -24,6 +24,8 @@ public class OneLineArticlePanel {
     private JLabel updateLabel;
     private JLabel createDateLabel;
     private JLabel statusLabel;
+    private JLabel ownerLabel;
+    private JLabel contributorCountLabel;
 
     private Article article;
     private SuperficialArticle superficialArticle;
@@ -55,6 +57,8 @@ public class OneLineArticlePanel {
                 statusLabel.setForeground(Color.WHITE);
                 createDateLabel.setForeground(Color.WHITE);
                 updateLabel.setForeground(Color.WHITE);
+                ownerLabel.setForeground(Color.WHITE);
+                contributorCountLabel.setForeground(Color.WHITE);
             }
 
             @Override
@@ -64,6 +68,8 @@ public class OneLineArticlePanel {
                 statusLabel.setForeground(Contracts.DEFAULT_WHITE);
                 createDateLabel.setForeground(Contracts.DEFAULT_WHITE);
                 updateLabel.setForeground(Contracts.DEFAULT_WHITE);
+                ownerLabel.setForeground(Contracts.DEFAULT_WHITE);
+                contributorCountLabel.setForeground(Contracts.DEFAULT_WHITE);
             }
         });
 
@@ -78,6 +84,8 @@ public class OneLineArticlePanel {
         statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+" / "+(article.is_released()?"Released":"Writing"));
         createDateLabel.setText("Created at : "+TypeConverts.getTimeString(article.getCreated_at()));
         updateLabel.setText("Last Update : "+ TypeConverts.getTimeString(article.getUpdated_at()));
+        ownerLabel.setText("Owner : "+article.getOwner_name());
+        contributorCountLabel.setText("Contributor count : "+article.getContributor_count());
 
     }
 
@@ -90,7 +98,8 @@ public class OneLineArticlePanel {
         statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+" / "+(article.is_released()?"Released":"Writing"));
         createDateLabel.setText("Created at : "+TypeConverts.getTimeString(article.getCreated_at()));
         updateLabel.setText("Last Update : "+ TypeConverts.getTimeString(article.getUpdated_at()));
-
+        ownerLabel.setText("Owner : "+article.getOwner().getUsername());
+        contributorCountLabel.setText("Contributor count : "+article.getContributors().size());
 
     }
 

@@ -51,11 +51,8 @@ public class OneLineContributorPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(!clicked.get()){
+                    clicked.set(true);
                     DataHandler.getDataHandler().addContributorAsync(articleId, user.getId(),new DataListener<Article>(){
-                        @Override
-                        public void onStart() {
-                            clicked.set(true);
-                        }
                         @Override
                         public void onException(Throwable t) {
                             addButton.setEnabled(false);

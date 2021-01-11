@@ -55,7 +55,7 @@ public class ProfileArticlePanel {
                     SuperficialArticle createdArticle=Entities.articleToSuperficialArticle(dialog.getArticle());
                     articleCount++;
                     user.getContributorArticle().add(createdArticle);
-                    ((GridLayout)articleInnerPanel.getLayout()).setRows(articleCount);
+                    ((GridLayout)articleInnerPanel.getLayout()).setRows(Math.max(5,articleCount));
                     articleInnerPanel.add(new OneLineArticlePanel(paged,createdArticle).getPanel());
                     infoLabel.setText("New article '"+createdArticle.getTitle()+"' created");
                 }

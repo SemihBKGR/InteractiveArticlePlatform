@@ -30,7 +30,7 @@ public class OneLineUserPanel {
 
         imageLabel.setBorder(new LineBorder(Color.BLACK,3));
         panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        panel.setBorder(new LineBorder(Contracts.DEFAULT_LIGHT_GRAY));
+
 
         usernameLabel.setText("Username : "+user.getUsername());
         emailLabel.setText("Email : "+user.getEmail());
@@ -61,8 +61,6 @@ public class OneLineUserPanel {
                 articleCountLabel.setForeground(Contracts.DEFAULT_WHITE);
             }
         });
-
-
 
     }
 

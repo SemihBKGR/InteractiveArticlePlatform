@@ -1,10 +1,12 @@
 package app.gui.dialog;
 
+import app.util.TypeConverts;
 import core.DataHandler;
 import core.entity.Article;
 import core.entity.dto.ArticleSaveDto;
 import core.util.ApiResponse;
 import core.util.DataListener;
+import org.springframework.expression.TypeComparator;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -18,34 +20,37 @@ public class ArticleEditDialog extends JDialog {
     private JLabel titleLabel;
     private JTextArea contentTextArea;
     private JLabel warnLabel;
+    private JScrollPane contentScrollPanel;
 
     private volatile String dialogMessage;
     private volatile Article savedArticle;
 
-    private AtomicBoolean buttonsClickable;
+    private AtomicBoolean saveButtonClickable;
 
     public ArticleEditDialog(Article article) {
 
         setContentPane(contentPane);
         setModal(true);
 
-        setSize(500,700);
-        buttonsClickable=new AtomicBoolean(true);
+        setSize(750,500);
+        saveButtonClickable =new AtomicBoolean(true);
+
+        contentScrollPanel.getVerticalScrollBar().setUnitIncrement(17);
 
         contentTextArea.setText(article.getContent());
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                if(buttonsClickable.get()){
-                    showSaveDialog(article,true);
+                if(saveButtonClickable.get()){
+                    showExitDialog();
                 }
             }
         });
         contentPane.registerKeyboardAction(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if(buttonsClickable.get()){
-                    dispose();
+                if(saveButtonClickable.get()){
+                    showExitDialog();
                 }
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
@@ -53,18 +58,28 @@ public class ArticleEditDialog extends JDialog {
         saveButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(buttonsClickable.get()){
-                    showSaveDialog(article,false);
+                if(saveButtonClickable.get()){
+                    showSaveDialog(article);
                 }
             }
         });
     }
 
-    private void showSaveDialog(Article article,boolean disposeAfter){
-        buttonsClickable.set(false);
+
+    private void showExitDialog(){
         int dialogButton = JOptionPane.YES_NO_OPTION;
         int dialogResult = JOptionPane.showConfirmDialog
-                (null, "Are you sure to save changes?","Save",dialogButton);
+                (null, "Close dialog","Close",dialogButton);
+        if(dialogResult == JOptionPane.YES_OPTION){
+            dispose();
+        }
+    }
+
+    private void showSaveDialog(Article article){
+        saveButtonClickable.set(false);
+        int dialogButton = JOptionPane.YES_NO_OPTION;
+        int dialogResult = JOptionPane.showConfirmDialog
+                (null, "Save changes","Save",dialogButton);
         if(dialogResult == JOptionPane.YES_OPTION){
             ArticleSaveDto articleSaveDto=new ArticleSaveDto();
             articleSaveDto.setId(article.getId());
@@ -73,7 +88,7 @@ public class ArticleEditDialog extends JDialog {
                 @Override
                 public void onException(Throwable t) {
                     warnLabel.setText("Something went wrong");
-                    buttonsClickable.set(true);
+                    saveButtonClickable.set(true);
                 }
                 @Override
                 public void onResult(ApiResponse<Article> response) {
@@ -81,17 +96,13 @@ public class ArticleEditDialog extends JDialog {
                         dialogMessage=response.getMessage();
                         savedArticle=response.getData();
                         warnLabel.setText(response.getMessage());
-                        if(disposeAfter){
-                            dispose();
-                        }
+                        System.out.println(TypeConverts.getTimeString(response.getData().getUpdated_at()));
                     }else{
                         warnLabel.setText(response.getMessage());
                     }
-                    buttonsClickable.set(true);
+                    saveButtonClickable.set(true);
                 }
             });
-        }else{
-            dispose();
         }
     }
 

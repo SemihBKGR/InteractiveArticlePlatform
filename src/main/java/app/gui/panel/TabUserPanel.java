@@ -26,7 +26,6 @@ public class TabUserPanel {
     private JPanel informationPanel;
     private JLabel nameLabel;
     private JLabel surnameLabel;
-    private JLabel phoneLabel;
     private JLabel companyLabel;
     private JLabel addressLabel;
     private JLabel biographyLabel;
@@ -59,12 +58,6 @@ public class TabUserPanel {
             surnameLabel.setText("Surname:"+information.getSurname());
         }else{
             surnameLabel.setVisible(false);
-        }
-
-        if(information.getPhone()!=null && !information.getPhone().isEmpty()){
-            phoneLabel.setText("Phone:"+information.getPhone());
-        }else{
-            phoneLabel.setVisible(false);
         }
 
         if(information.getCompany()!=null && !information.getCompany().isEmpty()){
@@ -158,7 +151,6 @@ public class TabUserPanel {
     private void createUIComponents() {
         articleInnerPanel=new JPanel(new GridLayout(0,1));
     }
-
 
     public JPanel getPanel() {
         return panel;

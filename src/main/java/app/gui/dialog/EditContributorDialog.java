@@ -21,7 +21,7 @@ import java.lang.module.Configuration;
 import java.util.Iterator;
 import java.util.List;
 
-public class ContributorDialog extends JDialog {
+public class EditContributorDialog extends JDialog {
 
     private JPanel contentPane;
     private JButton buttonCancel;
@@ -30,7 +30,7 @@ public class ContributorDialog extends JDialog {
     private JPanel userPanel;
     private JLabel warnLabel;
 
-    public ContributorDialog(Article article, Paged paged) {
+    public EditContributorDialog(Article article, Paged paged) {
 
         setContentPane(contentPane);
         setModal(true);

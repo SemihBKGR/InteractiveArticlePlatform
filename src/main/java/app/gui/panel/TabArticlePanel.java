@@ -1,7 +1,8 @@
 package app.gui.panel;
 
 import app.gui.dialog.ArticleEditDialog;
-import app.gui.dialog.ContributorDialog;
+import app.gui.dialog.ArticleReadDialog;
+import app.gui.dialog.EditContributorDialog;
 import app.util.Paged;
 import app.util.Resources;
 import app.util.TypeConverts;
@@ -16,18 +17,14 @@ import core.entity.dto.CommentDto;
 import core.entity.superficial.SuperficialUser;
 import core.util.ApiResponse;
 import core.util.DataListener;
-import lombok.SneakyThrows;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TabArticlePanel {
 
@@ -39,6 +36,7 @@ public class TabArticlePanel {
     private JButton editButton;
     private JLabel editWarnLabel;
     private JPanel leftPanel;
+    private JPanel middlePanel;
     private JPanel rightPanel;
     private JPanel contributorPanel;
     private JButton readButton;
@@ -54,6 +52,11 @@ public class TabArticlePanel {
     private JScrollPane commentScrollPanel;
     private JScrollPane chatScrollPanel;
     private JScrollPane contributorScrollPanel;
+    private JLabel contributorInfoLabel;
+    private JLabel commentInfoLabel;
+
+    private AtomicBoolean reloadCommentClickable;
+    private AtomicBoolean reloadContributorClickable;
 
     private Paged paged;
 
@@ -64,9 +67,15 @@ public class TabArticlePanel {
         this.paged=paged;
         this.article=article;
 
-        titleLabel.setText(article.getTitle());
+        reloadCommentClickable=new AtomicBoolean(false);
+        reloadContributorClickable=new AtomicBoolean(false);
 
-        setArticleLabel(article);
+        titleLabel.setText(article.getTitle());
+        createLabel.setText("Created at : "+ TypeConverts.getTimeString(article.getCreated_at()));
+        updateLabel.setText("Last update : "+TypeConverts.getTimeString(article.getUpdated_at()));
+        statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+" / "+(article.is_released()?"Published":"Writing"));
+
+
         populateContributors(article,paged);
         populateChat(article);
         populateComments(article);
@@ -79,7 +88,7 @@ public class TabArticlePanel {
         DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
             @Override
             public void onResult(ApiResponse<User> response) {
-                setButtonsActiveness(article,response.getData());
+                filterRegardingPermission(response.getData());
             }
         });
 
@@ -112,7 +121,7 @@ public class TabArticlePanel {
         addContributorButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                ContributorDialog dialog = new ContributorDialog(TabArticlePanel.this.article,paged);
+                EditContributorDialog dialog = new EditContributorDialog(TabArticlePanel.this.article,paged);
                 dialog.setVisible(true);
                 DataHandler.getDataHandler().getArticleAsync(article.getId(),false, new DataListener<Article>() {
                     @Override
@@ -125,6 +134,7 @@ public class TabArticlePanel {
             }
         });
 
+
         commentButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -136,9 +146,9 @@ public class TabArticlePanel {
                     DataHandler.getDataHandler().makeCommentAsync(commentDto, new DataListener<Comment>() {
                         @Override
                         public void onResult(ApiResponse<Comment> response) {
-                            System.out.println(response);
                             if(response.isConfirmed()){
                                 addSingleComment(response.getData());
+
                             }
                         }
                     });
@@ -149,14 +159,23 @@ public class TabArticlePanel {
 
         editButton.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 ArticleEditDialog articleEditDialog=new ArticleEditDialog(TabArticlePanel.this.article);
                 articleEditDialog.setVisible(true);
                 editWarnLabel.setText(articleEditDialog.getDialogMessage());
                 if(articleEditDialog.getSavedArticle()!=null){
                     TabArticlePanel.this.article=articleEditDialog.getSavedArticle();
-                    setArticleLabel(articleEditDialog.getSavedArticle());
+                    updateLabel.setText("Last update : "+TypeConverts.getTimeString(articleEditDialog.getSavedArticle().getUpdated_at()));
+                    updateLabel.invalidate();
                 }
+            }
+        });
+
+        readButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                ArticleReadDialog articleEditDialog=new ArticleReadDialog(TabArticlePanel.this.article);
+                articleEditDialog.setVisible(true);
             }
         });
 
@@ -164,8 +183,11 @@ public class TabArticlePanel {
         reloadCommentLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                commentPanel.removeAll();
-                populateComments(TabArticlePanel.this.article);
+                if(reloadCommentClickable.get()){
+                    reloadCommentClickable.set(false);
+                    commentPanel.removeAll();
+                    populateComments(TabArticlePanel.this.article);
+                }
             }
         });
 
@@ -173,43 +195,47 @@ public class TabArticlePanel {
         reloadContributorLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                contributorPanel.removeAll();
-                populateContributors(TabArticlePanel.this.article,paged);
+                if(reloadContributorClickable.get()){
+                    reloadContributorClickable.set(false);
+                    contributorPanel.removeAll();
+                    populateContributors(TabArticlePanel.this.article,paged);
+                }
             }
         });
 
-    }
-
-    private void setArticleLabel(Article article){
-        createLabel.setText("Created at : "+ TypeConverts.getTimeString(article.getCreated_at()));
-        updateLabel.setText("Last update : "+TypeConverts.getTimeString(article.getUpdated_at()));
-        statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+" / "+(article.is_released()?"Published":"Writing"));
     }
 
     private void populateContributors(Article article,Paged paged){
 
         DataHandler dataHandler=DataHandler.getDataHandler();
 
-        ((GridLayout)contributorPanel.getLayout()).setRows((Math.max(article.getContributors().size() + 1, 5)));
+        int contributorCount=article.getContributors().size();
+        ((GridLayout)contributorPanel.getLayout()).setRows((Math.max(contributorCount, 5)));
 
-        dataHandler.getUserAsync(article.getOwner().getId(),false, new DataListener<User>() {
-            @Override
-            public void onResult(ApiResponse<User> response) {
-                contributorPanel.add(new OneLineUserPanel(response.getData(),paged).getPanel());
-                contributorPanel.invalidate();
-            }
-        });
-
+        AtomicInteger atomicInteger=new AtomicInteger(contributorCount);
         for(SuperficialUser superficialUser:article.getContributors()){
             dataHandler.getUserAsync(superficialUser.getId(),false, new DataListener<User>() {
+                @Override
+                public void onStart() {
+                    contributorInfoLabel.setText("Reloading ...");
+                    contributorInfoLabel.invalidate();
+                }
                 @Override
                 public void onResult(ApiResponse<User> response) {
                     contributorPanel.add(new OneLineUserPanel(response.getData(),paged).getPanel());
                     contributorPanel.invalidate();
+                    if(atomicInteger.decrementAndGet()==0){
+                        reloadContributorClickable.set(true);
+                        contributorInfoLabel.setText("Contributor count : "+contributorCount);
+                        contributorInfoLabel.invalidate();
+                    }
                 }
             });
         }
-
+        if(atomicInteger.get()==0){
+            reloadContributorClickable.set(true);
+            contributorInfoLabel.setText("Contributor count : "+contributorCount);
+        }
     }
 
     private void populateChat(Article article){
@@ -219,25 +245,35 @@ public class TabArticlePanel {
         for(ChatMessage chatMessage:chatMessageList){
             chatPanel.add(new OneLineChatPanel(chatMessage).getPanel());
         }
+        chatPanel.invalidate();
     }
 
     private void addSingleChatMessage(ChatMessage chatMessage){
         GridLayout gridLayout=(GridLayout)chatPanel.getLayout();
         gridLayout.setRows(Math.max(5,gridLayout.getRows()+1));
         chatPanel.add(new OneLineChatPanel(chatMessage).getPanel());
+        chatPanel.invalidate();
     }
 
     private void populateComments(Article article){
         DataHandler dataHandler=DataHandler.getDataHandler();
         dataHandler.getCommentsByArticleAsync(article.getId(), new DataListener<List<Comment>>() {
             @Override
+            public void onStart() {
+
+            }
+            @Override
             public void onResult(ApiResponse<List<Comment>> response) {
                 if(response.isConfirmed()){
-                    ((GridLayout)commentPanel.getLayout()).setRows(Math.max(5,response.getData().size()));
+                    int commentCount=response.getData().size();
+                    ((GridLayout)commentPanel.getLayout()).setRows(Math.max(5,commentCount));
                     for(Comment comment:response.getData()){
                         commentPanel.add(new OneLineComment(comment,paged).getPanel());
                     }
                     commentPanel.invalidate();
+                    reloadCommentClickable.set(true);
+                    commentInfoLabel.setText("Comment count : "+commentCount);
+                    commentField.invalidate();
                 }
             }
         });
@@ -247,6 +283,7 @@ public class TabArticlePanel {
         GridLayout gridLayout=((GridLayout)commentPanel.getLayout());
         gridLayout.setRows(Math.max(5,gridLayout.getRows()+1));
         commentPanel.add(new OneLineComment(comment,paged).getPanel());
+        commentPanel.invalidate();
     }
 
 
@@ -264,27 +301,28 @@ public class TabArticlePanel {
 
     }
 
-    private void setButtonsActiveness(Article article,User user){
+    private void filterRegardingPermission(User user){
+        boolean isOwner=controlIfOwner(TabArticlePanel.this.article,user);
+        addContributorButton.setVisible(isOwner);
+        boolean havePermission=controlIfHavePermission(TabArticlePanel.this.article,user);
+        chatPanel.setVisible(havePermission);
+        sendMessageButton.setVisible(havePermission);
+        chatScrollPanel.setVisible(havePermission);
+        chatField.setVisible(havePermission);
+        editButton.setVisible(havePermission);
+        readButton.setVisible(havePermission);
+    }
 
-        if(user.getOwnArticles().stream().anyMatch(article1 -> article1.getId()==article.getId())
-                || user.getContributorArticle().stream().anyMatch(article1 -> article1.getId()==article.getId())){
-            editButton.setVisible(true);
-            readButton.setVisible(true);
-            addContributorButton.setVisible(true);
+    private boolean controlIfOwner(Article article,User user){
+        return article.getOwner().getId()==user.getId();
+    }
+
+    private boolean controlIfHavePermission(Article article,User user){
+        if(controlIfOwner(article,user)){
+            return true;
+        }else{
+            return article.getContributors().stream().map(SuperficialUser::getId).anyMatch(id->id==user.getId());
         }
-
     }
-
-    private void filterRegardingPermission(){
-
-        DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
-            @Override
-            public void onResult(ApiResponse<User> response) {
-
-            }
-        });
-
-    }
-
 
 }

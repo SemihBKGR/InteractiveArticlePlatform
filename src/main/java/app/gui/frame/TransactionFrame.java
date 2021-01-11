@@ -191,9 +191,10 @@ public class TransactionFrame extends JFrame{
 
     private void register(){
 
-        registerPanel.getUsernameLabel().setText("");
-        registerPanel.getEmailLabel().setText("");
-        registerPanel.getPasswordLabel().setText("");
+        registerPanel.getRegisterInfoLabel().setText("");
+        registerPanel.getUsernameWarnLabel().setText("");
+        registerPanel.getEmailWarnLabel().setText("");
+        registerPanel.getPasswordWarnLabel().setText("");
 
         String username=registerPanel.getUsernameField().getText();
         String email=registerPanel.getEmailField().getText();
