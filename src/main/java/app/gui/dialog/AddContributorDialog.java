@@ -5,6 +5,9 @@ import app.gui.panel.OneLineAddContributorPanel;
 import app.util.Confirmation;
 import app.util.Paged;
 import app.util.Resources;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import core.DataHandler;
 import core.entity.Article;
 import core.entity.User;
@@ -31,10 +34,11 @@ public class AddContributorDialog extends JDialog {
 
     public AddContributorDialog(Article article, Paged paged) {
 
+        $$$setupUI$$$();
         setContentPane(contentPane);
         setModal(true);
 
-        searchButtonClickable=new AtomicBoolean(true);
+        searchButtonClickable = new AtomicBoolean(true);
 
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -57,42 +61,44 @@ public class AddContributorDialog extends JDialog {
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        setSize(500,700);
+        setSize(500, 700);
         setIconImage(Resources.getImageIcon("article.png").getImage());
 
         searchButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(searchButtonClickable.get()){
+                if (searchButtonClickable.get()) {
                     searchButtonClickable.set(false);
                     warnLabel.setText("");
                     userPanel.removeAll();
-                    String text= searchField.getText();
-                    Confirmation.ConfirmationMessage confirmationMessage=Confirmation.searchTextConfirmation(text);
-                    if(confirmationMessage.isConfirmed()){
+                    String text = searchField.getText();
+                    Confirmation.ConfirmationMessage confirmationMessage = Confirmation.searchTextConfirmation(text);
+                    if (confirmationMessage.isConfirmed()) {
                         DataHandler.getDataHandler().searchUserAsync(text, new DataListener<List<User>>() {
                             @Override
                             public void onStart() {
                                 warnLabel.setText("Searching ...");
                                 warnLabel.invalidate();
                             }
+
                             @Override
                             public void onResult(ApiResponse<List<User>> response) {
-                                ((GridLayout)userPanel.getLayout()).setRows(Math.max(5,response.getData().size()));
-                                for(User user:response.getData()){
-                                    userPanel.add(new OneLineAddContributorPanel(user,article.getId()
-                                            ,isContributor(user,article),paged).getPanel());
+                                ((GridLayout) userPanel.getLayout()).setRows(Math.max(5, response.getData().size()));
+                                for (User user : response.getData()) {
+                                    userPanel.add(new OneLineAddContributorPanel(user, article.getId()
+                                            , isContributor(user, article), paged).getPanel());
                                 }
-                                warnLabel.setText("User result size:"+response.getData().size());
+                                warnLabel.setText("User result size:" + response.getData().size());
                                 searchButtonClickable.set(true);
                             }
+
                             @Override
                             public void onException(Throwable t) {
                                 warnLabel.setText("Something went wrong");
                                 searchButtonClickable.set(true);
                             }
                         });
-                    }else{
+                    } else {
                         warnLabel.setText(confirmationMessage.getMessages());
                     }
                 }
@@ -101,18 +107,18 @@ public class AddContributorDialog extends JDialog {
         });
     }
 
-    private boolean isContributor(User user,Article article){
+    private boolean isContributor(User user, Article article) {
 
-        if(user.getOwnArticles().contains(article)){
+        if (user.getOwnArticles().contains(article)) {
             return true;
         }
-        if(user.getId()!=article.getOwner().getId()){
-            for(SuperficialUser contributor :article.getContributors()){
-                if(contributor.getId()==user.getId()){
+        if (user.getId() != article.getOwner().getId()) {
+            for (SuperficialUser contributor : article.getContributors()) {
+                if (contributor.getId() == user.getId()) {
                     return true;
                 }
             }
-        }else{
+        } else {
             return true;
         }
         return false;
@@ -120,7 +126,77 @@ public class AddContributorDialog extends JDialog {
 
 
     private void createUIComponents() {
-        userPanel=new JPanel(new GridLayout(0,1));
+        userPanel = new JPanel(new GridLayout(0, 1));
     }
 
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        createUIComponents();
+        contentPane = new JPanel();
+        contentPane.setLayout(new GridLayoutManager(3, 1, new Insets(10, 10, 10, 10), -1, -1));
+        final JPanel panel1 = new JPanel();
+        panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        contentPane.add(panel1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
+        final JPanel panel2 = new JPanel();
+        panel2.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        buttonCancel = new JButton();
+        buttonCancel.setText("Exit");
+        panel2.add(buttonCancel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel3 = new JPanel();
+        panel3.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
+        contentPane.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        searchField = new JTextField();
+        panel3.add(searchField, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        panel3.add(spacer1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label1 = new JLabel();
+        Font label1Font = this.$$$getFont$$$(null, -1, 20, label1.getFont());
+        if (label1Font != null) label1.setFont(label1Font);
+        label1.setHorizontalAlignment(0);
+        label1.setText("Search User");
+        panel3.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        searchButton = new JButton();
+        searchButton.setText("Search");
+        panel3.add(searchButton, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        warnLabel = new JLabel();
+        warnLabel.setHorizontalAlignment(0);
+        warnLabel.setText("");
+        panel3.add(warnLabel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        contentPane.add(scrollPane1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        scrollPane1.setViewportView(userPanel);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
+        if (currentFont == null) return null;
+        String resultName;
+        if (fontName == null) {
+            resultName = currentFont.getName();
+        } else {
+            Font testFont = new Font(fontName, Font.PLAIN, 10);
+            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
+                resultName = fontName;
+            } else {
+                resultName = currentFont.getName();
+            }
+        }
+        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return contentPane;
+    }
 }

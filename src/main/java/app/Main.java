@@ -10,12 +10,17 @@ import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class Main {
 
     //System property
     //-Dsun.java2d.uiScale=1.0
     //-Dhost='host'
+
+    static{
+        System.setProperty("sun.java2d.uiScale","1.0");
+    }
 
     public static void main(String[] args){
 
@@ -25,9 +30,10 @@ public class Main {
 
         try {
             Settings.readSettings();
-        } catch (IOException e) {
+        }catch (IOException e) {
             e.printStackTrace();
         }
+
 
         try {
             UIManager.setLookAndFeel(new DarculaLaf());

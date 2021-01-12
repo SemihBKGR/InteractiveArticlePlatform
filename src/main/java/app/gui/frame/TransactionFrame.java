@@ -3,8 +3,11 @@ package app.gui.frame;
 import app.gui.page.LoginPage;
 import app.gui.page.RegisterPage;
 import app.util.*;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import core.DataHandler;
 import core.entity.User;
+import core.request.Contracts;
 import core.util.ApiResponse;
 import core.util.DataListener;
 import core.util.KeyValue;
@@ -22,7 +25,7 @@ import static app.Contracts.FRAME_TITLE;
 
 
 @Slf4j
-public class TransactionFrame extends JFrame{
+public class TransactionFrame extends JFrame {
 
     private DataHandler dataHandler;
 
@@ -39,24 +42,24 @@ public class TransactionFrame extends JFrame{
 
         super(FRAME_TITLE);
         setIconImage(Resources.getImageIcon("article.png").getImage());
-        setMinimumSize(new Dimension(400,600));
-        setSize(new Dimension(500,750));
+        setMinimumSize(new Dimension(400, 600));
+        setSize(new Dimension(500, 750));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        dataHandler=DataHandler.getDataHandler();
+        dataHandler = DataHandler.getDataHandler();
 
-        loginButtonClickable=new AtomicBoolean(true);
-        registerButtonClickable=new AtomicBoolean(true);
+        loginButtonClickable = new AtomicBoolean(true);
+        registerButtonClickable = new AtomicBoolean(true);
 
         add(panel);
 
-        loginPanel=new LoginPage();
-        registerPanel=new RegisterPage();
+        loginPanel = new LoginPage();
+        registerPanel = new RegisterPage();
         loginPanel.addMouseListeners();
         registerPanel.addMouseListeners();
 
-        centerPanel.add(loginPanel.getPanel(),"login");
-        centerPanel.add(registerPanel.getPanel(),"register");
+        centerPanel.add(loginPanel.getPanel(), "login");
+        centerPanel.add(registerPanel.getPanel(), "register");
 
         addComponentListener();
         setComponentStateRegardingSetting();
@@ -68,7 +71,7 @@ public class TransactionFrame extends JFrame{
         loginPanel.getLoginButton().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(loginButtonClickable.get()){
+                if (loginButtonClickable.get()) {
                     loginButtonClickable.set(false);
                     log.info("Login button clicked");
                     login();
@@ -79,7 +82,7 @@ public class TransactionFrame extends JFrame{
         loginPanel.getRegisterButton().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                ((CardLayout)centerPanel.getLayout()).show(centerPanel,"register");
+                ((CardLayout) centerPanel.getLayout()).show(centerPanel, "register");
             }
         });
 
@@ -94,7 +97,7 @@ public class TransactionFrame extends JFrame{
         registerPanel.getRegisterButton().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(registerButtonClickable.get()){
+                if (registerButtonClickable.get()) {
                     registerButtonClickable.set(false);
                     log.info("Register transaction started");
                     register();
@@ -105,20 +108,20 @@ public class TransactionFrame extends JFrame{
         registerPanel.getLoginButton().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                ((CardLayout)centerPanel.getLayout()).show(centerPanel,"login");
+                ((CardLayout) centerPanel.getLayout()).show(centerPanel, "login");
             }
         });
 
     }
 
-    private void setComponentStateRegardingSetting(){
+    private void setComponentStateRegardingSetting() {
 
-        boolean rememberme= TypeConverts.toBoolean
+        boolean rememberme = TypeConverts.toBoolean
                 (Settings.getSetting(Settings.REMEMBER_ME));
 
         loginPanel.getRememberMeCheckBox().setSelected(rememberme);
 
-        if(rememberme){
+        if (rememberme) {
             loginPanel.getUsernameField().setText(TypeConverts.toString(Settings.getSetting(Settings.USERNAME)));
             loginPanel.getPasswordField().setText(TypeConverts.toString(Settings.getSetting(Settings.PASSWORD)));
         }
@@ -126,30 +129,30 @@ public class TransactionFrame extends JFrame{
 
     }
 
-    private void login(){
+    private void login() {
 
         loginPanel.getUsernameWarnLabel().setText("");
         loginPanel.getPasswordWarnLabel().setText("");
         loginPanel.getLoginInfoLabel().setText("");
 
-        String username=loginPanel.getUsernameField().getText();
-        char[] password=loginPanel.getPasswordField().getPassword();
+        String username = loginPanel.getUsernameField().getText();
+        char[] password = loginPanel.getPasswordField().getPassword();
 
-        boolean allConfirmed=true;
+        boolean allConfirmed = true;
 
-        Confirmation.ConfirmationMessage usernameConfirmationMessage= Confirmation.usernameConfirmation(username);
-        if(!usernameConfirmationMessage.isConfirmed()){
+        Confirmation.ConfirmationMessage usernameConfirmationMessage = Confirmation.usernameConfirmation(username);
+        if (!usernameConfirmationMessage.isConfirmed()) {
             loginPanel.getUsernameWarnLabel().setText(usernameConfirmationMessage.getMessages());
-            allConfirmed=false;
+            allConfirmed = false;
         }
 
-        Confirmation.ConfirmationMessage passwordConfirmationMessage=Confirmation.passwordConfirmation(new String(password));
-        if(!passwordConfirmationMessage.isConfirmed()){
+        Confirmation.ConfirmationMessage passwordConfirmationMessage = Confirmation.passwordConfirmation(new String(password));
+        if (!passwordConfirmationMessage.isConfirmed()) {
             loginPanel.getPasswordWarnLabel().setText(passwordConfirmationMessage.getMessages());
-            allConfirmed=false;
+            allConfirmed = false;
         }
 
-        if(allConfirmed){
+        if (allConfirmed) {
 
             log.info("Login transaction started.");
 
@@ -161,73 +164,73 @@ public class TransactionFrame extends JFrame{
                 }
 
                 @Override
-                    public void onException(Throwable e) {
-                        loginPanel.getLoginInfoLabel().setText("Something went wrong");
+                public void onException(Throwable e) {
+                    loginPanel.getLoginInfoLabel().setText("Something went wrong");
+                    loginButtonClickable.set(true);
+                }
+
+                @Override
+                public void onResult(ApiResponse<KeyValue> response) {
+                    loginPanel.getLoginInfoLabel().setText(HtmlParse.convertToHtml(response.getMessage()));
+
+                    if (response.isConfirmed()) {
+                        log.info("Login is success.");
+                        dataHandler.addHeader(response.getData());
+                        SwingUtilities.invokeLater(() -> {
+                            new AppFrame().setVisible(true);
+                        });
+                        dispose();
+                    } else {
+                        log.info("Login is fail.");
                         loginButtonClickable.set(true);
                     }
+                }
+            });
 
-                    @Override
-                    public void onResult(ApiResponse<KeyValue> response) {
-                        loginPanel.getLoginInfoLabel().setText(HtmlParse.convertToHtml(response.getMessage()));
-
-                        if(response.isConfirmed()){
-                            log.info("Login is success.");
-                            dataHandler.addHeader(response.getData());
-                            SwingUtilities.invokeLater(()->{
-                                new AppFrame().setVisible(true);
-                            });
-                            dispose();
-                        }else{
-                            log.info("Login is fail.");
-                            loginButtonClickable.set(true);
-                        }
-                    }
-                });
-
-        }else{
+        } else {
             log.info("Login transaction could not bo started.");
             loginButtonClickable.set(true);
         }
 
-        if(TypeConverts.toBoolean(Settings.getSetting(Settings.REMEMBER_ME))) {
+        if (TypeConverts.toBoolean(Settings.getSetting(Settings.REMEMBER_ME))) {
             Settings.setSetting(Settings.USERNAME, username);
             Settings.setSetting(Settings.PASSWORD, new String(password));
         }
 
     }
 
-    private void register(){
+    private void register() {
 
         registerPanel.getRegisterInfoLabel().setText("");
         registerPanel.getUsernameWarnLabel().setText("");
         registerPanel.getEmailWarnLabel().setText("");
         registerPanel.getPasswordWarnLabel().setText("");
 
-        String username=registerPanel.getUsernameField().getText();
-        String email=registerPanel.getEmailField().getText();
-        char[] password=registerPanel.getPasswordField().getPassword();
+        String username = registerPanel.getUsernameField().getText();
+        String email = registerPanel.getEmailField().getText();
+        char[] password = registerPanel.getPasswordField().getPassword();
 
-        boolean allConfirmed=true;
+        boolean allConfirmed = true;
 
-        Confirmation.ConfirmationMessage usernameConfirmationMessage=Confirmation.usernameConfirmation(username);
-        if(!usernameConfirmationMessage.isConfirmed()){
+        Confirmation.ConfirmationMessage usernameConfirmationMessage = Confirmation.usernameConfirmation(username);
+        if (!usernameConfirmationMessage.isConfirmed()) {
             registerPanel.getUsernameWarnLabel().setText(usernameConfirmationMessage.getMessages());
-            allConfirmed=false;
+            allConfirmed = false;
         }
 
-        Confirmation.ConfirmationMessage emailConfirmationMessage=Confirmation.emailConfirmation(email);
-        if(!emailConfirmationMessage.isConfirmed()){
+        Confirmation.ConfirmationMessage emailConfirmationMessage = Confirmation.emailConfirmation(email);
+        if (!emailConfirmationMessage.isConfirmed()) {
             registerPanel.getEmailWarnLabel().setText(emailConfirmationMessage.getMessages());
-            allConfirmed=false;
+            allConfirmed = false;
         }
 
-        Confirmation.ConfirmationMessage passwordConfirmationMessage=Confirmation.passwordConfirmation(new String(password));
-        if(!passwordConfirmationMessage.isConfirmed()){
+        Confirmation.ConfirmationMessage passwordConfirmationMessage = Confirmation.passwordConfirmation(new String(password));
+        if (!passwordConfirmationMessage.isConfirmed()) {
             registerPanel.getPasswordWarnLabel().setText(passwordConfirmationMessage.getMessages());
-            allConfirmed=false;
+            allConfirmed = false;
         }
 
-        if(allConfirmed){
+        if (allConfirmed) {
 
             log.info("Register transaction started.");
 
@@ -247,12 +250,12 @@ public class TransactionFrame extends JFrame{
                 public void onResult(ApiResponse<User> response) {
                     registerPanel.getRegisterInfoLabel().setText(HtmlParse.convertToHtml(response.getMessage()));
 
-                    if(response.isConfirmed()){
+                    if (response.isConfirmed()) {
                         registerPanel.getUsernameField().setText("");
                         registerPanel.getEmailField().setText("");
                         registerPanel.getPasswordField().setText("");
                         log.info("Register is success");
-                    }else{
+                    } else {
                         log.info("Register is fail");
                     }
                     registerButtonClickable.set(true);
@@ -260,11 +263,39 @@ public class TransactionFrame extends JFrame{
                 }
             });
 
-        }else{
+        } else {
             log.info("Register transaction could not bo started.");
             registerButtonClickable.set(true);
         }
 
     }
 
+    {
+// GUI initializer generated by IntelliJ IDEA GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
+    }
+
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        panel = new JPanel();
+        panel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        centerPanel = new JPanel();
+        centerPanel.setLayout(new CardLayout(0, 0));
+        panel.add(centerPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return panel;
+    }
 }

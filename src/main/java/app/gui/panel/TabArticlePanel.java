@@ -7,6 +7,9 @@ import app.gui.dialog.RemoveContributorDialog;
 import app.util.Paged;
 import app.util.Resources;
 import app.util.TypeConverts;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import core.DataHandler;
 import core.chat.ChatListener;
 import core.chat.ChatMessage;
@@ -70,26 +73,27 @@ public class TabArticlePanel {
 
     private Article article;
 
-    public TabArticlePanel(Article article, Paged paged){
+    public TabArticlePanel(Article article, Paged paged) {
 
-        this.paged=paged;
-        this.article=article;
+        this.paged = paged;
+        this.article = article;
 
-        reloadCommentClickable=new AtomicBoolean(false);
-        reloadContributorClickable=new AtomicBoolean(false);
+        reloadCommentClickable = new AtomicBoolean(false);
+        reloadContributorClickable = new AtomicBoolean(false);
 
-        atomicCommentCount=new AtomicInteger(0);
+        atomicCommentCount = new AtomicInteger(0);
 
+        $$$setupUI$$$();
         titleLabel.setText(article.getTitle());
-        createLabel.setText("Created at : "+ TypeConverts.getTimeString(article.getCreated_at()));
-        updateLabel.setText("Last update : "+TypeConverts.getTimeString(article.getUpdated_at()));
-        statusLabel.setText("Status : "+(article.is_private()?"Private":"Public")+" / "+(article.is_released()?"Published":"Writing"));
+        createLabel.setText("Created at : " + TypeConverts.getTimeString(article.getCreated_at()));
+        updateLabel.setText("Last update : " + TypeConverts.getTimeString(article.getUpdated_at()));
+        statusLabel.setText("Status : " + (article.is_private() ? "Private" : "Public") + " / " + (article.is_released() ? "Published" : "Writing"));
 
         ownerLabel.setText("Owner");
 
-        populateContributors(article,paged);
+        populateContributors(article, paged);
         populateChat(article);
-        populateComments(article,paged);
+        populateComments(article, paged);
 
         contributorScrollPanel.getVerticalScrollBar().setUnitIncrement(17);
         commentScrollPanel.getVerticalScrollBar().setUnitIncrement(11);
@@ -98,7 +102,7 @@ public class TabArticlePanel {
         DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
             @Override
             public void onResult(ApiResponse<User> response) {
-                ownerPanel.add(new OneLineUserPanel(response.getData(),paged).getPanel());
+                ownerPanel.add(new OneLineUserPanel(response.getData(), paged).getPanel());
                 filterRegardingPermission(response.getData());
             }
         });
@@ -121,7 +125,7 @@ public class TabArticlePanel {
         chatField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     sendMessage();
                 }
             }
@@ -131,14 +135,14 @@ public class TabArticlePanel {
         addContributorButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                AddContributorDialog dialog = new AddContributorDialog(TabArticlePanel.this.article,paged);
+                AddContributorDialog dialog = new AddContributorDialog(TabArticlePanel.this.article, paged);
                 dialog.setVisible(true);
-                DataHandler.getDataHandler().getArticleAsync(article.getId(),false, new DataListener<Article>() {
+                DataHandler.getDataHandler().getArticleAsync(article.getId(), false, new DataListener<Article>() {
                     @Override
                     public void onResult(ApiResponse<Article> response) {
-                        TabArticlePanel.this.article=response.getData();
+                        TabArticlePanel.this.article = response.getData();
                         contributorPanel.removeAll();
-                        populateContributors(response.getData(),paged);
+                        populateContributors(response.getData(), paged);
                     }
                 });
             }
@@ -147,14 +151,14 @@ public class TabArticlePanel {
         removeContributorButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                RemoveContributorDialog dialog=new RemoveContributorDialog(TabArticlePanel.this.article,paged);
+                RemoveContributorDialog dialog = new RemoveContributorDialog(TabArticlePanel.this.article, paged);
                 dialog.setVisible(true);
-                DataHandler.getDataHandler().getArticleAsync(article.getId(),false, new DataListener<Article>() {
+                DataHandler.getDataHandler().getArticleAsync(article.getId(), false, new DataListener<Article>() {
                     @Override
                     public void onResult(ApiResponse<Article> response) {
-                        TabArticlePanel.this.article=response.getData();
+                        TabArticlePanel.this.article = response.getData();
                         contributorPanel.removeAll();
-                        populateContributors(response.getData(),paged);
+                        populateContributors(response.getData(), paged);
                     }
                 });
             }
@@ -170,7 +174,7 @@ public class TabArticlePanel {
         commentField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     makeComment();
                 }
             }
@@ -179,12 +183,12 @@ public class TabArticlePanel {
         editButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                ArticleEditDialog articleEditDialog=new ArticleEditDialog(TabArticlePanel.this.article);
+                ArticleEditDialog articleEditDialog = new ArticleEditDialog(TabArticlePanel.this.article);
                 articleEditDialog.setVisible(true);
                 editWarnLabel.setText(articleEditDialog.getDialogMessage());
-                if(articleEditDialog.getSavedArticle()!=null){
-                    TabArticlePanel.this.article=articleEditDialog.getSavedArticle();
-                    updateLabel.setText("Last update : "+TypeConverts.getTimeString(articleEditDialog.getSavedArticle().getUpdated_at()));
+                if (articleEditDialog.getSavedArticle() != null) {
+                    TabArticlePanel.this.article = articleEditDialog.getSavedArticle();
+                    updateLabel.setText("Last update : " + TypeConverts.getTimeString(articleEditDialog.getSavedArticle().getUpdated_at()));
                     updateLabel.invalidate();
                 }
             }
@@ -193,127 +197,129 @@ public class TabArticlePanel {
         readButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                ArticleReadDialog articleEditDialog=new ArticleReadDialog(TabArticlePanel.this.article);
+                ArticleReadDialog articleEditDialog = new ArticleReadDialog(TabArticlePanel.this.article);
                 articleEditDialog.setVisible(true);
             }
         });
 
-        reloadCommentLabel.setIcon(new ImageIcon(Resources.getImage("reload.png",20,20)));
+        reloadCommentLabel.setIcon(new ImageIcon(Resources.getImage("reload.png", 20, 20)));
         reloadCommentLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if(reloadCommentClickable.get()){
+                if (reloadCommentClickable.get()) {
                     reloadCommentClickable.set(false);
                     commentPanel.removeAll();
-                    populateComments(TabArticlePanel.this.article,paged);
+                    populateComments(TabArticlePanel.this.article, paged);
                 }
             }
         });
 
-        reloadContributorLabel.setIcon(new ImageIcon(Resources.getImage("reload.png",20,20)));
+        reloadContributorLabel.setIcon(new ImageIcon(Resources.getImage("reload.png", 20, 20)));
         reloadContributorLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if(reloadContributorClickable.get()){
+                if (reloadContributorClickable.get()) {
                     reloadContributorClickable.set(false);
                     contributorPanel.removeAll();
-                    populateContributors(TabArticlePanel.this.article,paged);
+                    populateContributors(TabArticlePanel.this.article, paged);
                 }
             }
         });
 
     }
 
-    private void populateContributors(Article article,Paged paged){
+    private void populateContributors(Article article, Paged paged) {
 
-        DataHandler dataHandler=DataHandler.getDataHandler();
+        DataHandler dataHandler = DataHandler.getDataHandler();
 
-        int contributorCount=article.getContributors().size();
-        ((GridLayout)contributorPanel.getLayout()).setRows((Math.max(contributorCount, 5)));
+        int contributorCount = article.getContributors().size();
+        ((GridLayout) contributorPanel.getLayout()).setRows((Math.max(contributorCount, 5)));
 
-        AtomicInteger atomicInteger=new AtomicInteger(contributorCount);
-        for(SuperficialUser superficialUser:article.getContributors()){
-            dataHandler.getUserAsync(superficialUser.getId(),false, new DataListener<User>() {
+        AtomicInteger atomicInteger = new AtomicInteger(contributorCount);
+        for (SuperficialUser superficialUser : article.getContributors()) {
+            dataHandler.getUserAsync(superficialUser.getId(), false, new DataListener<User>() {
                 @Override
                 public void onStart() {
                     contributorInfoLabel.setText("Reloading ...");
                     contributorInfoLabel.invalidate();
                 }
+
                 @Override
                 public void onResult(ApiResponse<User> response) {
-                    contributorPanel.add(new OneLineUserPanel(response.getData(),paged).getPanel());
+                    contributorPanel.add(new OneLineUserPanel(response.getData(), paged).getPanel());
                     contributorPanel.invalidate();
-                    if(atomicInteger.decrementAndGet()==0){
+                    if (atomicInteger.decrementAndGet() == 0) {
                         reloadContributorClickable.set(true);
-                        contributorInfoLabel.setText("Contributor count : "+contributorCount);
+                        contributorInfoLabel.setText("Contributor count : " + contributorCount);
                         contributorInfoLabel.invalidate();
                     }
                 }
             });
         }
-        if(atomicInteger.get()==0){
+        if (atomicInteger.get() == 0) {
             reloadContributorClickable.set(true);
-            contributorInfoLabel.setText("Contributor count : "+contributorCount);
+            contributorInfoLabel.setText("Contributor count : " + contributorCount);
         }
     }
 
-    private void populateChat(Article article){
-        DataHandler dataHandler=DataHandler.getDataHandler();
-        java.util.List<ChatMessage> chatMessageList=dataHandler.getChatService().getMessages(article.getId());
-        ((GridLayout)chatPanel.getLayout()).setRows(Math.max(5,chatMessageList.size()));
-        for(ChatMessage chatMessage:chatMessageList){
+    private void populateChat(Article article) {
+        DataHandler dataHandler = DataHandler.getDataHandler();
+        List<ChatMessage> chatMessageList = dataHandler.getChatService().getMessages(article.getId());
+        ((GridLayout) chatPanel.getLayout()).setRows(Math.max(5, chatMessageList.size()));
+        for (ChatMessage chatMessage : chatMessageList) {
             chatPanel.add(new OneLineChatPanel(chatMessage).getPanel());
         }
         chatPanel.invalidate();
     }
 
-    private void addSingleChatMessage(ChatMessage chatMessage){
-        GridLayout gridLayout=(GridLayout)chatPanel.getLayout();
-        gridLayout.setRows(Math.max(5,gridLayout.getRows()+1));
+    private void addSingleChatMessage(ChatMessage chatMessage) {
+        GridLayout gridLayout = (GridLayout) chatPanel.getLayout();
+        gridLayout.setRows(Math.max(5, gridLayout.getRows() + 1));
         chatPanel.add(new OneLineChatPanel(chatMessage).getPanel());
         chatPanel.invalidate();
     }
 
-    private void populateComments(Article article,Paged paged){
-        DataHandler dataHandler=DataHandler.getDataHandler();
+    private void populateComments(Article article, Paged paged) {
+        DataHandler dataHandler = DataHandler.getDataHandler();
         dataHandler.getCommentsByArticleAsync(article.getId(), new DataListener<List<Comment>>() {
             @Override
             public void onStart() {
 
             }
+
             @Override
             public void onResult(ApiResponse<List<Comment>> response) {
-                if(response.isConfirmed()){
-                    int commentCount=response.getData().size();
+                if (response.isConfirmed()) {
+                    int commentCount = response.getData().size();
                     atomicCommentCount.set(commentCount);
-                    ((GridLayout)commentPanel.getLayout()).setRows(Math.max(5,commentCount));
-                    for(Comment comment:response.getData()){
-                        commentPanel.add(new OneLineComment(comment,paged).getPanel());
+                    ((GridLayout) commentPanel.getLayout()).setRows(Math.max(5, commentCount));
+                    for (Comment comment : response.getData()) {
+                        commentPanel.add(new OneLineComment(comment, paged).getPanel());
                     }
                     commentPanel.invalidate();
                     reloadCommentClickable.set(true);
-                    commentInfoLabel.setText("Comment count : "+commentCount);
+                    commentInfoLabel.setText("Comment count : " + commentCount);
                     commentField.invalidate();
                 }
             }
         });
     }
 
-    private void addSingleComment(Comment comment){
-        GridLayout gridLayout=((GridLayout)commentPanel.getLayout());
-        gridLayout.setRows(Math.max(5,atomicCommentCount.incrementAndGet()));
-        commentPanel.add(new OneLineComment(comment,paged).getPanel());
+    private void addSingleComment(Comment comment) {
+        GridLayout gridLayout = ((GridLayout) commentPanel.getLayout());
+        gridLayout.setRows(Math.max(5, atomicCommentCount.incrementAndGet()));
+        commentPanel.add(new OneLineComment(comment, paged).getPanel());
         commentPanel.invalidate();
-        commentInfoLabel.setText("Comment count : "+atomicCommentCount.get());
+        commentInfoLabel.setText("Comment count : " + atomicCommentCount.get());
         commentInfoLabel.invalidate();
     }
 
 
-    private void sendMessage(){
-        String chatText=chatField.getText().trim();
-        if(!chatText.isEmpty()){
-            ChatService chatService=DataHandler.getDataHandler().getChatService();
-            ChatMessage chatMessage=new ChatMessage();
+    private void sendMessage() {
+        String chatText = chatField.getText().trim();
+        if (!chatText.isEmpty()) {
+            ChatService chatService = DataHandler.getDataHandler().getChatService();
+            ChatMessage chatMessage = new ChatMessage();
             chatMessage.setMessage(chatText);
             chatMessage.setSent_at(System.currentTimeMillis());
             chatMessage.setTo_article_id(article.getId());
@@ -323,16 +329,16 @@ public class TabArticlePanel {
         }
     }
 
-    private void makeComment(){
-        String content=commentField.getText().trim();
-        if(!content.isEmpty()){
-            CommentDto commentDto=new CommentDto();
+    private void makeComment() {
+        String content = commentField.getText().trim();
+        if (!content.isEmpty()) {
+            CommentDto commentDto = new CommentDto();
             commentDto.setContent(content);
             commentDto.setArticle_id(TabArticlePanel.this.article.getId());
             DataHandler.getDataHandler().makeCommentAsync(commentDto, new DataListener<Comment>() {
                 @Override
                 public void onResult(ApiResponse<Comment> response) {
-                    if(response.isConfirmed()){
+                    if (response.isConfirmed()) {
                         addSingleComment(response.getData());
 
                     }
@@ -349,17 +355,17 @@ public class TabArticlePanel {
 
 
     private void createUIComponents() {
-        contributorPanel=new JPanel(new GridLayout(0,1));
-        commentPanel=new JPanel(new GridLayout(0,1));
-        chatPanel=new JPanel(new GridLayout(0,1));
-        ownerPanel=new JPanel(new GridLayout(1,1));
+        contributorPanel = new JPanel(new GridLayout(0, 1));
+        commentPanel = new JPanel(new GridLayout(0, 1));
+        chatPanel = new JPanel(new GridLayout(0, 1));
+        ownerPanel = new JPanel(new GridLayout(1, 1));
     }
 
-    private void filterRegardingPermission(User user){
-        boolean isOwner=controlIfOwner(TabArticlePanel.this.article,user);
+    private void filterRegardingPermission(User user) {
+        boolean isOwner = controlIfOwner(TabArticlePanel.this.article, user);
         addContributorButton.setVisible(isOwner);
         removeContributorButton.setVisible(isOwner);
-        boolean havePermission=controlIfHavePermission(TabArticlePanel.this.article,user);
+        boolean havePermission = controlIfHavePermission(TabArticlePanel.this.article, user);
         chatPanel.setVisible(havePermission);
         sendMessageButton.setVisible(havePermission);
         chatScrollPanel.setVisible(havePermission);
@@ -368,16 +374,147 @@ public class TabArticlePanel {
         readButton.setVisible(havePermission);
     }
 
-    private boolean controlIfOwner(Article article,User user){
-        return article.getOwner().getId()==user.getId();
+    private boolean controlIfOwner(Article article, User user) {
+        return article.getOwner().getId() == user.getId();
     }
 
-    private boolean controlIfHavePermission(Article article,User user){
-        if(controlIfOwner(article,user)){
+    private boolean controlIfHavePermission(Article article, User user) {
+        if (controlIfOwner(article, user)) {
             return true;
-        }else{
-            return article.getContributors().stream().map(SuperficialUser::getId).anyMatch(id->id==user.getId());
+        } else {
+            return article.getContributors().stream().map(SuperficialUser::getId).anyMatch(id -> id == user.getId());
         }
     }
 
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        createUIComponents();
+        panel = new JPanel();
+        panel.setLayout(new GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
+        titleLabel = new JLabel();
+        Font titleLabelFont = this.$$$getFont$$$(null, -1, 35, titleLabel.getFont());
+        if (titleLabelFont != null) titleLabel.setFont(titleLabelFont);
+        titleLabel.setHorizontalAlignment(0);
+        titleLabel.setText("");
+        panel.add(titleLabel, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        middlePanel = new JPanel();
+        middlePanel.setLayout(new GridLayoutManager(11, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel.add(middlePanel, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        updateLabel = new JLabel();
+        Font updateLabelFont = this.$$$getFont$$$(null, -1, 18, updateLabel.getFont());
+        if (updateLabelFont != null) updateLabel.setFont(updateLabelFont);
+        updateLabel.setText("");
+        middlePanel.add(updateLabel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        createLabel = new JLabel();
+        Font createLabelFont = this.$$$getFont$$$(null, -1, 18, createLabel.getFont());
+        if (createLabelFont != null) createLabel.setFont(createLabelFont);
+        createLabel.setText("");
+        middlePanel.add(createLabel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        statusLabel = new JLabel();
+        Font statusLabelFont = this.$$$getFont$$$(null, -1, 18, statusLabel.getFont());
+        if (statusLabelFont != null) statusLabel.setFont(statusLabelFont);
+        statusLabel.setText("");
+        middlePanel.add(statusLabel, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        editButton = new JButton();
+        editButton.setText("Edit");
+        editButton.setVisible(false);
+        middlePanel.add(editButton, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        middlePanel.add(spacer1, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        readButton = new JButton();
+        readButton.setText("Read");
+        readButton.setVisible(false);
+        middlePanel.add(readButton, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        addContributorButton = new JButton();
+        addContributorButton.setText("Add Contributor");
+        addContributorButton.setVisible(false);
+        middlePanel.add(addContributorButton, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        editWarnLabel = new JLabel();
+        Font editWarnLabelFont = this.$$$getFont$$$(null, -1, 14, editWarnLabel.getFont());
+        if (editWarnLabelFont != null) editWarnLabel.setFont(editWarnLabelFont);
+        editWarnLabel.setText("");
+        middlePanel.add(editWarnLabel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        middlePanel.add(ownerPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final Spacer spacer2 = new Spacer();
+        middlePanel.add(spacer2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        removeContributorButton = new JButton();
+        removeContributorButton.setText("Remove Contributor");
+        removeContributorButton.setVisible(false);
+        middlePanel.add(removeContributorButton, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        leftPanel = new JPanel();
+        leftPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel.add(leftPanel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        contributorScrollPanel = new JScrollPane();
+        leftPanel.add(contributorScrollPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        contributorScrollPanel.setViewportView(contributorPanel);
+        rightPanel = new JPanel();
+        rightPanel.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
+        panel.add(rightPanel, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        commentScrollPanel = new JScrollPane();
+        rightPanel.add(commentScrollPanel, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        commentScrollPanel.setViewportView(commentPanel);
+        chatScrollPanel = new JScrollPane();
+        rightPanel.add(chatScrollPanel, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        chatScrollPanel.setViewportView(chatPanel);
+        commentField = new JTextField();
+        rightPanel.add(commentField, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        chatField = new JTextField();
+        rightPanel.add(chatField, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        commentButton = new JButton();
+        commentButton.setText("Comment");
+        rightPanel.add(commentButton, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        sendMessageButton = new JButton();
+        sendMessageButton.setText("Send");
+        rightPanel.add(sendMessageButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        reloadContributorLabel = new JLabel();
+        reloadContributorLabel.setText("");
+        panel.add(reloadContributorLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        reloadCommentLabel = new JLabel();
+        reloadCommentLabel.setText("");
+        panel.add(reloadCommentLabel, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contributorInfoLabel = new JLabel();
+        contributorInfoLabel.setHorizontalAlignment(0);
+        contributorInfoLabel.setText("");
+        panel.add(contributorInfoLabel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        commentInfoLabel = new JLabel();
+        commentInfoLabel.setHorizontalAlignment(0);
+        commentInfoLabel.setText("");
+        panel.add(commentInfoLabel, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        ownerLabel = new JLabel();
+        ownerLabel.setHorizontalAlignment(0);
+        ownerLabel.setText("Label");
+        panel.add(ownerLabel, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private Font $$$getFont$$$(String fontName, int style, int size, Font currentFont) {
+        if (currentFont == null) return null;
+        String resultName;
+        if (fontName == null) {
+            resultName = currentFont.getName();
+        } else {
+            Font testFont = new Font(fontName, Font.PLAIN, 10);
+            if (testFont.canDisplay('a') && testFont.canDisplay('1')) {
+                resultName = fontName;
+            } else {
+                resultName = currentFont.getName();
+            }
+        }
+        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return panel;
+    }
 }

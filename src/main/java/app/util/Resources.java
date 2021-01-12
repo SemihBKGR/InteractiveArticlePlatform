@@ -13,7 +13,7 @@ import static app.Contracts.*;
 
 public class Resources {
 
-    private final static String ICON_FOLDER_NAME="icons";
+    private final static String ICON_FOLDER_NAME="/icons";
 
     public static ImageIcon defaultImageIcon;
     public static ImageIcon smallDefaultImageIcon;
@@ -23,16 +23,16 @@ public class Resources {
     static {
         try {
             defaultImageIcon=new ImageIcon(Scalr.resize
-                    (ImageIO.read(new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\default-image.jpg")),
+                    (ImageIO.read(Resources.class.getResourceAsStream(ICON_FOLDER_NAME+"/defaultImage.jpg")),
                             Scalr.Method.QUALITY,IMAGE_SIZE,IMAGE_SIZE));
             smallDefaultImageIcon=new ImageIcon(Scalr.resize
-                    (ImageIO.read(new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\default-image.jpg")),
+                    (ImageIO.read(Resources.class.getResourceAsStream(ICON_FOLDER_NAME+ "/defaultImage.jpg")),
                             Scalr.Method.QUALITY,IMAGE_SMALL_SIZE,IMAGE_SMALL_SIZE));
             smallestDefaultImageIcon=new ImageIcon(Scalr.resize
-                    (ImageIO.read(new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\default-image.jpg")),
+                    (ImageIO.read(Resources.class.getResourceAsStream(ICON_FOLDER_NAME+ "/defaultImage.jpg")),
                             Scalr.Method.QUALITY,IMAGE_SMALLEST_SIZE,IMAGE_SMALLEST_SIZE));
             smallestPencilImageIcon=new ImageIcon(Scalr.resize
-                    (ImageIO.read(new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\pencil.png")),
+                    (ImageIO.read(Resources.class.getResourceAsStream(ICON_FOLDER_NAME+"/pencil.png")),
                             Scalr.Method.QUALITY,IMAGE_SMALLEST_SIZE,IMAGE_SMALLEST_SIZE));
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,8 +41,7 @@ public class Resources {
 
     public static ImageIcon getImageIcon(String name){
 
-        return new ImageIcon(Resources.class.getClassLoader()
-                .getResource(ICON_FOLDER_NAME).getFile()+"\\"+name);
+        return new ImageIcon(Resources.class.getResource(ICON_FOLDER_NAME+"/"+name));
 
     }
 
@@ -50,8 +49,7 @@ public class Resources {
 
         BufferedImage bufferedImage= null;
         try {
-            bufferedImage = ImageIO.read(
-                    new File(Resources.class.getClassLoader().getResource(ICON_FOLDER_NAME).getFile() + "\\" + name));
+            bufferedImage = ImageIO.read(Resources.class.getResourceAsStream(ICON_FOLDER_NAME+ "/" + name));
         } catch (IOException e) {
             e.printStackTrace();
             return null;
