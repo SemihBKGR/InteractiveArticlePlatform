@@ -301,14 +301,14 @@ public class DataHandler implements Closeable {
     }
 
     public ApiResponse<List<User>> searchUser(String text) throws IOException {
+        ApiResponse<List<User>> listApiResponse=requestService.searchUser(text);
         if(dataPolicy.isCacheEnable()){
-            ApiResponse<List<User>> listApiResponse=requestService.searchUser(text);
             for(ApiResponse<User> userApiResponse: ApiResponse.extractList(listApiResponse)){
                 cacheService.addUserCache(userApiResponse);
                 cacheService.addImageCache(userApiResponse.getData().getId(),ApiResponse.extractUserToImage(userApiResponse));
             }
         }
-        return requestService.searchUser(text);
+        return listApiResponse;
     }
 
     public void searchUserAsync(String text,DataListener<List<User>> listener){

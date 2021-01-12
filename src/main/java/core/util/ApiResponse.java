@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @JsonFormat
 public class ApiResponse<T> {
 

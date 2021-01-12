@@ -15,7 +15,7 @@ class ChatLogFiles {
     private static final String LOG_FILE_EXTENSION=".txt";
 
     static{
-        CHAT_LOG_FILE=new File(System.getProperty("user.dir")+"\\"+FOLDER_NAME);
+        CHAT_LOG_FILE=new File(System.getProperty("user.dir")+"/"+FOLDER_NAME);
         if(!CHAT_LOG_FILE.exists()){
             CHAT_LOG_FILE.mkdir();
         }
