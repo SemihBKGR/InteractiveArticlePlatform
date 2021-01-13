@@ -61,8 +61,12 @@ public class TabArticlePanel {
     private JLabel contributorInfoLabel;
     private JLabel commentInfoLabel;
     private JPanel ownerPanel;
-    private JLabel ownerLabel;
     private JButton removeContributorButton;
+    private JLabel contributorCountLabel;
+
+    private volatile boolean ownerPermission;
+    private volatile boolean contributorPermission;
+
 
     private AtomicBoolean reloadCommentClickable;
     private AtomicBoolean reloadContributorClickable;
@@ -78,18 +82,25 @@ public class TabArticlePanel {
         this.paged = paged;
         this.article = article;
 
+        ownerPermission = false;
+        contributorPermission = false;
+
         reloadCommentClickable = new AtomicBoolean(false);
         reloadContributorClickable = new AtomicBoolean(false);
 
         atomicCommentCount = new AtomicInteger(0);
 
         $$$setupUI$$$();
+
+        rightPanel.requestFocusInWindow();
+        middlePanel.requestFocusInWindow();
+        leftPanel.requestFocusInWindow();
+
         titleLabel.setText(article.getTitle());
         createLabel.setText("Created at : " + TypeConverts.getTimeString(article.getCreated_at()));
         updateLabel.setText("Last update : " + TypeConverts.getTimeString(article.getUpdated_at()));
         statusLabel.setText("Status : " + (article.is_private() ? "Private" : "Public") + " / " + (article.is_released() ? "Published" : "Writing"));
-
-        ownerLabel.setText("Owner");
+        contributorCountLabel.setText("Contributor count : " + article.getContributors().size());
 
         populateContributors(article, paged);
         populateChat(article);
@@ -99,10 +110,16 @@ public class TabArticlePanel {
         commentScrollPanel.getVerticalScrollBar().setUnitIncrement(11);
         chatScrollPanel.getVerticalScrollBar().setUnitIncrement(11);
 
-        DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
+        DataHandler.getDataHandler().getUserAsync(article.getOwner().getId(), false, new DataListener<User>() {
             @Override
             public void onResult(ApiResponse<User> response) {
                 ownerPanel.add(new OneLineUserPanel(response.getData(), paged).getPanel());
+            }
+        });
+
+        DataHandler.getDataHandler().getMeAsync(new DataListener<User>() {
+            @Override
+            public void onResult(ApiResponse<User> response) {
                 filterRegardingPermission(response.getData());
             }
         });
@@ -115,18 +132,21 @@ public class TabArticlePanel {
         });
 
         sendMessageButton.addMouseListener(new MouseAdapter() {
-
             @Override
             public void mouseClicked(MouseEvent e) {
-                sendMessage();
+                if (contributorPermission) {
+                    sendMessage();
+                }
             }
         });
 
         chatField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    sendMessage();
+                if (contributorPermission) {
+                    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        sendMessage();
+                    }
                 }
             }
         });
@@ -135,32 +155,36 @@ public class TabArticlePanel {
         addContributorButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                AddContributorDialog dialog = new AddContributorDialog(TabArticlePanel.this.article, paged);
-                dialog.setVisible(true);
-                DataHandler.getDataHandler().getArticleAsync(article.getId(), false, new DataListener<Article>() {
-                    @Override
-                    public void onResult(ApiResponse<Article> response) {
-                        TabArticlePanel.this.article = response.getData();
-                        contributorPanel.removeAll();
-                        populateContributors(response.getData(), paged);
-                    }
-                });
+                if (ownerPermission) {
+                    AddContributorDialog dialog = new AddContributorDialog(TabArticlePanel.this.article, paged);
+                    dialog.setVisible(true);
+                    DataHandler.getDataHandler().getArticleAsync(article.getId(), false, new DataListener<Article>() {
+                        @Override
+                        public void onResult(ApiResponse<Article> response) {
+                            TabArticlePanel.this.article = response.getData();
+                            contributorPanel.removeAll();
+                            populateContributors(response.getData(), paged);
+                        }
+                    });
+                }
             }
         });
 
         removeContributorButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                RemoveContributorDialog dialog = new RemoveContributorDialog(TabArticlePanel.this.article, paged);
-                dialog.setVisible(true);
-                DataHandler.getDataHandler().getArticleAsync(article.getId(), false, new DataListener<Article>() {
-                    @Override
-                    public void onResult(ApiResponse<Article> response) {
-                        TabArticlePanel.this.article = response.getData();
-                        contributorPanel.removeAll();
-                        populateContributors(response.getData(), paged);
-                    }
-                });
+                if (ownerPermission) {
+                    RemoveContributorDialog dialog = new RemoveContributorDialog(TabArticlePanel.this.article, paged);
+                    dialog.setVisible(true);
+                    DataHandler.getDataHandler().getArticleAsync(article.getId(), false, new DataListener<Article>() {
+                        @Override
+                        public void onResult(ApiResponse<Article> response) {
+                            TabArticlePanel.this.article = response.getData();
+                            contributorPanel.removeAll();
+                            populateContributors(response.getData(), paged);
+                        }
+                    });
+                }
             }
         });
 
@@ -365,6 +389,7 @@ public class TabArticlePanel {
         boolean isOwner = controlIfOwner(TabArticlePanel.this.article, user);
         addContributorButton.setVisible(isOwner);
         removeContributorButton.setVisible(isOwner);
+        ownerPermission = isOwner;
         boolean havePermission = controlIfHavePermission(TabArticlePanel.this.article, user);
         chatPanel.setVisible(havePermission);
         sendMessageButton.setVisible(havePermission);
@@ -372,6 +397,7 @@ public class TabArticlePanel {
         chatField.setVisible(havePermission);
         editButton.setVisible(havePermission);
         readButton.setVisible(havePermission);
+        contributorPermission = havePermission;
     }
 
     private boolean controlIfOwner(Article article, User user) {
@@ -404,7 +430,7 @@ public class TabArticlePanel {
         titleLabel.setText("");
         panel.add(titleLabel, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         middlePanel = new JPanel();
-        middlePanel.setLayout(new GridLayoutManager(11, 1, new Insets(0, 0, 0, 0), -1, -1));
+        middlePanel.setLayout(new GridLayoutManager(12, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel.add(middlePanel, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         updateLabel = new JLabel();
         Font updateLabelFont = this.$$$getFont$$$(null, -1, 18, updateLabel.getFont());
@@ -424,29 +450,34 @@ public class TabArticlePanel {
         editButton = new JButton();
         editButton.setText("Edit");
         editButton.setVisible(false);
-        middlePanel.add(editButton, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        middlePanel.add(editButton, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        middlePanel.add(spacer1, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        middlePanel.add(spacer1, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         readButton = new JButton();
         readButton.setText("Read");
         readButton.setVisible(false);
-        middlePanel.add(readButton, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        middlePanel.add(readButton, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         addContributorButton = new JButton();
         addContributorButton.setText("Add Contributor");
         addContributorButton.setVisible(false);
-        middlePanel.add(addContributorButton, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        middlePanel.add(addContributorButton, new GridConstraints(11, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         editWarnLabel = new JLabel();
         Font editWarnLabelFont = this.$$$getFont$$$(null, -1, 14, editWarnLabel.getFont());
         if (editWarnLabelFont != null) editWarnLabel.setFont(editWarnLabelFont);
         editWarnLabel.setText("");
-        middlePanel.add(editWarnLabel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        middlePanel.add(editWarnLabel, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         middlePanel.add(ownerPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         middlePanel.add(spacer2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         removeContributorButton = new JButton();
         removeContributorButton.setText("Remove Contributor");
         removeContributorButton.setVisible(false);
-        middlePanel.add(removeContributorButton, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        middlePanel.add(removeContributorButton, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contributorCountLabel = new JLabel();
+        Font contributorCountLabelFont = this.$$$getFont$$$(null, -1, 18, contributorCountLabel.getFont());
+        if (contributorCountLabelFont != null) contributorCountLabel.setFont(contributorCountLabelFont);
+        contributorCountLabel.setText("");
+        middlePanel.add(contributorCountLabel, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         leftPanel = new JPanel();
         leftPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel.add(leftPanel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
@@ -486,10 +517,6 @@ public class TabArticlePanel {
         commentInfoLabel.setHorizontalAlignment(0);
         commentInfoLabel.setText("");
         panel.add(commentInfoLabel, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        ownerLabel = new JLabel();
-        ownerLabel.setHorizontalAlignment(0);
-        ownerLabel.setText("Label");
-        panel.add(ownerLabel, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -517,4 +544,5 @@ public class TabArticlePanel {
     public JComponent $$$getRootComponent$$$() {
         return panel;
     }
+
 }
