@@ -63,6 +63,8 @@ public class TabArticlePanel {
     private JPanel ownerPanel;
     private JButton removeContributorButton;
     private JLabel contributorCountLabel;
+    private JLabel reloadArticleLabel;
+    private JLabel articleInfoLabel;
 
     private volatile boolean ownerPermission;
     private volatile boolean contributorPermission;
@@ -70,6 +72,7 @@ public class TabArticlePanel {
 
     private AtomicBoolean reloadCommentClickable;
     private AtomicBoolean reloadContributorClickable;
+    private AtomicBoolean reloadArticleClickable;
 
     private AtomicInteger atomicCommentCount;
 
@@ -87,6 +90,7 @@ public class TabArticlePanel {
 
         reloadCommentClickable = new AtomicBoolean(false);
         reloadContributorClickable = new AtomicBoolean(false);
+        reloadArticleClickable = new AtomicBoolean(false);
 
         atomicCommentCount = new AtomicInteger(0);
 
@@ -96,11 +100,7 @@ public class TabArticlePanel {
         middlePanel.requestFocusInWindow();
         leftPanel.requestFocusInWindow();
 
-        titleLabel.setText(article.getTitle());
-        createLabel.setText("Created at : " + TypeConverts.getTimeString(article.getCreated_at()));
-        updateLabel.setText("Last update : " + TypeConverts.getTimeString(article.getUpdated_at()));
-        statusLabel.setText("Status : " + (article.is_private() ? "Private" : "Public") + " / " + (article.is_released() ? "Published" : "Writing"));
-        contributorCountLabel.setText("Contributor count : " + article.getContributors().size());
+        setArticleInfo(article);
 
         populateContributors(article, paged);
         populateChat(article);
@@ -113,7 +113,7 @@ public class TabArticlePanel {
         DataHandler.getDataHandler().getUserAsync(article.getOwner().getId(), false, new DataListener<User>() {
             @Override
             public void onResult(ApiResponse<User> response) {
-                ownerPanel.add(new OneLineUserPanel(response.getData(), paged).getPanel());
+                setOwner(response.getData());
             }
         });
 
@@ -212,8 +212,7 @@ public class TabArticlePanel {
                 editWarnLabel.setText(articleEditDialog.getDialogMessage());
                 if (articleEditDialog.getSavedArticle() != null) {
                     TabArticlePanel.this.article = articleEditDialog.getSavedArticle();
-                    updateLabel.setText("Last update : " + TypeConverts.getTimeString(articleEditDialog.getSavedArticle().getUpdated_at()));
-                    updateLabel.invalidate();
+                    setArticleInfo(articleEditDialog.getSavedArticle());
                 }
             }
         });
@@ -246,6 +245,34 @@ public class TabArticlePanel {
                     reloadContributorClickable.set(false);
                     contributorPanel.removeAll();
                     populateContributors(TabArticlePanel.this.article, paged);
+                }
+            }
+        });
+
+        reloadArticleLabel.setIcon(new ImageIcon(Resources.getImage("reload.png", 20, 20)));
+        reloadArticleLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if(reloadArticleClickable.get()){
+                    reloadArticleClickable.set(false);
+                    DataHandler.getDataHandler().getArticleAsync(article.getId(), false, new DataListener<Article>() {
+                        @Override
+                        public void onStart() {
+                            articleInfoLabel.setText("Reloading ...");
+                        }
+                        @Override
+                        public void onException(Throwable t) {
+                            articleInfoLabel.setText("Something went wrong");
+                            reloadArticleClickable.set(true);
+                        }
+                        @Override
+                        public void onResult(ApiResponse<Article> response) {
+                            TabArticlePanel.this.article=response.getData();
+                            setArticleInfo(response.getData());
+                            reloadArticleClickable.set(true);
+                            articleInfoLabel.setText("Reloaded");
+                        }
+                    });
                 }
             }
         });
@@ -370,6 +397,19 @@ public class TabArticlePanel {
             });
             commentField.setText("");
         }
+    }
+
+    private void setOwner(User user){
+        ownerPanel.removeAll();
+        ownerPanel.add(new OneLineUserPanel(user,paged).getPanel());
+    }
+
+    private void setArticleInfo(Article article){
+        titleLabel.setText(article.getTitle());
+        createLabel.setText("Created at : " + TypeConverts.getTimeString(article.getCreated_at()));
+        updateLabel.setText("Last update : " + TypeConverts.getTimeString(article.getUpdated_at()));
+        statusLabel.setText("Status : " + (article.is_private() ? "Private" : "Public") + " / " + (article.is_released() ? "Published" : "Writing"));
+        contributorCountLabel.setText("Contributor count : " + article.getContributors().size());
     }
 
 
