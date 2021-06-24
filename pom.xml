@@ -12,11 +12,6 @@
     <name>InteractiveArticlePlatform</name>
     <description>Interactive Article Platform Desktop Application</description>
 
-    <properties>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.source>11</maven.compiler.source>
-    </properties>
-
     <modules>
         <module>InteractiveArticlePlatformWebService</module>
         <module>InteractiveArticlePlatformApi</module>
